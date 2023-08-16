@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_chromatofore/templates *
+recursive-include octoprint_chromatofore/translations *
+recursive-include octoprint_chromatofore/static *
