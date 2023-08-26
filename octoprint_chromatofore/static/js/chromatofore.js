@@ -6,6 +6,7 @@ function ChromatoforeViewModel(parameters) {
 
     console.log("Initializing ChromatoforeViewModel");
     console.log(parameters);
+    console.log("Post printing parameters");
     var self = this;
 
     self.settings = parameters[0];
