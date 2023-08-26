@@ -4,9 +4,13 @@ console.log("Entering chromatofore.js");
 
 function ChromatoforeViewModel(parameters) {
 
-    console.log("Initializing ChromatoforeViewModel");
-    console.log(parameters);
-    console.log("Post printing parameters");
+    try {
+        console.log("Initializing ChromatoforeViewModel");
+        console.log(parameters);
+        console.log("Post printing parameters");
+    } catch (error) {
+        console.error("Error during ChromatoforeViewModel instantiation:", error);
+    }
     var self = this;
 
     self.settings = parameters[0];
