@@ -6,6 +6,8 @@ function ChromatoforeViewModel(parameters) {
     var self = this;
 
     self.settings = parameters[0];
+    console.log("self.settings:", self.settings);
+
 
     self.gpio_boards = ko.observableArray(self.settings.plugins.chromatofore.gpio_boards());
     
