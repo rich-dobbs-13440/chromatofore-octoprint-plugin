@@ -5,7 +5,7 @@ console.log("Entering chromatofore.js");
 function ChromatoforeViewModel(parameters) {
 
     try {
-        console.log("Initializing ChromatoforeViewModel");
+        console.log("Initializing fff ChromatoforeViewModel");
         console.log(parameters);
         console.log("Post printing parameters");
     } catch (error) {
