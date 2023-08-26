@@ -20,7 +20,9 @@ class ChromatoforePlugin(octoprint.plugin.SettingsPlugin,
 
     def get_settings_defaults(self):
         return {
-            # put your plugin's default settings here
+            "gpio_boards": [],
+            "servo_driver_boards": [],
+            "actuators": []
         }
 
     ##~~ AssetPlugin mixin
@@ -55,6 +57,15 @@ class ChromatoforePlugin(octoprint.plugin.SettingsPlugin,
                 "pip": "https://github.com/rich-dobbs-13440/chromatofore-octoprint-plugin/archive/{target_version}.zip",
             }
         }
+    
+    def get_template_configs(self):
+        return [
+            {
+                "type": "settings",
+                "custom_bindings": False,
+                "template": "chromatofore_settings.jinja2"
+            }
+        ]    
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
