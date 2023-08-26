@@ -1,12 +1,14 @@
 // octoprint_chromatofore/static/js/chromatofore.js
 
-console.log("Initializing ChromatoforeViewModel");
+console.log("Entering chromatofore.js");
 
 function ChromatoforeViewModel(parameters) {
+
+    console.log("Initializing ChromatoforeViewModel");
     var self = this;
 
     self.settings = parameters[0];
-    console.log("self.settings:", self.settings);
+    
 
 
     self.gpio_boards = ko.observableArray(self.settings.plugins.chromatofore.gpio_boards());
