@@ -5,6 +5,7 @@ console.log("Entering chromatofore.js");
 function ChromatoforeViewModel(parameters) {
 
     console.log("Initializing ChromatoforeViewModel");
+    console.log(parameters);
     var self = this;
 
     self.settings = parameters[0];
