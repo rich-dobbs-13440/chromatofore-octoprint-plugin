@@ -17,13 +17,15 @@ function ChromatoforeViewModel(parameters) {
         self.gpio_boards.remove(board);
     };
 
-    // Register the ViewModel
-    OCTOPRINT_VIEWMODELS.push([
-        ChromatoforeViewModel,
-        ["settingsViewModel"],
-        "#settings_plugin_chromatofore"
-    ]);    
+   
 }
+
+// Register the ViewModel
+OCTOPRINT_VIEWMODELS.push([
+    ChromatoforeViewModel,
+    ["settingsViewModel"],
+    "#settings_plugin_chromatofore"
+]); 
 
 
 // $(function() {
