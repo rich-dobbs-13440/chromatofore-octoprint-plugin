@@ -1,5 +1,7 @@
 // octoprint_chromatofore/static/js/chromatofore.js
 
+console.log("Initializing ChromatoforeViewModel");
+
 function ChromatoforeViewModel(parameters) {
     var self = this;
 
@@ -26,5 +28,7 @@ OCTOPRINT_VIEWMODELS.push([
     ["settingsViewModel"],
     "#settings_plugin_chromatofore"
 ]); 
+
+console.log("Registered the ViewModel");
 
 
