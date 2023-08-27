@@ -6,7 +6,7 @@ $(function() {
 
         let self = this;
 
-        self.settings = parameters[0];
+        self.settings = parameters[0].settings;
 
 
         // Function to log the settings
