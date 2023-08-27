@@ -21,10 +21,12 @@ class ChromatoforePlugin(
                 return jsonify(valid=True)
             except:
                 return jsonify(valid=False, reason="Communication error")    
-"""             if validation_successful:
-                return octoprint.plugin.api.no_content()
-            else:
-                return octoprint.plugin.api.bad_request("Validation failed")     """
+            
+
+    # """             if validation_successful:
+    #             return octoprint.plugin.api.no_content()
+    #         else:
+    #             return octoprint.plugin.api.bad_request("Validation failed")     """
     
 
     # @octoprint.plugin.BlueprintPlugin.route("/validate_i2c", methods=["POST"])
