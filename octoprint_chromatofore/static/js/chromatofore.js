@@ -6,14 +6,14 @@ $(function() {
 
         let self = this;
 
-        self.settings = parameters[0].settings;
+        self.settings = parameters[0];
 
 
         // Function to log the settings
         self.logSettings = function() {
             console.log(self.settings);
             
-            console.log(self.settings.plugins.chromatofore);
+            //console.log(self.settings.plugins.chromatofore);
         };
 
         self.logSettings();
