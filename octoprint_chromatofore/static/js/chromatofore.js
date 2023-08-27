@@ -58,6 +58,9 @@ $(function() {
                 return gpioBoard.address();
             });
             console.log("Addresses within gpio_boards: ", addresses);
+
+            // Update the original settings with the new values
+            self.settingsViewModel.settings.plugins.chromatofore.gpio_boards(addresses);
         };
 
 
