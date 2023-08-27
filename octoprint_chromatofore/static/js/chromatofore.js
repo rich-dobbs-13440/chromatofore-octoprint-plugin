@@ -2,15 +2,22 @@
 
 $(function() {
 
+    // function GpioBoard(address) {
+    //     var self = this;
+    //     self.address = ko.observable(address);
+    //     self.addressInput = ko.observable("");  // for user input in hex
+
+    //     self.hexAddress = ko.computed(function() {
+    //         return "0x" + self.address().toString(16).toUpperCase().padStart(2, '0');
+    //     });        
+    // }
+
     function GpioBoard(address) {
         var self = this;
         self.address = ko.observable(address);
-        self.addressInput = ko.observable("");  // for user input in hex
-
-        self.hexAddress = ko.computed(function() {
-            return "0x" + self.address().toString(16).toUpperCase().padStart(2, '0');
-        });        
+        self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0')); 
     }
+    
 
     function ChromatoforeViewModel(parameters) {
 
