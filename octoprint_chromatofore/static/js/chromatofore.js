@@ -12,6 +12,7 @@ $(function() {
 
         // Function to log the settings
         self.logSettings = function() {
+            console.log(self.settingsViewModel);
             console.log(self.settings);
             
             //console.log(self.settings.plugins.chromatofore);
