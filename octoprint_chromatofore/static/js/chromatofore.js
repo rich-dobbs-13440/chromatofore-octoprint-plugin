@@ -66,7 +66,8 @@ $(function() {
 
         self.validateGpioBoard = function(address) {
             // This should make an AJAX request to your plugin's backend to verify the address.
-            OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: "0x22" })
+            console.log("address", address);
+            OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: "0x20" })
             .done(function(response) {
                 console.log("Got response from simpleApiCommand");
                 if (response.valid) {
