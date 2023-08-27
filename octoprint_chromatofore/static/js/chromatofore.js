@@ -45,6 +45,7 @@ $(function() {
             console.log("self.mySettings.gpio_boards()", self.mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
             //self.gpio_boards = ko.observableArray(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            var gpioAddresses = self.settingsViewModel.settings.plugins.chromatofore.gpio_boards();
             self.gpio_boards = ko.observableArray(gpioAddresses.map(function(address) {
                 return new GpioBoard(address);
             }));
