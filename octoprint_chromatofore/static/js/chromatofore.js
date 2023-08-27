@@ -22,6 +22,7 @@ $(function() {
         self.addGpioBoard = function() {
             console.log("Inside addGpioBoard");
             self.gpio_boards.push('0x2?');
+            console.log("self.gpio_boards :", self.gpio_boards);
         };
 
         self.removeGpioBoard = function(board) {
