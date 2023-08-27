@@ -16,8 +16,10 @@ $(function() {
 
         // This will be executed once OctoPrint initializes the view model
         self.onAfterBinding = function() {
+            console.log("Inside onAfterBinding");
             // Here, we fetch the plugin settings and assign them to our observables
             var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
+            console.log("pluginSettings:", pluginSettings);
             
             self.gpio_boards(pluginSettings.gpio_boards);
             self.servo_driver_boards(pluginSettings.servo_driver_boards);
