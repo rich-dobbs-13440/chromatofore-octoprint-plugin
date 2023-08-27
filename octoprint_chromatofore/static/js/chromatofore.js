@@ -4,7 +4,7 @@ $(function() {
 
     function ChromatoforeViewModel(parameters) {
 
-        let self = this;
+        var self = this;
 
         self.settingsViewModel = parameters[0];
         self.settings = self.settingsViewModel.settings;
