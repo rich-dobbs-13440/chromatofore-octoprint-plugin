@@ -2,6 +2,10 @@
 
 $(function() {
 
+    function GpioBoard(address) {
+        this.address = ko.observable(address);
+    }
+
     function ChromatoforeViewModel(parameters) {
 
         var self = this;
@@ -20,7 +24,7 @@ $(function() {
         self.addGpioBoard = function() {
             console.log("Inside addGpioBoard");
             console.log("Before adding: ", self.gpio_boards());
-            self.gpio_boards.push('0x2?');
+            self.gpio_boards.push(new GpioBoard('0x2?'));
             console.log("After adding: ", self.gpio_boards());
             console.log(self.gpio_boards());
         };
@@ -40,7 +44,10 @@ $(function() {
             self.mySettings = parameters[0].settings.plugins.chromatofore;
             console.log("self.mySettings.gpio_boards()", self.mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
-            self.gpio_boards = ko.observableArray(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            //self.gpio_boards = ko.observableArray(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            self.gpio_boards = ko.observableArray(gpioAddresses.map(function(address) {
+                return new GpioBoard(address);
+            }));
             console.log("self.gpio_boards() :", self.gpio_boards());
         };    
         
