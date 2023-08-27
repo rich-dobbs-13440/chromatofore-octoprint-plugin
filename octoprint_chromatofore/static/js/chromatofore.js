@@ -15,9 +15,9 @@ function ChromatoforeViewModel(parameters) {
 
     self.settings = parameters[0].settings;
     try {
-        console.log("plugins");
-        console.log(self.settings.plugins);
-        console.log("Post printing plugins");
+        console.log("chromatofore");
+        console.log(self.settings.chromatofore);
+        console.log("Post printing chromatofore");
     } catch (error) {
         console.error("Error during plugins logging", error);
     }
