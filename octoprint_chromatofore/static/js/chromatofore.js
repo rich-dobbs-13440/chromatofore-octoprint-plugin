@@ -5,12 +5,12 @@ console.log("Entering chromatofore.js");
 function ChromatoforeViewModel(parameters) {
 
     try {
-        console.log("Initializing hhh ChromatoforeViewModel");
+        console.log("Initializing iii ChromatoforeViewModel");
         console.log(parameters);
         console.log("Post printing parameters");
-        console.log(parameters[0].settings);
-        console.log(parameters[0].settings.plugins);
-        console.log("Post printing plugins");
+        // console.log(parameters[0].settings);
+        // console.log(parameters[0].settings.plugins);
+        // console.log("Post printing plugins");
     } catch (error) {
         console.error("Error during ChromatoforeViewModel instantiation:", error);
     }
@@ -18,9 +18,9 @@ function ChromatoforeViewModel(parameters) {
 
     self.settings = parameters[0].settings;
     try {
-        console.log("chromatofore");
-        console.log(self.settings.chromatofore);
-        console.log("Post printing chromatofore");
+        console.log("self.settings");
+        console.log(self.settings);
+        console.log("Post printing self.settings");
     } catch (error) {
         console.error("Error during plugins logging", error);
     }
