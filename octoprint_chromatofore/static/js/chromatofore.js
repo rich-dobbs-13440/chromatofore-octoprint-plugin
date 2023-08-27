@@ -6,6 +6,8 @@ $(function() {
 
         var self = this;
 
+        
+
         self.settingsViewModel = parameters[0];
 
         // KnockoutJS observable for your plugin's settings
