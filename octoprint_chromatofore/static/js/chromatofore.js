@@ -9,7 +9,7 @@ $(function() {
 
 
         self.settingsViewModel = parameters[0];
-        self.mySettings = parameters[0].settings.plugins.chromatofore;
+        //self.mySettings = parameters[0].settings.plugins.chromatofore;
 
         // KnockoutJS observable for your plugin's settings
         self.gpio_boards = ko.observableArray([]);
@@ -42,6 +42,7 @@ $(function() {
             console.log("Inside onBeforeBinding");
             //var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
             console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            self.mySettings = parameters[0].settings.plugins.chromatofore;
             console.log("mySettings.gpio_boards()", mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
             self.gpio_boards(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
