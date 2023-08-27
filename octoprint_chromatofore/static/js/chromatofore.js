@@ -54,8 +54,13 @@ $(function() {
         
         self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");
-            console.log("self.gpio_boards() :", self.gpio_boards());
+            var addresses = self.gpio_boards().map(function(gpioBoard) {
+                return gpioBoard.address();
+            });
+            console.log("Addresses within gpio_boards: ", addresses);
         };
+
+
         
     
     }
