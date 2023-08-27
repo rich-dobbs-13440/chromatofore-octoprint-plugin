@@ -32,8 +32,11 @@ $(function() {
         // gets called _after_ the settings have been retrieved from the OctoPrint backend and thus
         // the SettingsViewModel been properly populated.
         self.onBeforeBinding = function() {
+            console.log("Inside onBeforeBinding");
             var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
+            console.log("pluginSettings:", pluginSettings);
             self.gpio_boards(pluginSettings.gpio_boards);
+            console.log("self.gpio_boards :", self.gpio_boards);
         }        
         
 
