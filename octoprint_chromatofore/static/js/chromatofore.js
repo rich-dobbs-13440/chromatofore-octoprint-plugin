@@ -13,8 +13,7 @@ $(function() {
         self.logSettings = function() {
             console.log(self.settings);
             
-            // Assuming your plugin's identifier in Python is "your_plugin_name"
-            console.log(self.settings.plugins.your_plugin_name);
+            console.log(self.settings.plugins.chromatofore);
         };
 
         self.logSettings();
@@ -31,5 +30,7 @@ $(function() {
 
 
 });
+
+console.log("Exit chromatofore.js")
 
 
