@@ -11,7 +11,8 @@ from __future__ import absolute_import
 
 import octoprint.plugin
 
-class ChromatoforePlugin(octoprint.plugin.SettingsPlugin,
+class ChromatoforePlugin(
+    octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.TemplatePlugin
 ):

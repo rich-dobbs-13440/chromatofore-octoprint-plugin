@@ -13,7 +13,7 @@ function ChromatoforeViewModel(parameters) {
     }
     var self = this;
 
-    self.settings = parameters[0];
+    self.settings = parameters[0].settings;
     
 
 
