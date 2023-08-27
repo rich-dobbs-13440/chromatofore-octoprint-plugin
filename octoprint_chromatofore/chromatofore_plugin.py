@@ -1,4 +1,5 @@
 import octoprint.plugin
+from smbus2 import SMBus
 
 class ChromatoforePlugin(
     octoprint.plugin.StartupPlugin,
@@ -6,24 +7,42 @@ class ChromatoforePlugin(
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.TemplatePlugin,
     octoprint.plugin.SimpleApiPlugin):
+
+    def on_api_command(self, command, data):
+        if command == "validate_i2c":
+            address = data.get("address")
+            if address is None:
+                return jsonify(valid=False, reason="Invalid address")
+
+            try:
+                with SMBus(1) as bus:  # 1 is the I2C bus number, adjust if needed
+                    # Simple check, adjust based on your board specifics
+                    bus.write_quick(address)
+                return jsonify(valid=True)
+            except:
+                return jsonify(valid=False, reason="Communication error")    
+"""             if validation_successful:
+                return octoprint.plugin.api.no_content()
+            else:
+                return octoprint.plugin.api.bad_request("Validation failed")     """
     
 
-    @octoprint.plugin.BlueprintPlugin.route("/validate_i2c", methods=["POST"])
-    def validate_i2c(self):
-        from smbus2 import SMBus
+    # @octoprint.plugin.BlueprintPlugin.route("/validate_i2c", methods=["POST"])
+    # def validate_i2c(self):
+    #     from smbus2 import SMBus
 
-        address = self._get_post_parameter("address", int)
+    #     address = self._get_post_parameter("address", int)
         
-        if address is None:
-            return jsonify(valid=False, reason="Invalid address")
+    #     if address is None:
+    #         return jsonify(valid=False, reason="Invalid address")
 
-        try:
-            with SMBus(1) as bus:  # 1 is the I2C bus number, adjust if needed
-                # Simple check, adjust based on your board specifics
-                bus.write_quick(address)
-            return jsonify(valid=True)
-        except:
-            return jsonify(valid=False, reason="Communication error")    
+    #     try:
+    #         with SMBus(1) as bus:  # 1 is the I2C bus number, adjust if needed
+    #             # Simple check, adjust based on your board specifics
+    #             bus.write_quick(address)
+    #         return jsonify(valid=True)
+    #     except:
+    #         return jsonify(valid=False, reason="Communication error")    
     
 
     ##~~ SettingsPlugin mixin
