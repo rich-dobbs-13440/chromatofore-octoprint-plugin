@@ -44,7 +44,7 @@ $(function() {
             console.log("self.gpio_boards() :", self.gpio_boards());
         };    
         
-        self.onSettingsBeforeSave() = function() {
+        self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");
             console.log("self.gpio_boards() :", self.gpio_boards());
         };
