@@ -6,9 +6,10 @@ $(function() {
 
         var self = this;
 
+        self.settings = parameters[0].settings;
         self.settingsViewModel = parameters[0];
-        self.settings = self.settingsViewModel.settings;
-
+        //self.settings = self.settingsViewModel.settings;
+        
 
         // Function to log the settings
         self.logSettings = function() {
