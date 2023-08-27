@@ -21,7 +21,7 @@ class ChromatoforePlugin(
 
     def get_settings_defaults(self):
         return {
-            "gpio_boards": [],
+            "gpio_boards": [0x20, 0x21, 0x22, 0x23, 0x24],
             "servo_driver_boards": [],
             "actuators": []
         }
