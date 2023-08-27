@@ -10,16 +10,16 @@ class ChromatoforePlugin(
     octoprint.plugin.SimpleApiPlugin):
 
     def get_api_commands(self):
-        return dict(
-            validate_i2c=["address"],
-        )    
+        return {
+            "validate_i2c": ["address"]
+        }
 
     def on_api_command(self, command, data):
         if command == "validate_i2c":
             self._logger.info("In command validate_i2c")
             address = data.get("address")
             if address is None:
-                return jsonify(valid=False, reason="Invalid address")
+                return flask.jsonify(valid=False, reason="Invalid address")
             
             try:
                 with SMBus(1) as bus:  # 1 is the I2C bus number, adjust if needed
