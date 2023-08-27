@@ -5,7 +5,7 @@ console.log("Entering chromatofore.js");
 function ChromatoforeViewModel(parameters) {
 
     try {
-        console.log("Initializing fff ChromatoforeViewModel");
+        console.log("Initializing ggg ChromatoforeViewModel");
         console.log(parameters);
         console.log("Post printing parameters");
     } catch (error) {
@@ -14,6 +14,13 @@ function ChromatoforeViewModel(parameters) {
     var self = this;
 
     self.settings = parameters[0].settings;
+    try {
+        console.log("plugins");
+        console.log(self.settings.plugins);
+        console.log("Post printing plugins");
+    } catch (error) {
+        console.error("Error during plugins logging", error);
+    }
 
     self.gpio_boards = ko.observableArray(self.settings.plugins.chromatofore.gpio_boards);
     
