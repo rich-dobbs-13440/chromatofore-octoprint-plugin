@@ -12,24 +12,38 @@ $(function() {
         self.gpio_boards = ko.observableArray([]);
         self.servo_driver_boards = ko.observableArray([]);
         self.actuators = ko.observableArray([]);
+
+        // Load initial data from settings
+        if(parameters[0] && parameters[0].settings && parameters[0].settings.plugins && parameters[0].settings.plugins.chromatofore && parameters[0].settings.plugins.chromatofore.gpio_boards) {
+            self.gpio_boards(parameters[0].settings.plugins.chromatofore.gpio_boards());
+        }
+
+        // Operations
+        self.addGpioBoard = function() {
+            self.gpio_boards.push('');
+        };
+
+        self.removeGpioBoard = function(board) {
+            self.gpio_boards.remove(board);
+        };        
         
 
-        // This will be executed once OctoPrint initializes the view model
-        self.onAfterBinding = function() {
-            console.log("Inside onAfterBinding");
-            // Here, we fetch the plugin settings and assign them to our observables
-            var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
-            console.log("pluginSettings:", pluginSettings);
+        // // This will be executed once OctoPrint initializes the view model
+        // self.onAfterBinding = function() {
+        //     console.log("Inside onAfterBinding");
+        //     // Here, we fetch the plugin settings and assign them to our observables
+        //     var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
+        //     console.log("pluginSettings:", pluginSettings);
             
-            self.gpio_boards(pluginSettings.gpio_boards);
-            self.servo_driver_boards(pluginSettings.servo_driver_boards);
-            self.actuators(pluginSettings.actuators);
+        //     self.gpio_boards(pluginSettings.gpio_boards);
+        //     self.servo_driver_boards(pluginSettings.servo_driver_boards);
+        //     self.actuators(pluginSettings.actuators);
 
-            // For debugging purposes
-            console.log(self.gpio_boards());
-            console.log(self.servo_driver_boards());
-            console.log(self.actuators());
-        };
+        //     // For debugging purposes
+        //     console.log(self.gpio_boards());
+        //     console.log(self.servo_driver_boards());
+        //     console.log(self.actuators());
+        // };
 
 
     
