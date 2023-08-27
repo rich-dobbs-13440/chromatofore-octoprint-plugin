@@ -5,9 +5,12 @@ console.log("Entering chromatofore.js");
 function ChromatoforeViewModel(parameters) {
 
     try {
-        console.log("Initializing ggg ChromatoforeViewModel");
+        console.log("Initializing hhh ChromatoforeViewModel");
         console.log(parameters);
         console.log("Post printing parameters");
+        console.log(parameters[0].settings);
+        console.log(parameters[0].settings.plugins);
+        console.log("Post printing plugins");
     } catch (error) {
         console.error("Error during ChromatoforeViewModel instantiation:", error);
     }
