@@ -3,9 +3,10 @@
 $(function() {
 
     function GpioBoard(address) {
-        this.address = ko.observable(address);
+        var self = this;
+        self.address = ko.observable(address);
 
-        this.hexAddress = ko.computed(function() {
+        self.hexAddress = ko.computed(function() {
             return "0x" + self.address().toString(16).toUpperCase().padStart(2, '0');
         });        
     }
@@ -13,8 +14,6 @@ $(function() {
     function ChromatoforeViewModel(parameters) {
 
         var self = this;
-
-
 
         self.settingsViewModel = parameters[0];
 
