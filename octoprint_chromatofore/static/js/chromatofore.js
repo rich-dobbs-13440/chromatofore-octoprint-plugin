@@ -22,7 +22,7 @@ $(function() {
         self.addGpioBoard = function() {
             console.log("Inside addGpioBoard");
             self.gpio_boards.push('0x2?');
-            console.log("self.gpio_boards :", self.gpio_boards);
+            console.log("self.gpio_boards :", self.gpio_boards());
         };
 
         self.removeGpioBoard = function(board) {
@@ -38,7 +38,7 @@ $(function() {
             var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
             console.log("pluginSettings:", pluginSettings);
             self.gpio_boards(pluginSettings.gpio_boards);
-            console.log("self.gpio_boards :", self.gpio_boards);
+            console.log("self.gpio_boards :", self.gpio_boards());
         }        
     
     }
