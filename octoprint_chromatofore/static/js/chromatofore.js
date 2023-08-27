@@ -6,7 +6,8 @@ $(function() {
 
         let self = this;
 
-        self.settings = parameters[0];
+        self.settingsViewModel = parameters[0];
+        self.settings = self.settingsViewModel.settings;
 
 
         // Function to log the settings
