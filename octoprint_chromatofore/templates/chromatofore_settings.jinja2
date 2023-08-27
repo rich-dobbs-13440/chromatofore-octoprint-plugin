@@ -4,10 +4,27 @@
     <h4>Chromatofore Filament Changer Settings</h4>
     
     <h5>GPIO Board Addresses</h5>
-    <div data-bind="foreach: gpio_boards">
-        <input type="text" data-bind="value: address" placeholder="Enter GPIO board address (in hex)">
-        <button data-bind="click: $parent.removeGpioBoard">Remove</button>
-        <button data-bind="click: function(){ $parent.validateGpioBoard(address) }">Validate</button>
-    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: gpio_boards">
+            <tr>
+                <td>
+                    <input type="text" data-bind="value: address" placeholder="Enter GPIO board address (in hex)">
+                </td>
+                <td>
+                    <button data-bind="click: $parent.removeGpioBoard">Remove</button>
+                    <button data-bind="click: function(){ $parent.validateGpioBoard(address) }">Validate</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
     <button data-bind="click: addGpioBoard">Add GPIO Board</button>
+
 </div>
