@@ -11,9 +11,9 @@ $(function() {
         self.settingsViewModel = parameters[0];
 
         // KnockoutJS observable for your plugin's settings
-        self.gpio_boards = ko.observableArray([]);
-        self.servo_driver_boards = ko.observableArray([]);
-        self.actuators = ko.observableArray([]);
+        //self.gpio_boards = ko.observableArray([]);
+        //self.servo_driver_boards = ko.observableArray([]);
+        //self.actuators = ko.observableArray([]);
 
 
         // Operations
@@ -40,7 +40,7 @@ $(function() {
             self.mySettings = parameters[0].settings.plugins.chromatofore;
             console.log("self.mySettings.gpio_boards()", self.mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
-            self.gpio_boards(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            self.gpio_boards = ko.observableArray(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             console.log("self.gpio_boards() :", self.gpio_boards());
         };    
         
