@@ -43,7 +43,7 @@ $(function() {
             //var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
             console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             self.mySettings = parameters[0].settings.plugins.chromatofore;
-            console.log("mySettings.gpio_boards()", mySettings.gpio_boards());
+            console.log("self.mySettings.gpio_boards()", self.mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
             self.gpio_boards(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             console.log("self.gpio_boards() :", self.gpio_boards());
