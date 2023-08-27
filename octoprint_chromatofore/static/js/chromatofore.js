@@ -4,6 +4,10 @@ $(function() {
 
     function GpioBoard(address) {
         this.address = ko.observable(address);
+
+        this.hexAddress = ko.computed(function() {
+            return "0x" + self.address().toString(16).toUpperCase().padStart(2, '0');
+        });        
     }
 
     function ChromatoforeViewModel(parameters) {
@@ -14,17 +18,9 @@ $(function() {
 
         self.settingsViewModel = parameters[0];
 
-        // KnockoutJS observable for your plugin's settings
-        //self.gpio_boards = ko.observableArray([]);
-        //self.servo_driver_boards = ko.observableArray([]);
-        //self.actuators = ko.observableArray([]);
-
-
         // Operations
         self.addGpioBoard = function() {
-            console.log("Inside addGpioBoard");
-            console.log("Before adding: ", self.gpio_boards());
-            self.gpio_boards.push(new GpioBoard('0x2?'));
+            self.gpio_boards.push(new GpioBoard(0x20));
             console.log("After adding: ", self.gpio_boards());
             console.log(self.gpio_boards());
         };
@@ -67,7 +63,7 @@ $(function() {
         self.validateGpioBoard = function(address) {
             // This should make an AJAX request to your plugin's backend to verify the address.
             console.log("address", address());
-            OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: "0x20" })
+            OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address() })
             .done(function(response) {
                 console.log("Got response from simpleApiCommand");
                 if (response.valid) {

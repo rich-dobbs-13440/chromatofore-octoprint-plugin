@@ -28,37 +28,14 @@ class ChromatoforePlugin(
                 return flask.jsonify(valid=True)
             except:
                 return flask.jsonify(valid=False, reason="Communication error")    
-            
-
-    # """             if validation_successful:
-    #             return octoprint.plugin.api.no_content()
-    #         else:
-    #             return octoprint.plugin.api.bad_request("Validation failed")     """
-    
-
-    # @octoprint.plugin.BlueprintPlugin.route("/validate_i2c", methods=["POST"])
-    # def validate_i2c(self):
-    #     from smbus2 import SMBus
-
-    #     address = self._get_post_parameter("address", int)
         
-    #     if address is None:
-    #         return jsonify(valid=False, reason="Invalid address")
-
-    #     try:
-    #         with SMBus(1) as bus:  # 1 is the I2C bus number, adjust if needed
-    #             # Simple check, adjust based on your board specifics
-    #             bus.write_quick(address)
-    #         return jsonify(valid=True)
-    #     except:
-    #         return jsonify(valid=False, reason="Communication error")    
     
 
     ##~~ SettingsPlugin mixin
 
     def get_settings_defaults(self):
         return {
-            "gpio_boards": ["0x20", "0x21", "0x22", "0x23", "0x24"],
+            "gpio_boards": [0x20, 0x21, 0x22, 0x23, 0x24],
             "servo_driver_boards": [],
             "actuators": []
         }

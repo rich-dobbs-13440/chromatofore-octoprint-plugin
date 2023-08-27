@@ -15,7 +15,7 @@
         <tbody data-bind="foreach: gpio_boards">
             <tr>
                 <td>
-                    <input type="text" data-bind="value: address" placeholder="Enter GPIO board address (in hex)">
+                    <input type="text" data-bind="text: hexAddress" placeholder="Enter GPIO board address (in hex)">
                 </td>
                 <td>
                     <button data-bind="click: $parent.removeGpioBoard">Remove</button>
