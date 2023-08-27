@@ -7,6 +7,7 @@
     <div data-bind="foreach: gpio_boards">
         <input type="text" data-bind="value: address" placeholder="Enter GPIO board address (in hex)">
         <button data-bind="click: $parent.removeGpioBoard">Remove</button>
+        <button data-bind="click: function(){ $parent.validateGpioBoard(address) }">Validate</button>
     </div>
     <button data-bind="click: addGpioBoard">Add GPIO Board</button>
 </div>
