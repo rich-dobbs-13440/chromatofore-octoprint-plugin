@@ -5,6 +5,7 @@ $(function() {
     function GpioBoard(address) {
         var self = this;
         self.address = ko.observable(address);
+        self.addressInput = ko.observable("");  // for user input in hex
 
         self.hexAddress = ko.computed(function() {
             return "0x" + self.address().toString(16).toUpperCase().padStart(2, '0');
@@ -40,10 +41,18 @@ $(function() {
             console.log("self.mySettings.gpio_boards()", self.mySettings.gpio_boards());
             //console.log("pluginSettings:", pluginSettings);
             //self.gpio_boards = ko.observableArray(self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            // var gpioAddresses = self.settingsViewModel.settings.plugins.chromatofore.gpio_boards();
+            // self.gpio_boards = ko.observableArray(gpioAddresses.map(function(address) {
+            //     return new GpioBoard(address);
+            // }));
+
             var gpioAddresses = self.settingsViewModel.settings.plugins.chromatofore.gpio_boards();
             self.gpio_boards = ko.observableArray(gpioAddresses.map(function(address) {
-                return new GpioBoard(address);
+                var board = new GpioBoard(address);
+                board.addressInput("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
+                return board;
             }));
+            
             console.log("self.gpio_boards() :", self.gpio_boards());
         };    
         
@@ -75,6 +84,19 @@ $(function() {
                 console.log("Got fail from simpleApiCommand");
             });
         }
+
+        self.updateAddressFromInput = function(gpioBoard) {
+            var inputValue = gpioBoard.addressInput();
+            var intValue = parseInt(inputValue, 16);
+            
+            if (!isNaN(intValue) && intValue >= 0x00 && intValue <= 0x7F) {
+                gpioBoard.address(intValue);
+                gpioBoard.addressInput("0x" + intValue.toString(16).toUpperCase().padStart(2, '0'));  // this updates the input field with the formatted hex
+            } else {
+                // Handle invalid input, possibly reset to previous value or show an error
+                gpioBoard.addressInput("0x" + gpioBoard.address().toString(16).toUpperCase().padStart(2, '0'));
+            }
+        };
 
 
         
