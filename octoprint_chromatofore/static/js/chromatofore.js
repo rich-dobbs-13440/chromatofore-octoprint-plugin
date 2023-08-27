@@ -6,20 +6,29 @@ $(function() {
 
         var self = this;
 
-        self.settings = parameters[0].settings();
         self.settingsViewModel = parameters[0];
-        //self.settings = self.settingsViewModel.settings;
+
+        // KnockoutJS observable for your plugin's settings
+        self.gpio_boards = ko.observableArray([]);
+        self.servo_driver_boards = ko.observableArray([]);
+        self.actuators = ko.observableArray([]);
         
 
-        // Function to log the settings
-        self.logSettings = function() {
-            console.log(self.settingsViewModel);
-            console.log(self.settings);
+        // This will be executed once OctoPrint initializes the view model
+        self.onAfterBinding = function() {
+            // Here, we fetch the plugin settings and assign them to our observables
+            var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
             
-            //console.log(self.settings.plugins.chromatofore);
+            self.gpio_boards(pluginSettings.gpio_boards);
+            self.servo_driver_boards(pluginSettings.servo_driver_boards);
+            self.actuators(pluginSettings.actuators);
+
+            // For debugging purposes
+            console.log(self.gpio_boards());
+            console.log(self.servo_driver_boards());
+            console.log(self.actuators());
         };
 
-        self.logSettings();
 
     
     }
