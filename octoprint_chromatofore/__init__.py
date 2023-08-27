@@ -63,7 +63,7 @@ class ChromatoforePlugin(
         return [
             {
                 "type": "settings",
-                "custom_bindings": False,
+                "custom_bindings": True,
                 "template": "chromatofore_settings.jinja2"
             }
         ]    

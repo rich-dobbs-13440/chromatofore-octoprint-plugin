@@ -38,26 +38,6 @@ $(function() {
             self.gpio_boards(pluginSettings.gpio_boards);
             console.log("self.gpio_boards :", self.gpio_boards);
         }        
-        
-
-        // // This will be executed once OctoPrint initializes the view model
-        // self.onAfterBinding = function() {
-        //     console.log("Inside onAfterBinding");
-        //     // Here, we fetch the plugin settings and assign them to our observables
-        //     var pluginSettings = self.settingsViewModel.settings.plugins.chromatofore;
-        //     console.log("pluginSettings:", pluginSettings);
-            
-        //     self.gpio_boards(pluginSettings.gpio_boards);
-        //     self.servo_driver_boards(pluginSettings.servo_driver_boards);
-        //     self.actuators(pluginSettings.actuators);
-
-        //     // For debugging purposes
-        //     console.log(self.gpio_boards());
-        //     console.log(self.servo_driver_boards());
-        //     console.log(self.actuators());
-        // };
-
-
     
     }
 
