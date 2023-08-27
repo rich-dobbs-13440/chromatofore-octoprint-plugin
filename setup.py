@@ -11,14 +11,14 @@ plugin_package = "octoprint_chromatofore"
 
 # The plugin's human readable name. Can be overwritten within OctoPrint's internal data via __plugin_name__ in the
 # plugin module
-plugin_name = "OctoPrint-Chromatofore"
+plugin_name = "Chromatofore Filament Changer" #"OctoPrint-Chromatofore"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.1.33"
+plugin_version = "0.1.34"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = """Octopi plug-in for the Chromatofore filament changer."""
+plugin_description = """OctoPrint plug-in for the Chromatofore filament changer."""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "Rich Dobbs"
