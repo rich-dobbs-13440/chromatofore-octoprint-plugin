@@ -10,7 +10,7 @@ from __future__ import absolute_import
 # Take a look at the documentation on what other plugin mixins are available.
 
 from .chromatofore_plugin import ChromatoforePlugin
-
+from .filament_sensors import FilamentSensors
    
 
 

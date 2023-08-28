@@ -1,6 +1,9 @@
 import octoprint.plugin
 from smbus2 import SMBus
 import flask
+from http import HTTPStatus
+
+from filament_sensors import FilamentSensors
 
 class ChromatoforePlugin(
     octoprint.plugin.StartupPlugin,
@@ -9,9 +12,19 @@ class ChromatoforePlugin(
     octoprint.plugin.TemplatePlugin,
     octoprint.plugin.SimpleApiPlugin):
 
+    def __init__(self):
+        self.filament_sensors = FilamentSensors(i2c_address=0x21)
+
+    def on_after_startup(self):
+        self.filament_sensors.start()    
+
+    def on_shutdown(self):
+        self.filament_sensors.stop()            
+
     def get_api_commands(self):
         return {
-            "validate_i2c": ["address"]
+            "validate_i2c": ["address"],
+            "is_filament_sensed": ["pin"],
         }
 
     def on_api_command(self, command, data):
@@ -27,7 +40,18 @@ class ChromatoforePlugin(
                     bus.write_quick(address)
                 return flask.jsonify(valid=True)
             except:
-                return flask.jsonify(valid=False, reason="Communication error")    
+                return flask.jsonify(valid=False, reason="Address not found")   
+        elif command == "is_filament_sensed":
+            self._logger.info("In command is_filament_sensed")
+            pin_str = data.get("pin")
+            if not pin_str:
+                return flask.jsonify(success=False, reason="Missing pin parameter"), HTTPStatus.BAD_REQUEST
+            try:
+                pin = int(pin_str)
+            except ValueError:
+                return flask.jsonify(success=False, reason="Invalid pin parameter"), HTTPStatus.BAD_REQUEST
+            return flask.jsonify(self.filament_sensors.get_pin_value(pin))
+
         
     
 
