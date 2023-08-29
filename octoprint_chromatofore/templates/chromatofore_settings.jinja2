@@ -3,7 +3,9 @@
 <div>
     <h4>Chromatofore Filament Changer Settings</h4>
     
-    <h5>GPIO Board Addresses</h5>
+    <h5>PCF8574 8 Channel GPIO Board Addresses</h5>
+
+    <div> These boards are used to sense limit switches used for end stops and filament detectors </div>
 
     <table>
         <thead>
@@ -12,19 +14,93 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: gpio_boards">
+        <tbody data-bind="foreach: gpioBoards">
             <tr>
                 <td>
-                    <input type="text" data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter GPIO board address (in hex)">
+                    <input type="text" data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
                 </td>
                 <td>
                     <button data-bind="click: $parent.removeGpioBoard">Remove</button>
-                    <button data-bind="click: function(){ $parent.validateGpioBoard(address) }">Validate</button>
+                    <button data-bind="click: function(){ $parent.validateI2cBoard(address) }">Validate</button>
                 </td>
             </tr>
         </tbody>
     </table>
 
     <button data-bind="click: addGpioBoard">Add GPIO Board</button>
+
+    <h5>PCA9685 16 Channel PWM Driver Board Addresses</h5>
+    <div> These boards are used to control hobby servos used to clamp and push filament. </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: servoBoards">
+            <tr>
+                <td>
+                    <input type="text" data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
+                </td>
+                <td>
+                    <button data-bind="click: $parent.removeServoBoard">Remove</button>
+                    <button data-bind="click: function(){ $parent.validateI2cBoard(address) }">Validate</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button data-bind="click: addServoBoard">Add Servo Board</button>
+
+    <h5>Earwig Filament Actuators</h5>
+    <div>The actuators can load and unload filament from the 3d printer.  
+        This requires the extruder to be disenaged.  
+        Unloading filament requires the hot end to be at temperature.</div>
+
+    <table> 
+        <thead> 
+            <tr> 
+                <th>Name</th> 
+                <th>Component</th> 
+                <th>Board</th> 
+                <th>Channel</th> 
+                <th>Minimum</th> 
+                <th>Maximum/th> 
+                <th>Actions</th> 
+            </tr> 
+        </thead> 
+        <tbody data-bind="foreach: actuators"> 
+            <tr>
+                <td><input type="text" data-bind="textInput: id" placeholder="Id"></tr> 
+            <tr> 
+                <td>Pusher Servo</td> 
+                <td><input type="text" data-bind="textInput: pusher.board" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: pusher.channel" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: pusher.min_angle" placeholder="Pusher miniumn angle"></td> 
+                <td><input type="text" data-bind="textInput: pusher.max_angle" placeholder="Pusher miniumn angle"></td> 
+            </tr> 
+
+            <tr> 
+                <td>Moving Clamp Servo</td> 
+                <td><input type="text" data-bind="textInput: moving_clamp.board" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: moving_clamp.channel" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: moving_clamp.min_angle" placeholder="Pusher miniumn angle"></td> 
+                <td><input type="text" data-bind="textInput: moving_clamp.max_angle" placeholder="Pusher miniumn angle"></td> 
+            </tr>              
+
+            <tr> 
+                <td>Fixed Clamp Servo</td> 
+                <td><input type="text" data-bind="textInput: fixed_clampboard" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: fixed_clampchannel" placeholder="Pusher board"></td> 
+                <td><input type="text" data-bind="textInput: fixed_clamp.min_angle" placeholder="Pusher miniumn angle"></td> 
+                <td><input type="text" data-bind="textInput: fixed_clamp.max_angle" placeholder="Pusher miniumn angle"></td> 
+            </tr>   
+
+                     
+        </tbody> 
+    </table>    
+
 
 </div>

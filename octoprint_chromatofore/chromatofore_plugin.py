@@ -17,6 +17,7 @@ def jsonify_no_cache(status, **kwargs):
 
 class ChromatoforePlugin(
     octoprint.plugin.StartupPlugin,
+    octoprint.plugin.ShutdownPlugin,
     octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.TemplatePlugin,
@@ -26,10 +27,13 @@ class ChromatoforePlugin(
         self.filament_sensors = FilamentSensors(i2c_address=0x21)
 
     def on_after_startup(self):
+        self._logger.info("In on_after_startup")
         self.filament_sensors.start()    
 
     def on_shutdown(self):
-        self.filament_sensors.stop()            
+        self._logger.info("In on_shutdown")
+        self.filament_sensors.stop()
+        self._logger.info("Leaving on_shutdown")            
 
     def get_api_commands(self):
         return {
@@ -63,7 +67,7 @@ class ChromatoforePlugin(
                 pin = int(pin_str)
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid pin parameter"), 
-            return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=not self.filament_sensors.get_pin_value(pin))
+            return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=self.filament_sensors.is_filament_sensed(pin))
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
 
@@ -84,9 +88,18 @@ class ChromatoforePlugin(
 
     def get_settings_defaults(self):
         return {
-            "gpio_boards": [0x20, 0x21, 0x22, 0x23, 0x24],
-            "servo_driver_boards": [],
-            "actuators": []
+            "gpio_boards": [0x20, 0x21],
+            "servo_driver_boards": [0x40],
+            "actuators": [
+                    {
+                        "id": "black_wire",
+                        "pusher": {"board": 0x40, "channel": 0x0, "min_angle":0, "max_angle":180},
+                        "moving_clamp": {"board": 0x40, "channel": 0x2, "min_angle":0, "max_angle":180},
+                        "fixed_clamp": {"board": 0x40, "channel": 0x1, "min_angle":0, "max_angle":180},
+                        "pusher_limit_switch": {"board": 0x20, "channel": 0x0},
+                        "filament_sensor": {"board": 0x21, "channel": 0x0},
+                    },
+                ],
         }
 
     ##~~ AssetPlugin mixin

@@ -4,6 +4,23 @@ micro limit switches and led's.
 The limit switches and leds are attached to PCA8574 breakout board.  This breakout board both drives the LEDs as well as sensing the
 limit switches.  The LED's should be lit if the limit switch is triggered (indicating the prescense of filament).
 
+The PCF8574 has quasi-bidirectional I/O ports. When you want to set a pin as an input, you write a 1 to that pin. 
+This puts the pin in a high-impedance state, meaning the PCF8574 won't actively drive the pin high or low; 
+it'll effectively "disconnect" from the pin and just listen to whatever voltage is on it. This high-impedance state 
+is often termed as "floating" in digital electronics. A floating pin can be driven to either high or low by 
+an external device, in this case, the microswitch.
+
+
+Now, considering the wiring of the switch:
+
+When the microswitch is not activated: The switch is open. Since you've set the PCF8574's pin to input (high-impedance) by writing a 1, 
+the pin just sees the VCC voltage (through the resistor and LED), so it reads as HIGH.
+
+When the microswitch is activated: The switch connects the LED's anode (and the attached pin) to GND. 
+Thus, the LED lights up, and the PCF8574's pin reads a LOW because it's directly connected to ground.
+
+Consequently, the filament is sensed when the pin value is false.
+
 
 '''
 
@@ -27,9 +44,9 @@ class FilamentSensors :
             return self.input_value;
 
 
-    def get_pin_value(self, pin: int) -> bool:
+    def is_filament_sensed(self, pin: int) -> bool:
             with self.input_lock:
-                return bool(self.input_value & (1 << pin))        
+                return not bool(self.input_value & (1 << pin))        
 
 
     # Configure ports for input mode by writing all "1"'s to the addressed device port
