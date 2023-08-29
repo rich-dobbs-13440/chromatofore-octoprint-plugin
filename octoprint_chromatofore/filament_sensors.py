@@ -12,14 +12,20 @@ import threading
 import time
 
 class FilamentSensors :
-    def __init__(self, i2c_address: int, refresh_seconds: float = 0.1, bus_number: int = 1):
+    def __init__(self, i2c_address: int, refresh_seconds: float = 0.5, bus_number: int = 1):
         self.i2c_address = i2c_address;
-        self.bus = smbus2.SMBus(bus_number)  # Use bus number 1 for Raspberry Pi 3 and newer
+        self.bus = SMBus(bus_number)  # Use bus number 1 for Raspberry Pi 3 and newer
         self.running = False
         self.thread = None
         self.refresh_seconds = refresh_seconds
         self.input_value = 0;
         self.input_lock = threading.Lock()
+
+
+    def get_input(self) -> int:
+        with self.input_lock:
+            return self.input_value;
+
 
     def get_pin_value(self, pin: int) -> bool:
             with self.input_lock:
@@ -31,11 +37,11 @@ class FilamentSensors :
         self.bus.write_byte(self.i2c_address, 0xFF)  # set ports high for input mode    
 
     def read_inputs(self) -> int:
-        data_in = self.bus.read_byte(self.address)
+        data_in = self.bus.read_byte(self.i2c_address)
         return data_in  
 
     def update_outputs(self, value: int):
-        self.bus.write_byte(self.address, value)              
+        self.bus.write_byte(self.i2c_address, value)              
 
     def start(self):
         if not self.running:
@@ -49,11 +55,11 @@ class FilamentSensors :
             self.thread.join()     
 
     def _run_loop(self):
-        self.configure_inputs()
+        
         while self.running:
+            self.configure_inputs();
             with self.input_lock:
                 self.input_value = self.read_inputs()            
-            self.input_value = self.read_inputs()
-            self.update_outputs(self.input_value)
+            #self.update_outputs(self.input_value)
             time.sleep(self.refresh_seconds)               
 
