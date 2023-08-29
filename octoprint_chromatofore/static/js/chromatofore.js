@@ -2,6 +2,50 @@
 
 $(function() {
 
+    function toI2cAddress(value) {
+        return "0x" + value.toString(16).toUpperCase().padStart(2, '0');
+    }
+
+    function containsBoardWithAddress(array, address) {
+        return array.some(function(board) {
+            return ko.unwrap(board.address) === address; // ko.unwrap ensures that if it's an observable, you get the underlying value.
+        });
+    }
+
+    function sortServoBoards(servoBoards) {
+        servoBoards.sort(function(a, b) {
+            // Convert hexadecimal strings to integers for comparison
+            var addressA = parseInt(ko.unwrap(a.address), 16);
+            var addressB = parseInt(ko.unwrap(b.address), 16);
+    
+            return addressA - addressB;  // Sort in ascending order
+        });
+    }
+
+    function findNextAvailableAddress(boardsArray, baseAddress) {
+        var currentAddress = baseAddress;
+    
+        // Convert hex string to integer, e.g., "0x40" -> 64
+        while (containsBoardWithAddress(boardsArray, currentAddress)) {
+            currentAddress++;  // Increment the address
+        }
+    
+        return currentAddress;
+    }
+    
+    
+    function Servo(data) {
+        var self = this;
+    
+        self.board = ko.observable(data.board);
+        self.boardInput = ko.computed(function() {
+            return toI2cAddress(self.board());
+        });
+        self.channel = ko.observable(data.channel);
+        self.min_angle = ko.observable(data.min_angle);
+        self.max_angle = ko.observable(data.max_angle);
+    }   
+
 
     function GpioBoard(address) {
         var self = this;
@@ -17,33 +61,16 @@ $(function() {
 
     function Actuator(data) {
         var self = this;
+        console.log("data:", data);
         
         // Base properties
         self.id = ko.observable(data.id);
     
-        // Pusher properties
-        self.pusher = {
-            board: ko.observable(data.pusher.board),
-            channel: ko.observable(data.pusher.channel),
-            min_angle: ko.observable(data.pusher.min_angle),
-            max_angle: ko.observable(data.pusher.max_angle)
-        };
-    
-        // Moving clamp properties
-        self.moving_clamp = {
-            board: ko.observable(data.moving_clamp.board),
-            channel: ko.observable(data.moving_clamp.channel),
-            min_angle: ko.observable(data.moving_clamp.min_angle),
-            max_angle: ko.observable(data.moving_clamp.max_angle)
-        };
-    
-        // Fixed clamp properties
-        self.fixed_clamp = {
-            board: ko.observable(data.fixed_clamp.board),
-            channel: ko.observable(data.fixed_clamp.channel),
-            min_angle: ko.observable(data.fixed_clamp.min_angle),
-            max_angle: ko.observable(data.fixed_clamp.max_angle)
-        };
+        // Use the Servo object for pusher, moving_clamp, fixed_clamp
+        self.pusher = new Servo(data.pusher);
+        self.moving_clamp = new Servo(data.moving_clamp);
+        self.fixed_clamp = new Servo(data.fixed_clamp);  
+
     
         // Pusher limit switch properties
         self.pusher_limit_switch = {
@@ -78,13 +105,20 @@ $(function() {
         };      
         
         self.addServoBoard = function() {
-            self.servoBoards.push(new ServoBoard(0x80));
-            console.log("After adding servo board: ", self.servoBoards());
-            console.log(self.servoBoards());
+            var nextAddress = findNextAvailableAddress(self.servoBoards(), 0x40); 
+            self.servoBoards.push(new ServoBoard(nextAddress));
+            sortServoBoards(self.servoBoards);
+            console.log("After adding servo board: ", self.servoBoards());  
+            self.availableServoBoards = self.servoBoards.map(function(board) {
+                return board.addressInput;
+            });
         };
 
         self.removeServoBoard = function(board) {
             self.servoBoards.remove(board);
+            self.availableServoBoards = self.servoBoards.map(function(board) {
+                return board.addressInput;
+            });
         };         
 
         // This will get called before the ChromatoforeViewModel gets bound to the DOM, but after its
@@ -93,10 +127,18 @@ $(function() {
         // the SettingsViewModel been properly populated.
         self.onBeforeBinding = function() {
             console.log("Inside onBeforeBinding");
-            console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
+            // console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
-            console.log("self.pluginSettings.gpio_boards()", self.pluginSettings.gpio_boards());
-            console.log("self.pluginSettings.servo_driver_boards()", self.pluginSettings.servo_driver_boards());
+            console.log("self.pluginSettings.gpio_boards() as JS", ko.toJS(self.pluginSettings.gpio_boards()));
+            console.log("self.pluginSettings.servo_driver_boards() as JS", ko.toJS(self.pluginSettings.servo_driver_boards()));
+            console.log("self.pluginSettings.actuators() as JS", ko.toJS(self.pluginSettings.actuators()));
+
+            // For Actuators
+            var actuatorData = ko.toJS(self.pluginSettings.actuators);
+            self.actuators = ko.observableArray(actuatorData.map(function(data) {
+                return new Actuator(data);
+            }));
+            console.log("self.actuators() :", self.actuators());               
 
 
             var gpioAddresses = self.pluginSettings.gpio_boards();
@@ -109,22 +151,20 @@ $(function() {
             console.log("self.gpioBoards() :", self.gpioBoards());
 
 
-            var servoBoardAddresses = self.settingsViewModel.settings.plugins.chromatofore.servo_driver_boards();
+            var servoBoardAddresses = self.pluginSettings.servo_driver_boards();
             self.servoBoards = ko.observableArray(servoBoardAddresses.map(function(address) {
                 var board = new ServoBoard(address);
                 board.addressInput("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
                 return board;
             }));
-            
-            console.log("self.servo_boards() :", self.servoBoards());  
 
-            // For Actuators
-            var actuatorData = self.pluginSettings.actuators();
-            self.actuators = ko.observableArray(actuatorData.map(function(data) {
-                return new Actuator(data);
-            }));
-            console.log("self.actuators() :", self.actuators());            
-            
+            console.log("self.servoBoards() :", self.servoBoards());  
+         
+            self.availableServoBoards = self.servoBoards().map(function(board) {
+                return board.addressInput();
+            });
+
+            console.log("self.availableServoBoards :", self.availableServoBoards);  
             
         };    
         
@@ -136,8 +176,8 @@ $(function() {
                 });
                 console.log("Addresses within gpioBoards: ", addresses);   
                 // Update the original settings with the new values
-                self.settingsViewModel.settings.plugins.chromatofore.gpio_boards(addresses);    
-                //self.pluginSettings.gpio_boards(addresses);                       
+                // self.settingsViewModel.settings.plugins.chromatofore.gpio_boards(addresses);    
+                self.pluginSettings.gpio_boards(addresses);                       
             }
 
             {
@@ -146,8 +186,8 @@ $(function() {
                 });
                 console.log("Addresses within servoSoards: ", addresses);   
                 // Update the original settings with the new values
-                self.settingsViewModel.settings.plugins.chromatofore.servo_driver_boards(addresses); 
-                //self.pluginSettings.servo_driver_boards(addresses);                            
+                //self.settingsViewModel.settings.plugins.chromatofore.servo_driver_boards(addresses); 
+                self.pluginSettings.servo_driver_boards(addresses);                            
             }            
 
 

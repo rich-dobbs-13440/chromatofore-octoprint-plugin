@@ -1,1 +1,11 @@
-/* TODO: Have your plugin's CSS files generated to here. */
+.i2c-dropdown-width {
+    width: 80px; 
+}
+
+.angle-edit-width {
+    width: 40px; 
+}
+
+.channel-edit-width {
+    width: 40px; 
+}

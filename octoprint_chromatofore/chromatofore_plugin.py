@@ -26,14 +26,26 @@ class ChromatoforePlugin(
     def __init__(self):
         self.filament_sensors = FilamentSensors(i2c_address=0x21)
 
+    # StartupPlugin mixin         
+
     def on_after_startup(self):
         self._logger.info("In on_after_startup")
         self.filament_sensors.start()    
 
+    # ShutdownPlugin mixin   
+
     def on_shutdown(self):
         self._logger.info("In on_shutdown")
         self.filament_sensors.stop()
-        self._logger.info("Leaving on_shutdown")            
+        self._logger.info("Leaving on_shutdown") 
+
+    # Exploratory investigation for slow restart
+
+    def on_plugin_disable(self):
+        self._logger.info("In on_plugin_disable")
+        self.on_shutdown();  
+
+    # Simple API Commands mixin:                 
 
     def get_api_commands(self):
         return {
@@ -41,8 +53,6 @@ class ChromatoforePlugin(
             "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
         }
     
-
-
     def on_api_command(self, command, data):
         if command == "validate_i2c":
             self._logger.info("In command validate_i2c")

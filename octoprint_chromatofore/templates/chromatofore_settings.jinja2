@@ -60,45 +60,70 @@
         Unloading filament requires the hot end to be at temperature.</div>
 
     <table> 
-        <thead> 
-            <tr> 
-                <th>Name</th> 
-                <th>Component</th> 
-                <th>Board</th> 
-                <th>Channel</th> 
-                <th>Minimum</th> 
-                <th>Maximum/th> 
-                <th>Actions</th> 
-            </tr> 
-        </thead> 
         <tbody data-bind="foreach: actuators"> 
-            <tr>
-                <td><input type="text" data-bind="textInput: id" placeholder="Id"></tr> 
-            <tr> 
-                <td>Pusher Servo</td> 
-                <td><input type="text" data-bind="textInput: pusher.board" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: pusher.channel" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: pusher.min_angle" placeholder="Pusher miniumn angle"></td> 
-                <td><input type="text" data-bind="textInput: pusher.max_angle" placeholder="Pusher miniumn angle"></td> 
-            </tr> 
+        <tr>
+            <td>Actuator Name</td><td><input type="text" data-bind="textInput: id"></td>
+        </tr>
+        <tr>
+            <td>
+                <table> 
+                    <thead> 
+                        <tr> 
+                            <th>Component</th> 
+                            <th>Board</th> 
+                            <th>Channel</th> 
+                            <th>Minimum</th> 
+                            <th>Maximum</th> 
+                            <th>Actions</th> 
+                        </tr> 
+                    </thead> 
+            
 
-            <tr> 
-                <td>Moving Clamp Servo</td> 
-                <td><input type="text" data-bind="textInput: moving_clamp.board" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: moving_clamp.channel" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: moving_clamp.min_angle" placeholder="Pusher miniumn angle"></td> 
-                <td><input type="text" data-bind="textInput: moving_clamp.max_angle" placeholder="Pusher miniumn angle"></td> 
-            </tr>              
+                    <tr data-bind="with: pusher">
+                        <td>Pusher Servo</td> 
+                        <td>    
+                            <select class="i2c-dropdown-width" 
+                            data-bind=
+                                "options: $root.availableServoBoards, 
+                                value: boardInput, 
+                                optionsCaption: 'Choose...'">
+                            </select>
+                        </td> 
+                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
+                    </tr>  
 
-            <tr> 
-                <td>Fixed Clamp Servo</td> 
-                <td><input type="text" data-bind="textInput: fixed_clampboard" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: fixed_clampchannel" placeholder="Pusher board"></td> 
-                <td><input type="text" data-bind="textInput: fixed_clamp.min_angle" placeholder="Pusher miniumn angle"></td> 
-                <td><input type="text" data-bind="textInput: fixed_clamp.max_angle" placeholder="Pusher miniumn angle"></td> 
-            </tr>   
+                    <tr data-bind="with: moving_clamp">
+                        <td>Moving Clamp Servo</td> 
+                        <td>    
+                            <select class="i2c-dropdown-width" data-bind="options: $root.availableServoBoards, 
+                            value: board, 
+                            value: boardInput, 
+                            optionsCaption: 'Choose...'">
+                            </select>
+                        </td> 
+                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
+                    </tr> 
 
-                     
+                    <tr data-bind="with: fixed_clamp">
+                        <td>MovingFixed Clamp Servo</td> 
+                        <td>    
+                            <select class="i2c-dropdown-width" data-bind="options: $root.availableServoBoards, 
+                            value: board, 
+                            value: boardInput, 
+                            optionsCaption: 'Choose...'">
+                            </select>
+                        </td> 
+                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
+                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
+                    </tr>                     
+                </table> 
+            </td>                           
+        </tr>             
         </tbody> 
     </table>    
 
