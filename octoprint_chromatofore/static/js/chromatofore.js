@@ -74,8 +74,8 @@ $(function() {
                 role: self.role(),
                 board: self.boardToInt(),
                 channel: self.channelToInt(),
-                min_angle: self.min_angle(),
-                max_angle: self.max_angle()
+                min_angle: parseInt(self.min_angle()),
+                max_angle: parseInt(self.max_angle())
             };
         };        
     }   
