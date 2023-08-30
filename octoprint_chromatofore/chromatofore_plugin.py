@@ -103,9 +103,9 @@ class ChromatoforePlugin(
             "actuators": [
                     {
                         "id": "black_wire",
-                        "pusher": {"board": 0x40, "channel": 0x0, "min_angle":0, "max_angle":180},
-                        "moving_clamp": {"board": 0x40, "channel": 0x2, "min_angle":0, "max_angle":180},
-                        "fixed_clamp": {"board": 0x40, "channel": 0x1, "min_angle":0, "max_angle":180},
+                        "pusher": {"role": "Pusher Servo", "board": 0x40, "channel": 0x0, "min_angle":0, "max_angle":180},
+                        "moving_clamp": {"role": "Moving Clamp Servo", "board": 0x40, "channel": 0x1, "min_angle":0, "max_angle":180},
+                        "fixed_clamp": {"role": "Fixed Clamp Servo", "board": 0x40, "channel": 0x2, "min_angle":0, "max_angle":180},
                         "pusher_limit_switch": {"board": 0x20, "channel": 0x0},
                         "filament_sensor": {"board": 0x21, "channel": 0x0},
                     },

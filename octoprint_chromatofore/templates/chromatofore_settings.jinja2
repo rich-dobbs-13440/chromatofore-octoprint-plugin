@@ -1,4 +1,19 @@
 <!-- octoprint_chromatofore/templates/chromatofore_settings.jinja2 -->
+<script type="text/html" id="servo-template">
+
+        <td><div data-bind="text: role"></div></td> 
+        <td>    
+            <select class="i2c-dropdown-width" 
+            data-bind=
+                "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
+            </select>
+        </td> 
+        <td>
+            <select class="channel-dropdown-width" data-bind="options: availableServoChannels, value: channel "></select>
+        </td>
+        <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
+        <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
+</script>
 
 <div>
     <h4>Chromatofore Filament Changer Settings</h4>
@@ -78,49 +93,10 @@
                         </tr> 
                     </thead> 
             
+                    <tr data-bind="template: {name: 'servo-template', data: pusher }"></tr>
+                    <tr data-bind="template: {name: 'servo-template', data: moving_clamp }"></tr>
+                    <tr data-bind="template: {name: 'servo-template', data: fixed_clamp }"></tr>
 
-                    <tr data-bind="with: pusher">
-                        <td>Pusher Servo</td> 
-                        <td>    
-                            <select class="i2c-dropdown-width" 
-                            data-bind=
-                                "options: $root.availableServoBoards, 
-                                value: boardInput, 
-                                optionsCaption: 'Choose...'">
-                            </select>
-                        </td> 
-                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
-                    </tr>  
-
-                    <tr data-bind="with: moving_clamp">
-                        <td>Moving Clamp Servo</td> 
-                        <td>    
-                            <select class="i2c-dropdown-width" data-bind="options: $root.availableServoBoards, 
-                            value: board, 
-                            value: boardInput, 
-                            optionsCaption: 'Choose...'">
-                            </select>
-                        </td> 
-                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
-                    </tr> 
-
-                    <tr data-bind="with: fixed_clamp">
-                        <td>MovingFixed Clamp Servo</td> 
-                        <td>    
-                            <select class="i2c-dropdown-width" data-bind="options: $root.availableServoBoards, 
-                            value: board, 
-                            value: boardInput, 
-                            optionsCaption: 'Choose...'">
-                            </select>
-                        </td> 
-                        <td><input class="channel-edit-width" type="text" data-bind="textInput: channel"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: min_angle"></td> 
-                        <td><input class="angle-edit-width" type="text" data-bind="textInput: max_angle"></td> 
-                    </tr>                     
                 </table> 
             </td>                           
         </tr>             

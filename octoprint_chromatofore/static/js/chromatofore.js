@@ -2,9 +2,19 @@
 
 $(function() {
 
+
+    const gpioChannels = Array.from({ length: 8 }, (_, i) => '0x' + i.toString(16).toUpperCase());
+    console.log("gpioChannels", gpioChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0x5", "0x6", "0x7"]    
+
+
     function toI2cAddress(value) {
         return "0x" + value.toString(16).toUpperCase().padStart(2, '0');
     }
+
+    function toI2cChannel(value) {
+        return "0x" + value.toString(16).toUpperCase();
+    }
+    
 
     function containsBoardWithAddress(array, address) {
         return array.some(function(board) {
@@ -36,14 +46,38 @@ $(function() {
     
     function Servo(data) {
         var self = this;
+
+        self.role = ko.observable(data.role);
     
-        self.board = ko.observable(data.board);
-        self.boardInput = ko.computed(function() {
-            return toI2cAddress(self.board());
-        });
-        self.channel = ko.observable(data.channel);
+        self.board = ko.observable(toI2cAddress(data.board));
+        self.boardToInt = function() {
+            var boardAsInt = parseInt(self.board(), 16);
+            console.log("boardAsInt", boardAsInt);
+            return boardAsInt;
+        };
+        self.channel = ko.observable(toI2cChannel(data.channel));
+        self.channelToInt = function() {
+            var channelAsInt = parseInt(self.channel(), 16);
+            console.log("channelAsInt", channelAsInt);
+            return channelAsInt;
+        };
         self.min_angle = ko.observable(data.min_angle);
         self.max_angle = ko.observable(data.max_angle);
+
+        servoChannels = Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase());
+        console.log("servoChannels:", servoChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0xE", "0xF"]   
+        self.availableServoChannels = ko.observableArray(servoChannels);  
+        console.log("self.availableServoChannels:", self.availableServoChannels());  
+        
+        self.toData = function() {
+            return {
+                role: self.role(),
+                board: self.boardToInt(),
+                channel: self.channelToInt(),
+                min_angle: self.min_angle(),
+                max_angle: self.max_angle()
+            };
+        };        
     }   
 
 
@@ -83,6 +117,23 @@ $(function() {
             board: ko.observable(data.filament_sensor.board),
             channel: ko.observable(data.filament_sensor.channel)
         };
+
+        self.toData = function() {
+            return {
+                id: self.id(),
+                pusher: self.pusher.toData(),
+                moving_clamp: self.moving_clamp.toData(),
+                fixed_clamp: self.fixed_clamp.toData(),
+                pusher_limit_switch: {
+                    board: self.pusher_limit_switch.board(),
+                    channel: self.pusher_limit_switch.channel()
+                },
+                filament_sensor: {
+                    board: self.filament_sensor.board(),
+                    channel: self.filament_sensor.channel()
+                }
+            };
+        };          
     }
     
     
@@ -190,7 +241,12 @@ $(function() {
                 self.pluginSettings.servo_driver_boards(addresses);                            
             }            
 
-
+            var actuatorDataToSave = self.actuators().map(function(actuator) {
+                return actuator.toData();
+            });
+            console.log("Actuators data to save: ", actuatorDataToSave);
+            
+            self.pluginSettings.actuators(actuatorDataToSave);
 
         };
 
@@ -225,6 +281,8 @@ $(function() {
                 board.addressInput("0x??");
             }
         };  
+
+      
     
     }
 

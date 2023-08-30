@@ -1,0 +1,16 @@
+{% macro servo_row(servo_instance, role) %}
+<tr data-bind="with: {{ servo_role|lower|replace(' ', '_') }}">
+    <td>{{ role }}</td> 
+    <td>    
+        <select class="i2c-dropdown-width" 
+        data-bind=
+            "options: $root.availableServoBoards, 
+            value: servo_instance.boardInput, 
+            optionsCaption: 'Choose...'">
+        </select>
+    </td> 
+    <td><input class="channel-edit-width" type="text" data-bind="textInput: servo_instance.channel"></td> 
+    <td><input class="angle-edit-width" type="text" data-bind="textInput: servo_instance.min_angle"></td> 
+    <td><input class="angle-edit-width" type="text" data-bind="textInput: servo_instance.max_angle"></td> 
+</tr>
+{% endmacro %}
