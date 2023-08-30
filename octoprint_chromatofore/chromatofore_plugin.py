@@ -16,8 +16,9 @@ def jsonify_no_cache(status, **kwargs):
     return response
 
 class ChromatoforePlugin(
+    octoprint.plugin.ShutdownPlugin,  # Doesn't seem to do anything!
+    octoprint.plugin.EventHandlerPlugin,
     octoprint.plugin.StartupPlugin,
-    octoprint.plugin.ShutdownPlugin,
     octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.TemplatePlugin,
@@ -32,18 +33,33 @@ class ChromatoforePlugin(
         self._logger.info("In on_after_startup")
         self.filament_sensors.start()    
 
-    # ShutdownPlugin mixin   
+    # ShutdownPlugin mixin
+    # 
+    #    
 
     def on_shutdown(self):
         self._logger.info("In on_shutdown")
         self.filament_sensors.stop()
         self._logger.info("Leaving on_shutdown") 
 
+    def get_sorting_key(self, context):
+        if context == "ShutdownPlugin.on_shutdown":
+            return 1
+        return None  
+
+    # EventHandlerPlugin mixin
+    def on_event(self, event, payload):
+        if event == "Shutdown":
+           self._logger.info("In on_event, with event == 'Shutdown'")
+           self.on_shutdown()
+
+
     # Exploratory investigation for slow restart
 
     def on_plugin_disable(self):
         self._logger.info("In on_plugin_disable")
-        self.on_shutdown();  
+        self.on_shutdown();
+    
 
     # Simple API Commands mixin:                 
 
@@ -51,10 +67,14 @@ class ChromatoforePlugin(
         return {
             "validate_i2c": ["address"],
             "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
+            "shutdown_chromatofore_plugin": [] 
         }
     
     def on_api_command(self, command, data):
-        if command == "validate_i2c":
+        if command == "shutdown_chromatofore_plugin":
+            self.on_shutdown()
+            return jsonify_no_cache(HTTPStatus.OK, status="Shutting down Chromatofore")  
+        elif command == "validate_i2c":
             self._logger.info("In command validate_i2c")
             address = data.get("address")
             if address is None:

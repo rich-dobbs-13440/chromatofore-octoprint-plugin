@@ -1,5 +1,5 @@
 <!-- octoprint_chromatofore/templates/chromatofore_settings.jinja2 -->
-<script type="text/html" id="servo-template">
+<script type="text/html" id="servo-template-row-1">
 
         <td><div data-bind="text: role"></div></td> 
         <td>    
@@ -13,6 +13,20 @@
         </td>
         <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
         <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
+</script>
+
+<script type="text/html" id="servo-template-row-2">
+        <td>Min</td><td colspan="4">
+            <div>
+                <input type="range" min="0" max="180" step=1></td>
+            </div>
+            <div>
+                <input type="range" min="0" max="180" step=1></td>
+            </div>
+            <div>
+                <input type="range" min="0" max="180" step=1>
+            </div>
+        </td>
 </script>
 
 <div>
@@ -93,9 +107,10 @@
                         </tr> 
                     </thead> 
             
-                    <tr data-bind="template: {name: 'servo-template', data: pusher }"></tr>
-                    <tr data-bind="template: {name: 'servo-template', data: moving_clamp }"></tr>
-                    <tr data-bind="template: {name: 'servo-template', data: fixed_clamp }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-1', data: pusher }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-2', data: pusher }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-1', data: moving_clamp }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-1', data: fixed_clamp }"></tr>
 
                 </table> 
             </td>                           
