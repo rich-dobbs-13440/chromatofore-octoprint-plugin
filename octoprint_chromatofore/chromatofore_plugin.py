@@ -73,7 +73,7 @@ class ChromatoforePlugin(
     def on_api_command(self, command, data):
         if command == "shutdown_chromatofore_plugin":
             self.on_shutdown()
-            return jsonify_no_cache(HTTPStatus.OK, status="Shutting down Chromatofore")  
+            return jsonify_no_cache(HTTPStatus.OK, action="Shutting down Chromatofore")  
         elif command == "validate_i2c":
             self._logger.info("In command validate_i2c")
             address = data.get("address")

@@ -63,6 +63,52 @@ $(function() {
         };
         self.min_angle = ko.observable(data.min_angle);
         self.max_angle = ko.observable(data.max_angle);
+        initialValue = (data.min_angle + data.max_angle)/2;
+        this.current_angle = ko.observable(initialValue);
+
+        this.min_angle.subscribe(function(newMin) {
+            console.log('min_angle subscription triggered. New min_angle:', newMin, 'Current angle:', self.current_angle());
+            if (newMin > self.current_angle()) {
+                console.log('min_angle is greater than current_angle. Setting min_angle to current_angle value.');
+                self.min_angle(self.current_angle());
+            }
+        });
+        
+
+        this.max_angle.subscribe(function(newMax) {
+            console.log('max_angle subscription triggered. New max_angle:', newMax, 'Current angle:', self.current_angle());
+            if (newMax < self.current_angle()) {
+                console.log('max_angle is less than current_angle. Setting max_angle to current_angle value.');
+                self.max_angle(self.current_angle());
+            }
+        });
+        
+
+        this.current_angle_bounds = ko.pureComputed({
+            read: function() {
+                console.log('Reading current_angle_bounds:', self.current_angle());
+                return self.current_angle();
+            },
+            write: function(value) {
+                console.log('Setting current_angle_bounds. New value:', value, 'Min angle:', self.min_angle(), 'Max angle:', self.max_angle());
+                if (value < self.min_angle()) {
+                    console.log('New value is less than min_angle. Setting current_angle to min_angle.');
+                    self.current_angle(self.min_angle());
+                } else if (value > self.max_angle()) {
+                    console.log('New value is greater than max_angle. Setting current_angle to max_angle.');
+                    self.current_angle(self.max_angle());
+                } else {
+                    console.log('Setting current_angle to the new value.');
+                    self.current_angle(value);
+                }
+                // Ensure that KO knows that this observable has been modified
+                self.current_angle.valueHasMutated();
+                console.log("After update, the new value for current bound is ", this.current_angle_bounds());
+            },
+            owner: this
+        });
+        
+            
 
         servoChannels = Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase());
         console.log("servoChannels:", servoChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0xE", "0xF"]   

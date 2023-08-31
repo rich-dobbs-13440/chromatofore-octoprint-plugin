@@ -1,28 +1,47 @@
 <!-- octoprint_chromatofore/templates/chromatofore_settings.jinja2 -->
 <script type="text/html" id="servo-template-row-1">
-
-        <td><div data-bind="text: role"></div></td> 
-        <td>    
-            <select class="i2c-dropdown-width" 
-            data-bind=
-                "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
-            </select>
-        </td> 
-        <td>
-            <select class="channel-dropdown-width" data-bind="options: availableServoChannels, value: channel "></select>
-        </td>
-        <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
-        <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
+    <td><div data-bind="text: role"></div></td> 
+    <td>    
+        <select class="i2c-dropdown-width" 
+        data-bind=
+            "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
+        </select>
+    </td> 
+    <td>
+        <select class="channel-dropdown-width" data-bind="options: availableServoChannels, value: channel "></select>
+    </td>
+    <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
+    <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
 </script>
 
 <script type="text/html" id="servo-template-row-2">
-        <td colspan="5">
-            <table> 
-                <tr><td>Mininum</td><td><input type="range" value="10" min="0" max="180" step=1 class="min-angle"></td></tr>
-                <tr><td>Current</td><td><input type="range" value="50" min="0" max="180" step=1 class="angle-value"></td></tr>
-                <tr><td>Maximum</td><td><input type="range" value="100" min="0" max="180" step=1 class="max-angle"></td></tr>
-            </table>
-        </td>
+    <td colspan="5" class="servo-sliders">
+        <table> 
+            <tr>
+                <td class="slider-label">Mininum</td>
+                <td>
+                    <input type="range" value="10" min="0" max="180" step=1 
+                        class="min-angle no-track-color" 
+                        data-bind="value: min_angle" >
+                </td>
+                </tr>
+            <tr>
+                <td class="slider-label">Current</td>
+                <td>
+                    <input type="range" value="50" min="0" max="180" step=1 
+                        class="angle-value no-track-color" 
+                        data-bind="value: current_angle_bounds, min: min_angle, max: max_angle">
+                </td>
+            </tr>
+            <tr>
+                <td class="slider-label">Maximum</td>
+                <td><input type="range" value="100" min="0" max="180" step=1 
+                        class="max-angle no-track-color" 
+                        data-bind="value: max_angle">
+                </td>
+            </tr>
+        </table>
+    </td>
 </script>
 
 <div>
@@ -117,36 +136,5 @@
 
 </div>
 
-<div class="servo-slider" id="slider-distance">
-  <div>
-    <div class="inverse-left" style="width:70%;"></div>
-    <div class="inverse-right" style="width:70%;"></div>
-    <div class="range" style="left:30%;right:40%;"></div>
-    <span class="thumb" style="left:30%;"></span>
-    <span class="thumb" style="left:60%;"></span>
-    <div class="sign" style="left:30%;">
-      <span id="value">30</span>
-    </div>
-    <div class="sign" style="left:60%;">
-      <span id="value">60</span>
-    </div>
-  </div>
-  <input type="range" tabindex="0" value="30" max="100" min="0" step="1" oninput="
-  this.value=Math.min(this.value,this.parentNode.childNodes[5].value-1);
-  var value=(100/(parseInt(this.max)-parseInt(this.min)))*parseInt(this.value)-(100/(parseInt(this.max)-parseInt(this.min)))*parseInt(this.min);
-  var children = this.parentNode.childNodes[1].childNodes;
-  children[1].style.width=value+'%';
-  children[5].style.left=value+'%';
-  children[7].style.left=value+'%';children[11].style.left=value+'%';
-  children[11].childNodes[1].innerHTML=this.value;" />
 
-  <input type="range" tabindex="0" value="60" max="100" min="0" step="1" oninput="
-  this.value=Math.max(this.value,this.parentNode.childNodes[3].value-(-1));
-  var value=(100/(parseInt(this.max)-parseInt(this.min)))*parseInt(this.value)-(100/(parseInt(this.max)-parseInt(this.min)))*parseInt(this.min);
-  var children = this.parentNode.childNodes[1].childNodes;
-  children[3].style.width=(100-value)+'%';
-  children[5].style.right=(100-value)+'%';
-  children[9].style.left=value+'%';children[13].style.left=value+'%';
-  children[13].childNodes[1].innerHTML=this.value;" />
-</div>
 
