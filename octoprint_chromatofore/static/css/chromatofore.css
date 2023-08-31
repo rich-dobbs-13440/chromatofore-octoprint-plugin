@@ -1,13 +1,17 @@
 /* Generic styling for width adjustments */
-.i2c-dropdown-width {
+select.i2c-address {
     width: 70px; 
+}
+
+input.i2c-address {
+    width: 70px;
 }
 
 .angle-edit-width {
     width: 40px; 
 }
 
-.channel-dropdown-width {
+select.i2c-channel{
     width: 60px; 
 }
 
@@ -87,4 +91,8 @@ td.servo-sliders {
 
 .angle-value::-moz-range-thumb {
     background-color: blue;
+}
+
+.error-text {
+    color: red;
 }

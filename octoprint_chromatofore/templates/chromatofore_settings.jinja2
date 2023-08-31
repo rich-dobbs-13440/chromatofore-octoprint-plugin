@@ -2,13 +2,12 @@
 <script type="text/html" id="servo-template-row-1">
     <td><div data-bind="text: role"></div></td> 
     <td>    
-        <select class="i2c-dropdown-width" 
-        data-bind=
-            "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
+        <select class="i2c-address"
+            data-bind= "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
-        <select class="channel-dropdown-width" data-bind="options: availableServoChannels, value: channel "></select>
+        <select class="i2c-channel" data-bind="options: availableServoChannels, value: channel "></select>
     </td>
     <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
     <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
@@ -40,6 +39,10 @@
                         data-bind="value: max_angle">
                 </td>
             </tr>
+            <tr>
+                <td class="slider-label">Response:</td>
+                <td><span data-bind="text: apiResponse, css: { 'error-text': isApiError }"></span></td>
+            </tr>
         </table>
     </td>
 </script>
@@ -61,7 +64,8 @@
         <tbody data-bind="foreach: gpioBoards">
             <tr>
                 <td>
-                    <input type="text" data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
+                    <input type="text" class="i2c-address"
+                        data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
                 </td>
                 <td>
                     <button data-bind="click: $parent.removeGpioBoard">Remove</button>
@@ -86,7 +90,8 @@
         <tbody data-bind="foreach: servoBoards">
             <tr>
                 <td>
-                    <input type="text" data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
+                    <input type="text" class="i2c-address"
+                        data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
                 </td>
                 <td>
                     <button data-bind="click: $parent.removeServoBoard">Remove</button>

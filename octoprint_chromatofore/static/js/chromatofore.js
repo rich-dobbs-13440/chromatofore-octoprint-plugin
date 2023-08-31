@@ -2,20 +2,7 @@
 
 $(function() {
 
-    // ko.bindingHandlers.sliderValue = {
-    //     init: function (element, valueAccessor) {
-    //         var value = valueAccessor();
-    //         $(element).slider({
-    //             slide: function (event, ui) {
-    //                 value(ui.value);
-    //             }
-    //         });
-    //     },
-    //     update: function (element, valueAccessor) {
-    //         var value = ko.unwrap(valueAccessor());
-    //         $(element).slider("value", value);
-    //     }
-    // };
+
 
 
     function setServoValue(actuatorIndex, servoRole, value) {
@@ -88,6 +75,8 @@ $(function() {
         self.max_angle = ko.observable(data.max_angle);
         initialValue = (data.min_angle + data.max_angle)/2;
         self.current_angle = ko.observable(initialValue);
+        self.apiResponse = ko.observable("");
+        self.isApiError = ko.observable(false); 
         
 
         self.min_angle.subscribe(function(newMin) {
@@ -109,7 +98,23 @@ $(function() {
             newVal = Math.max(newVal, self.min_angle());
             newVal = Math.min(newVal, self.max_angle());
             self.current_angle(newVal);
-            console.log("After update,  current_angle:", self.current_angle());           
+            console.log("After update,  current_angle:", self.current_angle());       
+            
+            OctoPrint.simpleApiCommand("chromatofore", "set_servo_angle", {
+                board: self.boardToInt(),
+                channel: self.channelToInt(),
+                angle: parseInt(self.current_angle())
+            }).done(function(response) {
+                let currentTime = new Date().toLocaleTimeString(); 
+                self.apiResponse(`${currentTime}: ${response.message || "Successfully set servo angle."}`);
+                self.isApiError(false);
+            }).fail(function(jqXHR) {
+                let currentTime = new Date().toLocaleTimeString(); 
+                let responseText = jqXHR.responseText || "No additional details available";  
+                self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${responseText}`);
+                self.isApiError(true);
+            });
+                      
         });
           
         servoChannels = Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase());
@@ -208,17 +213,20 @@ $(function() {
             self.servoBoards.push(new ServoBoard(nextAddress));
             sortServoBoards(self.servoBoards);
             console.log("After adding servo board: ", self.servoBoards());  
-            self.availableServoBoards = self.servoBoards.map(function(board) {
+            self.availableServoBoards = self.servoBoards().map(function(board) {
                 return board.addressInput;
             });
         };
 
         self.removeServoBoard = function(board) {
             self.servoBoards.remove(board);
-            self.availableServoBoards = self.servoBoards.map(function(board) {
+            self.availableServoBoards = self.servoBoards().map(function(board) {
                 return board.addressInput;
             });
         };         
+
+      
+        
 
         // This will get called before the ChromatoforeViewModel gets bound to the DOM, but after its
         // dependencies have already been initialized. It is especially guaranteed that this method
@@ -264,7 +272,30 @@ $(function() {
             });
 
             console.log("self.availableServoBoards :", self.availableServoBoards);  
+
+            self.servoBoards.subscribe(function(changes) {
+                // This callback will process changes (added or removed items)
             
+                changes.forEach(function(change) {
+                    if (change.status === 'added') {
+                        // If a new board is added, we should subscribe to its addressInput changes
+                        change.value.addressInput.subscribe(function(newValue) {
+                            self.updateAvailableServoBoards();
+                        });
+                    }
+                    // You can also handle 'deleted' items if necessary
+                });
+            
+            }, null, "arrayChange");
+    
+    
+            
+            self.updateAvailableServoBoards = function() {
+                self.availableServoBoards = self.servoBoards().map(function(board) {
+                    return board.addressInput();
+                });
+                console.log("self.availableServoBoards :", self.availableServoBoards);  
+            };  
         };    
         
         self.onSettingsBeforeSave = function() {

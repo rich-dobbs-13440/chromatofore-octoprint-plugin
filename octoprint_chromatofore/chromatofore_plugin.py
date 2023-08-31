@@ -4,6 +4,7 @@ import flask
 from http import HTTPStatus
 
 from .filament_sensors import FilamentSensors
+from .servo import Servo
 
 def jsonify_no_cache(status, **kwargs):
     response = flask.jsonify(**kwargs)
@@ -67,7 +68,8 @@ class ChromatoforePlugin(
         return {
             "validate_i2c": ["address"],
             "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
-            "shutdown_chromatofore_plugin": [] 
+            "shutdown_chromatofore_plugin": [],
+            "set_servo_angle": ["board", "channel", "angle"]  
         }
     
     def on_api_command(self, command, data):
@@ -98,6 +100,41 @@ class ChromatoforePlugin(
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid pin parameter"), 
             return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=self.filament_sensors.is_filament_sensed(pin))
+        
+        elif command == "set_servo_angle":
+           
+            board_str = data.get("board")
+            if not board_str:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing board parameter")
+            try:
+                board = int(board_str)
+            except ValueError:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid board parameter", board=board_str)
+
+            channel_str = data.get("channel")
+            if not channel_str:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing channel parameter")
+            try:
+                channel = int(channel_str)
+            except ValueError:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid channel parameter", channel=channel_str)
+            
+            angle_str = data.get("angle")
+            if not angle_str:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing angle parameter")
+            try:
+                angle = int(angle_str)
+            except ValueError:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid angle parameter", angle=angle_str)
+
+            
+            # Your logic to set the servo angle based on the given board and channel goes here
+            message = Servo.set_servo_angle(board, channel, angle) 
+            if message is None: 
+                return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel_str, angle=angle_str)
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=message, board=board_str, channel=channel_str, angle=angle_str)
+            
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
 
