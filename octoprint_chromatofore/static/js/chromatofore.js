@@ -104,7 +104,13 @@ $(function() {
             console.log("After update,  max_angle:", self.max_angle());           
         });
 
-        
+        self.current_angle.subscribe(function(newVal) {
+            console.log('current_angle subscription triggered. New current angle:', newVal, 'Minimum angle:', self.min_angle(), "Maximum angle:", self.max_angle());
+            newVal = Math.max(newVal, self.min_angle());
+            newVal = Math.min(newVal, self.max_angle());
+            self.current_angle(newVal);
+            console.log("After update,  current_angle:", self.current_angle());           
+        });
           
         servoChannels = Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase());
         console.log("servoChannels:", servoChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0xE", "0xF"]   
