@@ -1,3 +1,4 @@
+/* Generic styling for width adjustments */
 .i2c-dropdown-width {
     width: 70px; 
 }
@@ -10,105 +11,109 @@
     width: 60px; 
 }
 
-/* Start of Slider Specific Styles */
-[slider] {
+/* Styling for the servo slider */
+.servo-slider {
     position: relative;
-    height: 14px;
-    border-radius: 10px;
+    height: 7px;
+    border-radius: 5px;
     text-align: left;
     margin: 45px 0 10px 0;
 }
 
-[slider] > div {
+.servo-slider > div {
     position: absolute;
     left: 13px;
     right: 15px;
-    height: 14px;
+    height: 7px;
 }
 
-[slider] > div > [inverse-left], 
-[slider] > div > [inverse-right] {
+.servo-slider > div > .inverse-left {
     position: absolute;
-    height: 14px;
-    border-radius: 10px;
+    left: 0;
+    height: 7px;
+    border-radius: 5px;
     background-color: #FF0000; 
     margin: 0 7px;
 }
 
-[slider] > div > [inverse-right] {
+.servo-slider > div > .inverse-right {
+    position: absolute;
     right: 0;
+    height: 7px;
+    border-radius: 5px;
+    background-color: #FF0000; 
+    margin: 0 7px;
 }
 
-[slider] > div > [range] {
+.servo-slider > div > .range {
     position: absolute;
     left: 0;
-    height: 14px;
-    border-radius: 14px;
+    height: 7px;
+    border-radius: 7px;
     background-color: #1ABC9C;
 }
 
-[slider] > div > [thumb] {
+.servo-slider > div > .thumb {
     position: absolute;
     top: -7px;
     z-index: 2;
-    height: 28px;
-    width: 28px;
+    height: 14px;
+    width: 14px;
     text-align: left;
-    margin-left: -11px;
+    margin-left: -7px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.4);
     background-color: #FFF;
     border-radius: 50%;
     outline: none;
 }
 
-[slider] > input[type=range] {
+.servo-slider > input[type=range] {
     position: absolute;
     pointer-events: none;
     -webkit-appearance: none;
     z-index: 3;
-    height: 14px;
+    height: 7px;
     top: -2px;
     width: 100%;
     opacity: 0;
 }
 
-[slider] > div > [sign] {
+.servo-slider > .sign {
     opacity: 0;
     position: absolute;
-    margin-left: -11px;
+    margin-left: -7px;
     top: -39px;
     z-index: 3;
     background-color: #1ABC9C;
     color: #fff;
-    width: 28px;
-    height: 28px;
-    border-radius: 28px;
+    width: 14px;
+    height: 14px;
+    border-radius: 14px;
     align-items: center;
     justify-content: center;
     text-align: center;
 }
 
-[slider] > div > [sign]:after {
+.servo-slider > .sign > span {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 14px;
+}
+
+.servo-slider:hover > div > .sign {
+    opacity: 1;
+}
+
+.servo-slider > .sign:after {
     position: absolute;
     content: '';
     left: 0;
-    border-radius: 16px;
-    top: 19px;
-    border-left: 14px solid transparent;
-    border-right: 14px solid transparent;
-    border-top-width: 16px;
+    border-radius: 7px;
+    top: 8px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top-width: 7px;
     border-top-style: solid;
     border-top-color: #1ABC9C;
 }
-
-[slider] > div > [sign] > span {
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 28px;
-}
-
-[slider]:hover > div > [sign] {
-    opacity: 1;
-}
-/* End of Slider Specific Styles */

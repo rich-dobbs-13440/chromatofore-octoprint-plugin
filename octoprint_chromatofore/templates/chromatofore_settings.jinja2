@@ -117,18 +117,17 @@
 
 </div>
 
-
-<div slider id="slider-distance">
+<div class="servo-slider" id="slider-distance">
   <div>
-    <div inverse-left style="width:70%;"></div>
-    <div inverse-right style="width:70%;"></div>
-    <div range style="left:30%;right:40%;"></div>
-    <span thumb style="left:30%;"></span>
-    <span thumb style="left:60%;"></span>
-    <div sign style="left:30%;">
+    <div class="inverse-left" style="width:70%;"></div>
+    <div class="inverse-right" style="width:70%;"></div>
+    <div class="range" style="left:30%;right:40%;"></div>
+    <span class="thumb" style="left:30%;"></span>
+    <span class="thumb" style="left:60%;"></span>
+    <div class="sign" style="left:30%;">
       <span id="value">30</span>
     </div>
-    <div sign style="left:60%;">
+    <div class="sign" style="left:60%;">
       <span id="value">60</span>
     </div>
   </div>
@@ -150,3 +149,4 @@
   children[9].style.left=value+'%';children[13].style.left=value+'%';
   children[13].childNodes[1].innerHTML=this.value;" />
 </div>
+
