@@ -1,4 +1,4 @@
-name: Update README with version
+name: Overall CI/CD for the repository
 
 on:
   push:
@@ -16,6 +16,8 @@ jobs:
       run: |
         VERSION=$(cat version.txt)
         sed -i "s/{{CURRENT_VERSION}}/$VERSION/g" README.md
+        # Displaying the content of README.md for verification
+        cat README.md
 
     - name: Commit and push if it changed
       run: |

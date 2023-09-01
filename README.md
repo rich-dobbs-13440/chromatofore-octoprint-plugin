@@ -70,9 +70,9 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Current Sprint
 
-We are currently at **Current Version: {{CURRENT_VERSION}}**. 
 
-Right now, we are working toward Version 0.5 as described in the Development Roadmap.
+
+We are working toward Version 0.5 as described in the Development Roadmap.
 
 The next step is implement code to read the limit switches and display their status in settings dialog.  
 This will allow the user to test the limit switches.  
@@ -87,9 +87,7 @@ release the limit switch. This allows the user to verify that the limit switch i
 operating properly, and if it is, to adjust the length of the pusher linkage and the 
 minimum angle of the pusher servo.
 
-Right now, we are at:
-
-**Current Version: CURRENT_VERSION**
+We are currently at **Current Version: {{CURRENT_VERSION}}**. 
 
 ## Change Log
 
