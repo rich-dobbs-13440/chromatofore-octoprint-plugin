@@ -11,6 +11,8 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}      
 
     - name: Update README.md
       run: |
@@ -25,5 +27,5 @@ jobs:
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git commit -am "Update README with new version" || exit 0
-        git push https://${{secrets.UPDATE_README_SECRET_2}}@github.com/rich-dobbs-13440/chromatofore-octoprint-plugin.git
-        
+        git push
+
