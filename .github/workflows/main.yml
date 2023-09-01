@@ -15,7 +15,7 @@ jobs:
     - name: Update README.md
       run: |
         VERSION=$(cat version.txt)
-        sed -i "s/Current Version: .*/Current Version: $VERSION/g" README.md
+        sed -i "s/{{CURRENT_VERSION}}/$VERSION/g" README.md
 
     - name: Commit and push if it changed
       run: |

@@ -70,7 +70,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Current Sprint
 
-We are currently at **Current Version: PLACEHOLDER**. 
+We are currently at **Current Version: {{CURRENT_VERSION}}**. 
 
 Right now, we are working toward Version 0.5 as described in the Development Roadmap.
 
@@ -89,7 +89,7 @@ minimum angle of the pusher servo.
 
 Right now, we are at:
 
-**Current Version: PLACEHOLDER**
+**Current Version: CURRENT_VERSION**
 
 ## Change Log
 
