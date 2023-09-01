@@ -1,93 +1,88 @@
-# OctoPrint plug-in for the Chromatofore filament changer
+# OctoPrint plug-in for the Chromatofore Filament Changer
 
 **Description:** 
 
-Chromatofore is a low cost automatic filament changer that is targeted at low end Bowden 3d printers such as the Creality Ender 3 v2 or CR-6 SE.
+Chromatofore is an affordable automatic filament changer tailored for entry-level Bowden 3D printers such as the Creality Ender 3 v2 and CR-6 SE.
 
-The Chromatofore plugin provides integration of filament changer into the Octoprint 3d print server running on a Raspberry PI. 
-This plugin allows the user to specify the configuration of the electronics components of the filament changer, to test that the 
-changer is configured and working properly, to change filaments via the Octoprint web interface, and automatically change filament during a print job.
+This Chromatofore plugin integrates the filament changer with the OctoPrint 3D print server running on a Raspberry Pi. The plugin enables users to:
+- Specify the configuration of the filament changer's electronic components.
+- Test the changer's functionality and setup.
+- Change filaments through the OctoPrint web interface.
+- Automatically change filaments during a print job.
 
-This plug-in is in active development, and is currently at a pre-release stage, working towards an initial release soon.
+This plug-in is in active development and is currently in a pre-release phase, with an initial release planned soon.
 
 ## Setup
 
-Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
-or manually using this URL:
+Install using the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html) or manually with this URL:
 
     https://github.com/rich-dobbs-13440/chromatofore-octoprint-plugin/archive/master.zip
 
-**Installation Note:** Before using the plug-in, you will need to 3d print the components for your first actuator using:
+**Installation Note:** Before using the plug-in, 3D print the components for your first actuator from:
 
     https://github.com/rich-dobbs-13440/chromatofore
 
-You'll need to buy the parts as described in the costing calculator worksheet in that repository.  Then install the plug-in so that 
-you can configure and test the actuator as you assemble it.  Once you've got one or two actuators working, you can then print the 
-parts that allow you to install the filament changer on your 3d printer.  After that, you'll be able to start using filament changer 
-as you print out the remainder of actuators, and install them into the system.
+Purchase the necessary parts as detailed in the cost calculator worksheet in the repository. Install the plug-in to configure and test the actuator during assembly. Once one or two actuators are operational, print the parts to mount the filament changer on your 3D printer. Then, begin using the filament changer as you print more actuators and integrate them into the system.
 
 ## Configuration
 
-The settings page allows the user to record the configuration of the filament changer as it has been assembled.
+On the settings page, users can specify the assembled configuration of the filament changer:
 
-1. For each actuator, you will need to specify the connections of that actuator to the electronics.  
-2. Each actuator has 3 servo motors. You'll need to specify the I2C board and channel used for each servo, as well as minimum
-   and maximum angles.   
-3. Each actuator has two limit switches, one used to sense jams, and one to sense the presense of filament loaded into the printer. 
-   You'll need to specify the I2C board and channel used for each limit switch.
+1. For each actuator, define the electronic connections.
+2. Specify the I2C board, channel, and min/max angles for each of the three servo motors per actuator.
+3. For the two limit switches in each actuator (for jam sensing and filament detection in the printer), define the I2C board and channel.
 
 ---
 
 ## Development Roadmap
 
-*The following is a list of features and improvements planned for Chromatofore in the upcoming versions.*
+*Outlined below are the features and improvements planned for upcoming Chromatofore versions.*
 
 **Version 0.5** : 
-   - Configure the servos for an actuator.
-   - Test servo movement
+   - Configuration options for actuator servos.
+   - Servo movement testing.
 
 **Version 0.6**: 
-   - Configure limit switches
-   - Test limit switches for filament detection and for pusher movement.
+   - Limit switch configuration.
+   - Testing for filament detection and pusher movement using limit switches.
 
 **Version 0.7**: 
-   - Implement logic and UI for loading filament into the changer.
-   - Implement logic and UI for unloading filament from the changer.
-   - Implement logic and UI for unloading filament from the 3d printer.
-   - Implement logic and UI for loading filament from the 3d printer.
+   - Logic and UI for loading/unloading filaments in the changer.
+   - Logic and UI for loading/unloading filaments in the 3D printer.
 
 **Version 0.8**: 
-   - Implement logic for changing filament in response to a filament change event in gcode.
-   - Understand how to modify gcode to cause filament change events to be triggered.
+   - Logic for automated filament changes triggered by gcode events.
+   - Guidance on modifying gcode for triggering filament change events.
 
 **Version 0.9**: 
-   - Implement logic for detecting filament jams during loading
-   - Implement logic for detecting filament jams during removing filament from printer.
+   - Logic for detecting filament jams during loading.
+   - Logic for detecting jams when removing filament from the printer.
 
 **Version 0.10**: 
-   - Identify and resolve remaining needed features for Minimum Viable Product release.
+   - Finalize features for the Minimum Viable Product (MVP) release.
 
 **Version 1.00**:
-   - Initial public release of Minimum Viable Product.
-   - Plan documentation and publication efforts.
+   - Initial public MVP release.
+   - Planning for documentation and publication.
+
 ---
 
 ## Change Log
 
-*This section documents the changes made in each version of Chromatofore.*
+*This section documents changes for each Chromatofore version.*
 
 - **Version 0.4.148 (9/1/2023)**:
-  - Added: Ability to add or remove actuators.
-  - Added: Ability to show or hide detailed configuration of each actuator.
+  - Added: Functionality to add or remove actuators.
+  - Added: Options to show or hide detailed actuator configurations.
 
 <!-- 
 
 - **Version b.b (Date)**:
   - Added: New feature or enhancement.
   - Fixed: Bug fixes.
-  - Changed: Changes in existing feature.
+  - Changed: Updates in existing feature.
 
-*(Continue listing down the versions and their respective changes.)*
+*(Continue with the list of versions and their respective changes.)*
 
 -->
 
@@ -95,9 +90,8 @@ The settings page allows the user to record the configuration of the filament ch
 
 ## Backlog
 
-*The following is a list of features, enhancements, and bug fixes that are acknowledged but not yet scheduled for a specific release.*
+*Below is a list of acknowledged features, enhancements, and bugs, not yet slated for a specific release.*
 
-- Bug:  The list of board addresses for the servos is not correctly updated when a new board is added.
-- Enhancement: Specify board addresses using jumper checkboxes, as a supplement to hexidecimal input.
-
+- Bug: The servo board address list doesn't update correctly when a new board is added.
+- Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
 
