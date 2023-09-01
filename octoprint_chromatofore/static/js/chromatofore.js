@@ -2,7 +2,13 @@
 
 $(function() {
 
+    const gpioChannelsObservable = ko.observableArray(
+        Array.from({ length: 8 }, (_, i) => '0x' + i.toString(16).toUpperCase())
+    );
 
+    const servoChannelsObservable = ko.observableArray(
+        Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase())
+    );    
 
 
     function setServoValue(actuatorIndex, servoRole, value) {
@@ -11,11 +17,6 @@ $(function() {
             slider.value = value;
         }
     }
-
-
-    const gpioChannels = Array.from({ length: 8 }, (_, i) => '0x' + i.toString(16).toUpperCase());
-    console.log("gpioChannels", gpioChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0x5", "0x6", "0x7"]    
-
 
     function toI2cAddress(value) {
         return "0x" + value.toString(16).toUpperCase().padStart(2, '0');
@@ -123,10 +124,7 @@ $(function() {
                       
         });
           
-        servoChannels = Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase());
-        console.log("servoChannels:", servoChannels); // Outputs: ["0x0", "0x1", "0x2", ..., "0xE", "0xF"]   
-        self.availableServoChannels = ko.observableArray(servoChannels);  
-        console.log("self.availableServoChannels:", self.availableServoChannels());  
+        self.availableServoChannels = servoChannelsObservable;
         
         self.toData = function() {
             return {
@@ -138,6 +136,36 @@ $(function() {
             };
         };        
     }   
+
+    function LimitSwitch(role, data) {
+        var self = this; 
+        console.log("In new LimitSwitch.  role:", role, "data:", data);  
+
+        self.role = ko.observable(role);
+        
+        self.board = ko.observable(toI2cAddress(data.board));
+        self.boardToInt = function() {
+            var boardAsInt = parseInt(self.board(), 16);
+            console.log("boardAsInt", boardAsInt);
+            return boardAsInt;
+        };
+        self.channel = ko.observable(toI2cChannel(data.channel));
+        self.channelToInt = function() {
+            var channelAsInt = parseInt(self.channel(), 16);
+            console.log("channelAsInt", channelAsInt);
+            return channelAsInt;
+        }; 
+
+        self.availableGpioChannels = gpioChannelsObservable;
+
+        self.toData = function() {
+            return {
+                role: self.role(),
+                board: self.boardToInt(),
+                channel: self.channelToInt(),
+            };
+        };        
+    }           
 
 
     function GpioBoard(address) {
@@ -156,26 +184,39 @@ $(function() {
         var self = this;
         console.log("data:", data);
         
-        // Base properties
+        // The user provides a name for actuator
         self.id = ko.observable(data.id);
     
-        // Use the Servo object for pusher, moving_clamp, fixed_clamp
+        // An acutuator has three servos:
         self.pusher = new Servo(data.pusher);
         self.moving_clamp = new Servo(data.moving_clamp);
         self.fixed_clamp = new Servo(data.fixed_clamp);  
 
     
-        // Pusher limit switch properties
-        self.pusher_limit_switch = {
-            board: ko.observable(data.pusher_limit_switch.board),
-            channel: ko.observable(data.pusher_limit_switch.channel)
-        };
-    
-        // Filament sensor properties
-        self.filament_sensor = {
-            board: ko.observable(data.filament_sensor.board),
-            channel: ko.observable(data.filament_sensor.channel)
-        };
+        // An actuator has two limit switches:
+        self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch);
+        self.filament_sensor = new LimitSwitch("Filament Sensor", data.filament_sensor);
+
+        // Observable to track visibility of details
+        self._detailsVisible = ko.observable(true);  // Use an "underscore" prefix to denote private observables
+
+        self.detailsVisible = ko.computed({
+            read: function() {
+                console.log("detailsVisible is being read:", self._detailsVisible());
+                return self._detailsVisible();
+            },
+            write: function(value) {
+                self._detailsVisible(value);
+            }
+        });
+
+        // Function to toggle the visibility
+        self.toggleDetails = function() {
+            self.detailsVisible(!self.detailsVisible());
+        };  
+        
+
+        
 
         self.toData = function() {
             return {
@@ -183,14 +224,8 @@ $(function() {
                 pusher: self.pusher.toData(),
                 moving_clamp: self.moving_clamp.toData(),
                 fixed_clamp: self.fixed_clamp.toData(),
-                pusher_limit_switch: {
-                    board: self.pusher_limit_switch.board(),
-                    channel: self.pusher_limit_switch.channel()
-                },
-                filament_sensor: {
-                    board: self.filament_sensor.board(),
-                    channel: self.filament_sensor.channel()
-                }
+                pusher_limit_switch: self.pusher_limit_switch.toData(),
+                filament_sensor: self.filament_sensor.toData(),
             };
         };          
     }
@@ -229,7 +264,50 @@ $(function() {
             self.availableServoBoards = self.servoBoards().map(function(board) {
                 return board.addressInput;
             });
-        };         
+        }
+        
+        self.removeActuator = function(actuator) {
+            // TODO: Show confirmation dialog
+            self.actuators.remove(actuator);
+        }  
+
+        self.addActuator = function() {
+            var defaultData = {
+                id: "new_actuator",
+                pusher: {
+                    role: "Pusher Servo",
+                    board: 0x40,
+                    channel: 0x0,
+                    min_angle: 0,
+                    max_angle: 180
+                },
+                moving_clamp: {
+                    role: "Moving Clamp Servo",
+                    board: 0x40,
+                    channel: 0x1,
+                    min_angle: 0,
+                    max_angle: 90
+                },
+                fixed_clamp: {
+                    role: "Fixed Clamp Servo",
+                    board: 0x40,
+                    channel: 0x2,
+                    min_angle: 0,
+                    max_angle: 90
+                },
+                pusher_limit_switch: {
+                    board: 0x20,
+                    channel: 0x0
+                },
+                filament_sensor: {
+                    board: 0x21,
+                    channel: 0x0
+                }
+            };
+            var actuator = new Actuator(defaultData);
+            actuator.detailsVisible(true);
+            self.actuators.push(actuator);
+        }
 
       
         
@@ -300,8 +378,36 @@ $(function() {
                 self.availableServoBoards = self.servoBoards().map(function(board) {
                     return board.addressInput();
                 });
-                console.log("self.availableServoBoards :", self.availableServoBoards);  
+                console.log("self.availableServoBoards() :", self.availableServoBoards());  
             };  
+
+            self.availableGpioBoards =  self.gpioBoards().map(function(board) {
+                return board.addressInput();
+            });
+            
+            console.log("self.availableGpioBoards :", self.availableGpioBoards);  
+
+            self.gpioBoards.subscribe(function(changes) {
+                // This callback will process changes (added or removed items)
+            
+                changes.forEach(function(change) {
+                    if (change.status === 'added') {
+                        // If a new board is added, we should subscribe to its addressInput changes
+                        change.value.addressInput.subscribe(function(newValue) {
+                            self.updateAvailableGpioBoards();
+                        });
+                    }
+                    // You can also handle 'deleted' items if necessary
+                });
+            
+            }, null, "arrayChange");  
+            
+            self.updateAvailableGpioBoards = function() {
+                self.availableGpioBoards = self.gpioBoards().map(function(board) {
+                    return board.addressInput();
+                });
+                console.log("self.availableGpioBoards() :", self.availableGpioBoards());  
+            };              
         };    
         
         self.onSettingsBeforeSave = function() {

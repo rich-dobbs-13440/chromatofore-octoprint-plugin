@@ -14,38 +14,63 @@
 </script>
 
 <script type="text/html" id="servo-template-row-2">
-    <td colspan="5" class="servo-sliders">
-        <table> 
-            <tr>
-                <td class="slider-label">Mininum</td>
-                <td>
+    <td></td>
+    <td colspan="5">
+        <table class="servo-sliders">
+            <!-- Row for the Minimum slider -->
+            <tr class="servo-slider">
+                <td class="slider-label">Minimum</td>
+                <td class="servo-slider">
                     <input type="range" value="10" min="0" max="180" step=1 
-                        class="min-angle no-track-color" 
-                        data-bind="value: min_angle" >
+                           class="min-angle no-track-color" 
+                           data-bind="value: min_angle">
                 </td>
-                </tr>
-            <tr>
-                <td class="slider-label">Current</td>
-                <td>
+                <td class="slider-label"></td> <!-- Empty cell for alignment -->
+            </tr>
+
+            <!-- Row for the Current slider -->
+            <tr class="servo-slider">
+                <td class="slider-label"></td> <!-- Empty cell for alignment -->
+                <td class="servo-slider">
                     <input type="range" value="50" min="0" max="180" step=1 
-                        class="angle-value no-track-color" 
-                        data-bind="value: current_angle" >
+                           class="angle-value no-track-color" 
+                           data-bind="value: current_angle">
+                    <div class="slider-label current-label">Current</div>
                 </td>
+                <td class="slider-label"></td> <!-- Empty cell for alignment -->
             </tr>
-            <tr>
+
+            <!-- Row for the Maximum slider -->
+            <tr class="servo-slider">
+                <td class="slider-label"></td> <!-- Empty cell for alignment -->
+                <td class="servo-slider">
+                    <input type="range" value="100" min="0" max="180" step=1 
+                           class="max-angle no-track-color" 
+                           data-bind="value: max_angle">
+                </td>
                 <td class="slider-label">Maximum</td>
-                <td><input type="range" value="100" min="0" max="180" step=1 
-                        class="max-angle no-track-color" 
-                        data-bind="value: max_angle">
-                </td>
             </tr>
-            <tr>
-                <td class="slider-label">Response:</td>
-                <td><span data-bind="text: apiResponse, css: { 'error-text': isApiError }"></span></td>
+
+            <tr class="response-row">
+                <td class="slider-label">Response</td>
+                <td colspan="3"><span data-bind="text: apiResponse, css: { 'error-text': isApiError }"></span></td>
             </tr>
         </table>
     </td>
 </script>
+
+<script type="text/html" id="limit-switch-template-row-1">
+    <td><div data-bind="text: role"></div></td> 
+    <td>    
+        <select class="i2c-address"
+            data-bind= "options: $root.availableGpioBoards, value: board,  optionsCaption: 'Choose...'">
+        </select>
+    </td> 
+    <td>
+        <select class="i2c-channel" data-bind="options: availableGpioChannels, value: channel "></select>
+    </td>
+</script>
+
 
 <div>
     <h4>Chromatofore Filament Changer Settings</h4>
@@ -109,13 +134,26 @@
         Unloading filament requires the hot end to be at temperature.</div>
 
     <table> 
+        <thead>
+            <tr>
+                <th>Actuator</th>
+                <th>Actions</th>
+            </tr>
+        </thead>    
         <tbody data-bind="foreach: actuators"> 
-        <tr>
-            <td>Actuator Name</td><td><input type="text" data-bind="textInput: id"></td>
-        </tr>
+
         <tr>
             <td>
-                <table> 
+                <span class="toggle-triangle" data-bind="click: toggleDetails, css: { collapsed: !detailsVisible() }"></span>
+                <input type="text" data-bind="textInput: id" class="actuator-name">
+            </td>
+            <td>
+                <button data-bind="click: $parent.removeActuator">Remove</button>
+            </td>
+        </tr>
+        <tr data-bind="visible: detailsVisible">
+            <td colspan="2">
+                <table class="actuator-components"> 
                     <thead> 
                         <tr> 
                             <th>Component</th> 
@@ -130,13 +168,19 @@
                     <tr data-bind="template: {name: 'servo-template-row-1', data: pusher }"></tr>
                     <tr data-bind="template: {name: 'servo-template-row-2', data: pusher }"></tr>
                     <tr data-bind="template: {name: 'servo-template-row-1', data: moving_clamp }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-2', data: moving_clamp }"></tr>
                     <tr data-bind="template: {name: 'servo-template-row-1', data: fixed_clamp }"></tr>
+                    <tr data-bind="template: {name: 'servo-template-row-2', data: fixed_clamp }"></tr>
+                    <tr data-bind="template: {name: 'limit-switch-template-row-1', data: pusher_limit_switch }"></tr>
+                    <tr data-bind="template: {name: 'limit-switch-template-row-1', data: filament_sensor }"></tr>
 
                 </table> 
             </td>                           
         </tr>             
         </tbody> 
-    </table>    
+    </table>   
+
+    <button data-bind="click: addActuator">Add Actuator</button> 
 
 
 </div>

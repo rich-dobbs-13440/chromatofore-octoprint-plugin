@@ -1,10 +1,11 @@
 /* Generic styling for width adjustments */
 select.i2c-address {
     width: 70px; 
+    margin-bottom: 2px;
 }
 
 input.i2c-address {
-    width: 70px;
+    width: 50px;
 }
 
 .angle-edit-width {
@@ -15,17 +16,56 @@ select.i2c-channel{
     width: 60px; 
 }
 
-.servo-sliders table {
-    width: 100%;
+table.actuator-components th {
+    text-align: left;
 }
 
-.servo-sliders td.slider-label {
-    width: 80px; 
+
+table.servo-sliders td.servo-slider {
+    position: relative;
 }
 
-td.servo-sliders {
-    width: 600px;
+.servo-sliders div.current-label {
+    position: absolute;
+    bottom: -20px;  /* Adjust this value to ensure the label sits correctly */
+    left: 50%;
+    transform: translateX(-50%);  /* This centers the label under the slider */
+    text-align: center;
+    margin-top: 5px;  /* adjust as needed */    
 }
+
+
+table.servo-sliders td.slider-label {
+    width: 70px;
+    text-align: center; /* centers the label text */
+    vertical-align: middle; /* aligns the text vertically */
+}
+
+table.servo-sliders td.servo-slider {
+    width: 340px;
+}
+
+
+.servo-sliders input[type="range"] {
+    width: 100%;  /* Let the slider take up the full width of its container */
+}
+
+
+td.servo-slider {
+    overflow: visible;
+}
+
+
+.servo-slider {
+    height: 4px;
+    line-height: 4px; /* This will help vertically align content in cells */
+}
+
+.response-row {
+    height: 50px; /* Adjust as needed */
+}
+
+
 
 /* Base styles for the no-track-color range input */
 .no-track-color::-webkit-slider-thumb {
@@ -64,7 +104,7 @@ td.servo-sliders {
     width: 600px; 
     -webkit-appearance: none;
     width: 100%;
-    margin: 15px 0;
+    margin: 2px 0;
 }
 
 /* Separate class for the thumb color */
@@ -96,3 +136,20 @@ td.servo-sliders {
 .error-text {
     color: red;
 }
+
+.toggle-triangle {
+    cursor: pointer;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid black; /* This will create an upward pointing triangle */
+    transition: transform 0.3s; /* This will animate the toggle */
+}
+
+
+.toggle-triangle.collapsed {
+    transform: rotate(-90deg); 
+}
+
