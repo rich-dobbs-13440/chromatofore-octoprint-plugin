@@ -95,8 +95,6 @@ The settings page allows the user to record the configuration of the filament ch
 *The following is a list of features, enhancements, and bug fixes that are acknowledged but not yet scheduled for a specific release.*
 
 - Bug:  The list of board addresses for the servos is not correctly updated when a new board is added.
-- Bug that needs fixing.
-- Another enhancement.
-- ... *(and so on)*
+- Enhancement: Specify board addresses using jumper checkboxes, as a supplement to hexidecimal input.
 
 

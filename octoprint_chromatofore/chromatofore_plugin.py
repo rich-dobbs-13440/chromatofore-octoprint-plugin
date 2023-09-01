@@ -73,6 +73,7 @@ class ChromatoforePlugin(
         }
     
     def on_api_command(self, command, data):
+        self._logger.info(f"In on_api_command, data is of type {type(data)}")
         if command == "shutdown_chromatofore_plugin":
             self.on_shutdown()
             return jsonify_no_cache(HTTPStatus.OK, action="Shutting down Chromatofore")  
@@ -93,7 +94,7 @@ class ChromatoforePlugin(
         elif command == "is_filament_sensed":
             self._logger.info(f"In command is_filament_sensed: {self.filament_sensors.get_input():08b}")
             pin_str = data.get("pin")
-            if not pin_str:
+            if pin_str is None:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing pin parameter")
             try:
                 pin = int(pin_str)
@@ -104,7 +105,7 @@ class ChromatoforePlugin(
         elif command == "set_servo_angle":
            
             board_str = data.get("board")
-            if not board_str:
+            if board_str is None:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing board parameter")
             try:
                 board = int(board_str)
@@ -112,7 +113,7 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid board parameter", board=board_str)
 
             channel_str = data.get("channel")
-            if not channel_str:
+            if channel_str is None:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing channel parameter")
             try:
                 channel = int(channel_str)
@@ -120,15 +121,13 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid channel parameter", channel=channel_str)
             
             angle_str = data.get("angle")
-            if not angle_str:
+            if angle_str is None:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing angle parameter")
             try:
                 angle = int(angle_str)
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid angle parameter", angle=angle_str)
 
-            
-            # Your logic to set the servo angle based on the given board and channel goes here
             message = Servo.set_servo_angle(board, channel, angle) 
             if message is None: 
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel_str, angle=angle_str)
