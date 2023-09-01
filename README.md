@@ -17,9 +17,14 @@ or manually using this URL:
 
     https://github.com/rich-dobbs-13440/chromatofore-octoprint-plugin/archive/master.zip
 
-**Installation Note:** Before using the plug-in, you will need to 3d print the components using:
+**Installation Note:** Before using the plug-in, you will need to 3d print the components for your first actuator using:
 
     https://github.com/rich-dobbs-13440/chromatofore
+
+You'll need to buy the parts as described in the costing calculator worksheet in that repository.  Then install the plug-in so that 
+you can configure and test the actuator as you assemble it.  Once you've got one or two actuators working, you can then print the 
+parts that allow you to install the filament changer on your 3d printer.  After that, you'll be able to start using filament changer 
+as you print out the remainder of actuators, and install them into the system.
 
 ## Configuration
 
@@ -37,18 +42,34 @@ The settings page allows the user to record the configuration of the filament ch
 
 *The following is a list of features and improvements planned for Chromatofore in the upcoming versions.*
 
-1. **Version x.x**: 
-   - Feature or improvement 1.
-   - Feature or improvement 2.
-   - ... *(and so on)*
+**Version 0.6** : 
+   - Configure the servos for an actuator.
+   - Test servo movement
 
-2. **Version y.y**: 
-   - Feature or improvement 1.
-   - Feature or improvement 2.
-   - ... *(and so on)*
+**Version 0.7**: 
+   - Configure limit switches
+   - Test limit switches for filament detection and for pusher movement.
 
-*(Continue listing down the planned versions and their features/improvements.)*
+**Version 0.8**: 
+   - Implement logic and UI for loading filament into the changer.
+   - Implement logic and UI for unloading filament from the changer.
+   - Implement logic and UI for unloading filament from the 3d printer.
+   - Implement logic and UI for loading filament from the 3d printer.
 
+**Version 0.9**: 
+   - Implement logic for changing filament in response to a filament change event in gcode.
+   - Understand how to modify gcode to cause filament change events to be triggered.
+
+**Version 0.10**: 
+   - Implement logic for detecting filament jams during loading
+   - Implement logic for detecting filament jams during removing filament from printer.
+
+**Version 0.11**: 
+   - Identify and resolve remaining needed features for Minimum Viable Product release.
+
+**Version 1.00**:
+   - Initial public release of Minimum Viable Product.
+   - Plan documentation and publication efforts.
 ---
 
 ## Change Log
@@ -78,4 +99,4 @@ The settings page allows the user to record the configuration of the filament ch
 - Another enhancement.
 - ... *(and so on)*
 
-*(Continue listing down the items in the backlog.)*
+
