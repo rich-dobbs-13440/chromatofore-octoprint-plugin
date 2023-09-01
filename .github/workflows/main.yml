@@ -25,4 +25,4 @@ jobs:
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git commit -am "Update README with new version" || exit 0
-        git push ttps://${{secrets.UPDATE_README_SECRET}}@github.com/rich-dobbs-13440/chromatofore-octoprint-plugin.git
+        git push https://${{secrets.UPDATE_README_SECRET}}@github.com/rich-dobbs-13440/chromatofore-octoprint-plugin.git
