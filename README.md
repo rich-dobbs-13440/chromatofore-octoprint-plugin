@@ -87,7 +87,7 @@ release the limit switch. This allows the user to verify that the limit switch i
 operating properly, and if it is, to adjust the length of the pusher linkage and the 
 minimum angle of the pusher servo.
 
-We are currently at **Current Version: {{CURRENT_VERSION}}**. 
+We are currently at **Current Version: 0.4.159**. 
 
 ## Change Log
 
