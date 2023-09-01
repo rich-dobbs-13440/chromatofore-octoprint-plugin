@@ -34,6 +34,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ---
 
+
 ## Development Roadmap
 
 *Outlined below are the features and improvements planned for upcoming Chromatofore versions.*
@@ -66,6 +67,29 @@ On the settings page, users can specify the assembled configuration of the filam
    - Planning for documentation and publication.
 
 ---
+
+## Current Sprint
+
+We are currently at **Current Version: PLACEHOLDER**. 
+
+Right now, we are working toward Version 0.5 as described in the Development Roadmap.
+
+The next step is implement code to read the limit switches and display their status in settings dialog.  
+This will allow the user to test the limit switches.  
+
+For the filament sensor, they can insert
+or remove filament, and see if this is properly detected by the plugin.  
+If the plugin does not respond appropriately, this might be because of 
+mechanical or electronic issues with the filament sensor. 
+
+For the pusher limit switch, the user can position the pusher servo to trigger or 
+release the limit switch. This allows the user to verify that the limit switch is
+operating properly, and if it is, to adjust the length of the pusher linkage and the 
+minimum angle of the pusher servo.
+
+Right now, we are at:
+
+**Current Version: PLACEHOLDER**
 
 ## Change Log
 
