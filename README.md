@@ -42,29 +42,29 @@ The settings page allows the user to record the configuration of the filament ch
 
 *The following is a list of features and improvements planned for Chromatofore in the upcoming versions.*
 
-**Version 0.6** : 
+**Version 0.5** : 
    - Configure the servos for an actuator.
    - Test servo movement
 
-**Version 0.7**: 
+**Version 0.6**: 
    - Configure limit switches
    - Test limit switches for filament detection and for pusher movement.
 
-**Version 0.8**: 
+**Version 0.7**: 
    - Implement logic and UI for loading filament into the changer.
    - Implement logic and UI for unloading filament from the changer.
    - Implement logic and UI for unloading filament from the 3d printer.
    - Implement logic and UI for loading filament from the 3d printer.
 
-**Version 0.9**: 
+**Version 0.8**: 
    - Implement logic for changing filament in response to a filament change event in gcode.
    - Understand how to modify gcode to cause filament change events to be triggered.
 
-**Version 0.10**: 
+**Version 0.9**: 
    - Implement logic for detecting filament jams during loading
    - Implement logic for detecting filament jams during removing filament from printer.
 
-**Version 0.11**: 
+**Version 0.10**: 
    - Identify and resolve remaining needed features for Minimum Viable Product release.
 
 **Version 1.00**:
@@ -76,10 +76,11 @@ The settings page allows the user to record the configuration of the filament ch
 
 *This section documents the changes made in each version of Chromatofore.*
 
-- **Version a.a (Date)**:
-  - Added: New feature or enhancement.
-  - Fixed: Bug fixes.
-  - Changed: Changes in existing feature.
+- **Version 0.4.148 (9/1/2023)**:
+  - Added: Ability to add or remove actuators.
+  - Added: Ability to show or hide detailed configuration of each actuator.
+
+<!-- 
 
 - **Version b.b (Date)**:
   - Added: New feature or enhancement.
@@ -87,6 +88,8 @@ The settings page allows the user to record the configuration of the filament ch
   - Changed: Changes in existing feature.
 
 *(Continue listing down the versions and their respective changes.)*
+
+-->
 
 ---
 
