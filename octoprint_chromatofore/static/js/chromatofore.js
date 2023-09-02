@@ -2,6 +2,21 @@
 
 $(function() {
 
+    var globalLimitSwitchCounter = 0;  
+
+    function isElementInViewport(el) {
+        var rect = el.getBoundingClientRect();
+    
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+    
+
+
     const gpioChannelsObservable = ko.observableArray(
         Array.from({ length: 8 }, (_, i) => '0x' + i.toString(16).toUpperCase())
     );
@@ -63,13 +78,11 @@ $(function() {
         self.board = ko.observable(toI2cAddress(data.board));
         self.boardToInt = function() {
             var boardAsInt = parseInt(self.board(), 16);
-            console.log("boardAsInt", boardAsInt);
             return boardAsInt;
         };
         self.channel = ko.observable(toI2cChannel(data.channel));
         self.channelToInt = function() {
             var channelAsInt = parseInt(self.channel(), 16);
-            console.log("channelAsInt", channelAsInt);
             return channelAsInt;
         };
         self.min_angle = ko.observable(data.min_angle);
@@ -139,6 +152,9 @@ $(function() {
 
     function LimitSwitch(role, data, refreshRateInSeconds) {
         var self = this; 
+
+        self.switchId = "switch-" + globalLimitSwitchCounter++;
+
         console.log("In new LimitSwitch.  role:", role, "data:", data);  
 
         self.refreshRate = refreshRateInSeconds;
@@ -148,13 +164,11 @@ $(function() {
         self.board = ko.observable(toI2cAddress(data.board));
         self.boardToInt = function() {
             var boardAsInt = parseInt(self.board(), 16);
-            console.log("boardAsInt", boardAsInt);
             return boardAsInt;
         };
         self.channel = ko.observable(toI2cChannel(data.channel));
         self.channelToInt = function() {
             var channelAsInt = parseInt(self.channel(), 16);
-            console.log("channelAsInt", channelAsInt);
             return channelAsInt;
         }; 
 
@@ -218,6 +232,20 @@ $(function() {
             });
         }
 
+        self.conditionallyReadLimitSwitch = function() {
+
+            // Target the specific element using the unique switchId
+            var pinStateElement = $('[data-switch-id="' + self.switchId + '"]');
+        
+            // Check if the element is visible
+            if (pinStateElement.is(':visible') && isElementInViewport(pinStateElement[0])) {
+                console.debug("Reading switch: ", self.switchId);
+                self.readLimitSwitch();
+            }
+        };
+        
+        
+
         // Subscribe to changes in board or channel
         self.board.subscribe(function(newValue) {
             self.readLimitSwitch();
@@ -242,7 +270,7 @@ $(function() {
             // If the refresh rate is not set to "never" (i.e., not set to the large value like 100000)
             if (self.refreshRate() < 100000) {
                 self.refreshIntervalId = setInterval(function() {
-                    self.readLimitSwitch();
+                    self.conditionallyReadLimitSwitch();
                 }, self.refreshRate()*1000);
             }
         };

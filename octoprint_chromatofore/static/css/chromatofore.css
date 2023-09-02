@@ -186,10 +186,6 @@ td.servo-slider {
     margin-right: 10px;
 }
 
-/*
-td.pin-state div.error-text {
-
-} */
 
 td.pin-state div.api-response {
     display: inline-block;
