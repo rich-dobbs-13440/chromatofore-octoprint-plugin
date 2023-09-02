@@ -41,3 +41,6 @@ sleep 5
 
 # Restart the OctoPrint service
 ssh rld@chromatofore.local "sudo service octoprint restart"
+
+# Let the user know when this happened.
+date

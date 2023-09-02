@@ -153,3 +153,49 @@ td.servo-slider {
     transform: rotate(-90deg); 
 }
 
+.gray-diamond {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: gray;
+    clip-path: polygon(50% 0%, 0% 50%, 50% 100%, 100% 50%);
+}
+
+.green-upward-arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid green;
+}
+
+.green-downward-arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid green;
+}
+
+.pin-indicator {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+/*
+td.pin-state div.error-text {
+
+} */
+
+td.pin-state div.api-response {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;  /* Optional: Add some space between the arrow and the text */
+    width: 200px;
+}
+
+

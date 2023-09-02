@@ -69,6 +69,12 @@
     <td>
         <select class="i2c-channel" data-bind="options: availableGpioChannels, value: channel "></select>
     </td>
+    <td class="pin-state"> 
+       <!-- Arrow indicator; CSS class determined by pin state and error -->
+       <div class="pin-indicator" data-bind="css: pinCssClass"></div>
+       <!-- Display error message if available -->
+       <div class="api-response" data-bind="text: apiResponse, css: { 'error-text': isApiError }"></div>
+    </td>
 </script>
 
 
@@ -181,6 +187,14 @@
     </table>   
 
     <button data-bind="click: addActuator">Add Actuator</button> 
+
+    <div style="display: flex; align-items: center;">
+    <label for="refreshRateSelect">Refresh Rate in Seconds</label>
+    <select id="refreshRateSelect" style="margin-right: 10px;" 
+            data-bind="options: refreshRates, optionsText: 'text', optionsValue: 'value', value: selectedRefreshRateInSeconds">
+    </select>
+    </div>
+
 
 
 </div>

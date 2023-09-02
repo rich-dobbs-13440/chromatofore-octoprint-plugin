@@ -137,9 +137,11 @@ $(function() {
         };        
     }   
 
-    function LimitSwitch(role, data) {
+    function LimitSwitch(role, data, refreshRateInSeconds) {
         var self = this; 
         console.log("In new LimitSwitch.  role:", role, "data:", data);  
+
+        self.refreshRate = refreshRateInSeconds;
 
         self.role = ko.observable(role);
         
@@ -164,7 +166,96 @@ $(function() {
                 board: self.boardToInt(),
                 channel: self.channelToInt(),
             };
+        };
+
+        self.isApiError = ko.observable(false);     
+        self.apiResponse = ko.observable("");    
+        self.pinState = ko.observable(); // true, false, or null
+    
+        
+        self.pinCssClass = ko.computed(function() {
+            if (self.isApiError()) {
+                return 'gray-diamond';
+            }
+            return self.pinState() ? 'green-upward-arrow' : 'green-downward-arrow';
+        });    
+        
+        self.readLimitSwitch = function() {
+        
+            OctoPrint.simpleApiCommand("chromatofore", "read_limit_switch", {
+                board: self.boardToInt(),
+                channel: self.channelToInt()
+            }).done(function(response) {
+                let currentTime = new Date().toLocaleTimeString(); 
+            
+                if (response.success === false) {
+                    self.apiResponse(`${currentTime}: Failed to read limit switch. Details: ${response.reason || "No additional details available"}`);
+                    self.isApiError(true);
+                    self.pinState(null);
+                    return;
+                } 
+            
+                // Handling for the pin_state; you may want to update an observable with this value
+                let pinState = response.pin_state;
+                if (pinState=== true) {
+                    self.apiResponse(`${currentTime}`);
+                    self.isApiError(false);
+                } else if (pinState === false) {
+                    self.apiResponse(`${currentTime}`);
+                    self.isApiError(false);
+                } else {
+                    self.apiResponse(`${currentTime}: Unknown limit switch state. Pin state received: ${pinState}`);
+                }
+                self.pinState(pinState);
+            
+                self.isApiError(false);
+            
+            }).fail(function(jqXHR) {
+                let currentTime = new Date().toLocaleTimeString(); 
+                let responseText = jqXHR.responseText || "No additional details available";  
+                self.apiResponse(`${currentTime}: Failed to read limit switch. Details: ${responseText}`);
+                self.isApiError(true);
+            });
+        }
+
+        // Subscribe to changes in board or channel
+        self.board.subscribe(function(newValue) {
+            self.readLimitSwitch();
+        });
+        self.channel.subscribe(function(newValue) {
+            self.readLimitSwitch();
+        });  
+        
+        self.refreshRate.subscribe(function(newValue) {
+            self.setupRefreshInterval();
+        });  
+        
+        self.refreshIntervalId = null;
+
+        self.setupRefreshInterval = function() {
+            // Clear the existing interval
+            if (self.refreshIntervalId) {
+                clearInterval(self.refreshIntervalId);
+                self.refreshIntervalId = null;
+            }
+        
+            // If the refresh rate is not set to "never" (i.e., not set to the large value like 100000)
+            if (self.refreshRate() < 100000) {
+                self.refreshIntervalId = setInterval(function() {
+                    self.readLimitSwitch();
+                }, self.refreshRate()*1000);
+            }
+        };
+
+        self.setupRefreshInterval();
+
+        self.dispose = function() {
+            if (self.refreshIntervalId) {
+                clearInterval(self.refreshIntervalId);
+            }
         };        
+        
+             
     }           
 
 
@@ -180,9 +271,11 @@ $(function() {
         self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0')); 
     }    
 
-    function Actuator(data) {
+    function Actuator(data, refreshRateInSeconds) {
         var self = this;
         console.log("data:", data);
+
+        self.refreshRate = refreshRateInSeconds;
         
         // The user provides a name for actuator
         self.id = ko.observable(data.id);
@@ -194,8 +287,8 @@ $(function() {
 
     
         // An actuator has two limit switches:
-        self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch);
-        self.filament_sensor = new LimitSwitch("Filament Sensor", data.filament_sensor);
+        self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch, self.refreshRate);
+        self.filament_sensor = new LimitSwitch("Filament Sensor", data.filament_sensor, self.refreshRate);
 
         // Observable to track visibility of details
         self._detailsVisible = ko.observable(true);  // Use an "underscore" prefix to denote private observables
@@ -213,7 +306,7 @@ $(function() {
         // Function to toggle the visibility
         self.toggleDetails = function() {
             self.detailsVisible(!self.detailsVisible());
-        };  
+        };
         
 
         
@@ -235,6 +328,28 @@ $(function() {
     function ChromatoforeViewModel(parameters) {
 
         var self = this;
+        self.refreshRates = [
+            { text: "Never", value: 100000 },
+            { text: "Every Second", value: 1 },
+            { text: "Every Other Second", value: 2 },
+            { text: "Every 5 Seconds", value: 5 },
+            { text: "Every 10 Seconds", value: 10 },
+        ];
+        self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "Never".        
+
+
+        // var refreshInterval; // This will store the interval instance.
+
+        // // Subscribe to changes in the selected refresh rate to adjust the interval.
+        // self.selectedRefreshRate.subscribe(function(newValue) {
+        //     if (refreshInterval) {
+        //         clearInterval(refreshInterval); // Clear the previous interval.
+        //     }
+    
+        //     // Set up a new interval based on the selected value.
+        //     refreshInterval = setInterval(self.refreshFunction, newValue * 1000);
+        // });        
+            
 
         self.settingsViewModel = parameters[0];
 
@@ -304,7 +419,7 @@ $(function() {
                     channel: 0x0
                 }
             };
-            var actuator = new Actuator(defaultData);
+            var actuator = new Actuator(defaultData, self.selectedRefreshRateInSeconds);
             actuator.detailsVisible(true);
             self.actuators.push(actuator);
         }
@@ -327,7 +442,7 @@ $(function() {
             // For Actuators
             var actuatorData = ko.toJS(self.pluginSettings.actuators);
             self.actuators = ko.observableArray(actuatorData.map(function(data) {
-                return new Actuator(data);
+                return new Actuator(data,  self.selectedRefreshRateInSeconds);
             }));
             console.log("self.actuators() :", self.actuators());               
 
@@ -471,10 +586,9 @@ $(function() {
                 //board.addressInput("0x" + board.address().toString(16).toUpperCase().padStart(2, '0'));
                 board.addressInput("0x??");
             }
-        };  
+        };
+        
 
-      
-    
     }
 
     // Register the ViewModel

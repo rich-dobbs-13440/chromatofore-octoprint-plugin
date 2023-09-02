@@ -5,6 +5,7 @@ from http import HTTPStatus
 
 from .filament_sensors import FilamentSensors
 from .servo import Servo
+from .pcf9574GpioExtenderBoard import Pcf9574GpioExtenderBoard
 
 def jsonify_no_cache(status, **kwargs):
     response = flask.jsonify(**kwargs)
@@ -68,6 +69,7 @@ class ChromatoforePlugin(
         return {
             "validate_i2c": ["address"],
             "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
+            "read_limit_switch": ["board", "channel"], 
             "shutdown_chromatofore_plugin": [],
             "set_servo_angle": ["board", "channel", "angle"]  
         }
@@ -128,11 +130,39 @@ class ChromatoforePlugin(
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid angle parameter", angle=angle_str)
 
-            message = Servo.set_servo_angle(board, channel, angle) 
-            if message is None: 
+            error_message = Servo.set_servo_angle(board, channel, angle) 
+            if error_message is None: 
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel_str, angle=angle_str)
             else:
-                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=message, board=board_str, channel=channel_str, angle=angle_str)
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=board_str, channel=channel_str, angle=angle_str)
+            
+        elif command == "read_limit_switch":
+
+            # Process board parameter
+            board_str = data.get("board")
+            if board_str is None:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing board parameter")
+            try:
+                board = int(board_str)
+            except ValueError:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid board parameter", board=board_str)
+
+            # Process channel parameter
+            channel_str = data.get("channel")
+            if channel_str is None:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing channel parameter")
+            try:
+                channel = int(channel_str)
+            except ValueError:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid channel parameter", channel=channel_str)
+
+            error_message, pin_state = Pcf9574GpioExtenderBoard.read_limit_switch(board, channel)
+
+            if error_message:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=board, channel=channel)
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel, pin_state=pin_state)
+
             
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
