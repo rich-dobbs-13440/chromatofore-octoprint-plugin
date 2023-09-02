@@ -16,6 +16,7 @@ jobs:
 
     - name: Update README.md
       run: |
+        cp raw_README.md README.md
         VERSION=$(cat version.txt)
         sed -i "s/{{CURRENT_VERSION}}/$VERSION/g" README.md
         # Displaying the content of README.md for verification
