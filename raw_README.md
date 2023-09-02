@@ -107,7 +107,10 @@ approaches as used with the filament sensor.
   - Added: Functionality to add or remove actuators.
   - Added: Options to show or hide detailed actuator configurations.
 - **Version 0.4.159 (9/1/2023)**:
-  - Added: CI/CD workflow to update version number in README.md 
+  - Added: CI/CD workflow to update version number in README.md.
+- **Version 0.4.188 (9/2/2023)**:
+  - Added: Dummy server-side code for reading limit switch state to support UI development.
+  - Added: Client-side code for reading and displaying limit switch state.
 
 
 <!-- 
