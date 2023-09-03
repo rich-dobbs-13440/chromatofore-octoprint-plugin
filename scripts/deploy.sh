@@ -37,7 +37,7 @@ ssh rld@chromatofore.local "~/oprint/bin/pip install ~/chromatofore-octoprint-pl
 ssh rld@chromatofore.local "curl -s -X POST -H 'Content-Type: application/json' -H 'X-Api-Key: $OCTOPRINT_API_KEY' -d '{\"command\":\"shutdown_chromatofore_plugin\"}' http://localhost:5000/api/plugin/chromatofore"
 
 # Pause for a few seconds to let the plugin handle shutdown
-sleep 5
+#sleep 5
 
 # Restart the OctoPrint service
 ssh rld@chromatofore.local "sudo service octoprint restart"

@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 from .filament_sensors import FilamentSensors
 from .servo import Servo
-from .pcf9574GpioExtenderBoard import Pcf9574GpioExtenderBoard
+from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
 
 def jsonify_no_cache(status, **kwargs):
     response = flask.jsonify(**kwargs)
@@ -27,13 +27,16 @@ class ChromatoforePlugin(
     octoprint.plugin.SimpleApiPlugin):
 
     def __init__(self):
+        pass
         self.filament_sensors = FilamentSensors(i2c_address=0x21)
-
+        
     # StartupPlugin mixin         
 
     def on_after_startup(self):
         self._logger.info("In on_after_startup")
-        self.filament_sensors.start()    
+        # self.filament_sensors.start()  
+        Pcf8574GpioExtenderBoard.logger = self._logger
+  
 
     # ShutdownPlugin mixin
     # 
@@ -41,7 +44,8 @@ class ChromatoforePlugin(
 
     def on_shutdown(self):
         self._logger.info("In on_shutdown")
-        self.filament_sensors.stop()
+        # self.filament_sensors.stop()
+        Pcf8574GpioExtenderBoard.stop_all_threads()
         self._logger.info("Leaving on_shutdown") 
 
     def get_sorting_key(self, context):
@@ -75,7 +79,6 @@ class ChromatoforePlugin(
         }
     
     def on_api_command(self, command, data):
-        self._logger.info(f"In on_api_command, data is of type {type(data)}")
         if command == "shutdown_chromatofore_plugin":
             self.on_shutdown()
             return jsonify_no_cache(HTTPStatus.OK, action="Shutting down Chromatofore")  
@@ -102,7 +105,13 @@ class ChromatoforePlugin(
                 pin = int(pin_str)
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid pin parameter"), 
-            return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=self.filament_sensors.is_filament_sensed(pin))
+        
+            error_message, sensed = self.filament_sensors.is_filament_sensed(pin)
+
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=sensed)
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message)
         
         elif command == "set_servo_angle":
            
@@ -137,6 +146,7 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=board_str, channel=channel_str, angle=angle_str)
             
         elif command == "read_limit_switch":
+            self._logger.info("In command read_limit_switch")
 
             # Process board parameter
             board_str = data.get("board")
@@ -155,14 +165,17 @@ class ChromatoforePlugin(
                 channel = int(channel_str)
             except ValueError:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Invalid channel parameter", channel=channel_str)
+            
+            self._logger.info("Calling Pcf8574GpioExtenderBoard.read_channel")  
+            self._logger.info(f"In command read_limit_switch: {Pcf8574GpioExtenderBoard.get_input_for_board(board):08b}")
 
-            error_message, pin_state = Pcf9574GpioExtenderBoard.read_limit_switch(board, channel)
+            error_message, pin_state = Pcf8574GpioExtenderBoard.read_channel(board, channel)
+            self._logger.info(f"Error message: {error_message} pin_state {pin_state}")
 
             if error_message:
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=board, channel=channel)
             else:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel, pin_state=pin_state)
-
             
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)

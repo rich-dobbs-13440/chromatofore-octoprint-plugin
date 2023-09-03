@@ -111,7 +111,8 @@ approaches as used with the filament sensor.
 - **Version 0.4.188 (9/2/2023)**:
   - Added: Dummy server-side code for reading limit switch state to support UI development.
   - Added: Client-side code for reading and displaying limit switch state.
-
+- **Version 0.4.218 (9/3/2023)**:
+  - Added: Real code for reading limit switch state to support assembly of actuators.
 
 <!-- 
 
