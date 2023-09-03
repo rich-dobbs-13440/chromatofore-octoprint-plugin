@@ -70,7 +70,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Current Sprint
 
-THe Chromatofore plugin is currently at **Current Version: 0.4.189**. 
+THe Chromatofore plugin is currently at **Current Version: 0.4.219**. 
 
 We are working toward Version 0.5 as described in the Development Roadmap.  Version 0.5 features are
 probably complete, but need to be validated and refined.  To aid in validating 0.5, we'll make the initial 
@@ -111,7 +111,8 @@ approaches as used with the filament sensor.
 - **Version 0.4.188 (9/2/2023)**:
   - Added: Dummy server-side code for reading limit switch state to support UI development.
   - Added: Client-side code for reading and displaying limit switch state.
-
+- **Version 0.4.218 (9/3/2023)**:
+  - Added: Real code for reading limit switch state to support assembly of actuators.
 
 <!-- 
 
