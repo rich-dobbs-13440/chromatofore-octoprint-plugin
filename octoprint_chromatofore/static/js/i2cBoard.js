@@ -16,7 +16,7 @@ function I2cBoard(data) {
         // Default note to empty string for this case
         self.note = ko.observable("");
     } else {
-        console.error("Invalid data format for GpioBoard:", data);
+        console.error("Invalid data format for I2C Board:", data);
         return;
     }
 

@@ -118,7 +118,7 @@ $(function() {
             console.log("self.gpioBoards() :", self.gpioBoards());
 
 
-            var servoBoardData = self.pluginSettings.servo_driver_boards();
+            var servoBoardData = ko.toJS(self.pluginSettings.servo_driver_boards);
             self.servoBoards = ko.observableArray(servoBoardData.map(function(data) {
                 var board = new I2cBoard(data);
                 return board;
@@ -194,7 +194,7 @@ $(function() {
             }
             {
                 var data = self.servoBoards().map(function(board) {
-                    return servoBoard.address();
+                    return board.toData();
                 });
                 console.log("Servo board data to save:", data);   
                 // Update the original settings with the new values

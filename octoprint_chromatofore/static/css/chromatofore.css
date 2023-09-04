@@ -8,6 +8,10 @@ input.i2c-address {
     width: 50px;
 }
 
+input.i2c-note {
+    width: 200px; 
+}
+
 .angle-edit-width {
     width: 40px; 
 }

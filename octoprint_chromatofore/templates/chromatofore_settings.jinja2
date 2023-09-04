@@ -75,64 +75,63 @@
        <!-- Display error message if available -->
        <div class="api-response" data-bind="text: apiResponse, css: { 'error-text': isApiError }"></div>
     </td>
+
+</script>    
+
+
+<script type="text/html" id="i2c-boards-table-template">
+    <table>
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: $data.boards">
+            <tr>
+                <td>
+                    <input type="text" class="i2c-address"
+                        data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
+                </td>
+                <td> 
+                    <input type="text" class="i2c-note" data-bind="text: note" placeholder="Explain the purpose of board and range of actuators">
+                </td>
+                <td>
+                    <button data-bind="click: function(){ $root.validateI2cBoard(address) }">Validate</button>
+                    <button data-bind="click: function() { board = $data; $parent.removeBoard(board); }"">Remove</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </script>
+
 
 
 <div>
     <h4>Chromatofore Filament Changer Settings</h4>
+
+
     
     <h5>PCF8574 8 Channel GPIO Board Addresses</h5>
 
     <div> These boards are used to sense limit switches used for end stops and filament detectors </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Address</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: gpioBoards">
-            <tr>
-                <td>
-                    <input type="text" class="i2c-address"
-                        data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
-                </td>
-                <td>
-                    <button data-bind="click: $parent.removeGpioBoard">Remove</button>
-                    <button data-bind="click: function(){ $parent.validateI2cBoard(address) }">Validate</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: gpioBoards, removeBoard: removeGpioBoard} }"></div>
 
     <button data-bind="click: addGpioBoard">Add GPIO Board</button>
+
+
 
     <h5>PCA9685 16 Channel PWM Driver Board Addresses</h5>
     <div> These boards are used to control hobby servos used to clamp and push filament. </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Address</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: servoBoards">
-            <tr>
-                <td>
-                    <input type="text" class="i2c-address"
-                        data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
-                </td>
-                <td>
-                    <button data-bind="click: $parent.removeServoBoard">Remove</button>
-                    <button data-bind="click: function(){ $parent.validateI2cBoard(address) }">Validate</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: servoBoards, removeBoard: removeServoBoard} }"></div>
 
     <button data-bind="click: addServoBoard">Add Servo Board</button>
+
+
+
 
     <h5>Earwig Filament Actuators</h5>
     <div>The actuators can load and unload filament from the 3d printer.  
