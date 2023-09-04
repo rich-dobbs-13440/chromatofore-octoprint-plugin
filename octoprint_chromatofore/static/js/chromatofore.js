@@ -363,20 +363,7 @@ $(function() {
             { text: "Every 5 Seconds", value: 5 },
             { text: "Every 10 Seconds", value: 10 },
         ];
-        self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "Never".        
-
-
-        // var refreshInterval; // This will store the interval instance.
-
-        // // Subscribe to changes in the selected refresh rate to adjust the interval.
-        // self.selectedRefreshRate.subscribe(function(newValue) {
-        //     if (refreshInterval) {
-        //         clearInterval(refreshInterval); // Clear the previous interval.
-        //     }
-    
-        //     // Set up a new interval based on the selected value.
-        //     refreshInterval = setInterval(self.refreshFunction, newValue * 1000);
-        // });        
+        self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "Never".               
             
 
         self.settingsViewModel = parameters[0];
@@ -415,12 +402,14 @@ $(function() {
         }  
 
         self.addActuator = function() {
-            var defaultData = {
+
+
+            const defaultData = {
                 id: "new_actuator",
                 pusher: {
                     role: "Pusher Servo",
                     board: 0x40,
-                    channel: 0x0,
+                    channel: 0x01,
                     min_angle: 0,
                     max_angle: 180
                 },
@@ -446,8 +435,49 @@ $(function() {
                     board: 0x21,
                     channel: 0x0
                 }
-            };
-            var actuator = new Actuator(defaultData, self.selectedRefreshRateInSeconds);
+            };            
+
+            let lastActuator = self.actuators()[self.actuators().length - 1];
+
+            if (!lastActuator) {
+                data = defaultData;
+            } else {
+                // Compute data from lastActuator
+                data = {
+                    id: "new_actuator",
+                    pusher: {
+                        role: "Pusher Servo",
+                        board: lastActuator.pusher.boardToInt(),
+                        channel: lastActuator.fixed_clamp.channelToInt() + 1,
+                        min_angle: lastActuator.pusher.min_angle(),
+                        max_angle: lastActuator.pusher.max_angle()
+                    },
+                    moving_clamp: {
+                        role: "Moving Clamp Servo",
+                        board: lastActuator.pusher.boardToInt(),
+                        channel: lastActuator.fixed_clamp.channelToInt() + 2,
+                        min_angle: lastActuator.moving_clamp.min_angle(),
+                        max_angle: lastActuator.moving_clamp.max_angle()
+                    },
+                    fixed_clamp: {
+                        role: "Fixed Clamp Servo",
+                        board: lastActuator.pusher.boardToInt(),
+                        channel: lastActuator.fixed_clamp.channelToInt() + 3,
+                        min_angle: lastActuator.fixed_clamp.min_angle(),
+                        max_angle: lastActuator.fixed_clamp.max_angle()
+                    },
+                    pusher_limit_switch: {
+                        board: lastActuator.pusher_limit_switch.boardToInt(), 
+                        channel: lastActuator.pusher_limit_switch.channelToInt() + 1,
+                    },
+                    filament_sensor: {
+                        board: lastActuator.filament_sensor.boardToInt(), 
+                        channel: lastActuator.filament_sensor.channelToInt() + 1
+                    }
+                };
+            }
+
+            var actuator = new Actuator(data, self.selectedRefreshRateInSeconds);
             actuator.detailsVisible(true);
             self.actuators.push(actuator);
         }

@@ -70,7 +70,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Current Sprint
 
-THe Chromatofore plugin is currently at **Current Version: 0.4.189**. 
+THe Chromatofore plugin is currently at **Current Version: 0.4.225**. 
 
 We are working toward Version 0.5 as described in the Development Roadmap.  Version 0.5 features are
 probably complete, but need to be validated and refined.  To aid in validating 0.5, we'll make the initial 
@@ -111,7 +111,10 @@ approaches as used with the filament sensor.
 - **Version 0.4.188 (9/2/2023)**:
   - Added: Dummy server-side code for reading limit switch state to support UI development.
   - Added: Client-side code for reading and displaying limit switch state.
-
+- **Version 0.4.218 (9/3/2023)**:
+  - Added: Real code for reading limit switch state to support assembly of actuators.
+- **Version 0.4.225 (9/3/2023)**:
+     Added: When adding an actuator, start with last defined actuator and increment channels  Use the same board.
 
 <!-- 
 
@@ -132,7 +135,6 @@ approaches as used with the filament sensor.
 
 - Bug: The servo board address list doesn't update correctly when a new board is added.
 - Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
-- Enhancement: When adding an actuator, start with last defined actuator and increment channels.
 - Enhancement: Analyze configuration and report potential channel conflicts.
 - Technical Debt: Code for managing boards is duplicated between GPIO and PMW boards
 
