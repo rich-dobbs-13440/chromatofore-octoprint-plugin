@@ -42,10 +42,13 @@ On the settings page, users can specify the assembled configuration of the filam
 **Version 0.5** : 
    - Configuration options for actuator servos.
    - Servo movement testing.
-
-**Version 0.6**: 
    - Limit switch configuration.
    - Testing for filament detection and pusher movement using limit switches.
+
+
+**Version 0.6**: 
+   - Scan the I2C bus for boards.  
+   - Periodically check the boards for availability.   
 
 **Version 0.7**: 
    - Logic and UI for loading/unloading filaments in the changer.
@@ -117,6 +120,9 @@ approaches as used with the filament sensor.
      Added: When adding an actuator, start with last defined actuator and increment channels  Use the same board.
 - **Version 0.4.257 (9/3/2023)**:
      Added: Display current board address even if it has been deleted from the list of servo or GPIO boards.   
+- **Version 0.4.324 (9/4/2023)**:
+     Revised: Development Roadmap to merge version 0.5 and 0.6 features into version 0.5, and created a different 0.6 version.
+     Refactored: Moved board list management features out of main plugin class, into I2cBoard.js.
 
 <!-- 
 

@@ -95,7 +95,7 @@
                         data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
                 </td>
                 <td> 
-                    <input type="text" class="i2c-note" data-bind="text: note" placeholder="Explain the purpose of board and range of actuators">
+                    <input type="text" class="i2c-note" data-bind="value: note" placeholder="Explain the purpose of board and range of actuators">
                 </td>
                 <td>
                     <button data-bind="click: function(){ $root.validateI2cBoard(address) }">Validate</button>
@@ -117,7 +117,7 @@
 
     <div> These boards are used to sense limit switches used for end stops and filament detectors </div>
 
-    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: gpioBoards, removeBoard: gpioBoards.removeBoard} }"></div>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: gpioBoards.items, removeBoard: gpioBoards.removeBoard} }"></div>
 
     <button data-bind="click: gpioBoards.addBoard">Add GPIO Board</button>
 
@@ -126,7 +126,7 @@
     <h5>PCA9685 16 Channel PWM Driver Board Addresses</h5>
     <div> These boards are used to control hobby servos used to clamp and push filament. </div>
 
-    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: servoBoards, removeBoard: servoBoards.removeBoard} }"></div>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: servoBoards.items, removeBoard: servoBoards.removeBoard} }"></div>
 
     <button data-bind="click: servoBoards.addBoard">Add Servo Board</button>
 
