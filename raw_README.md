@@ -136,6 +136,8 @@ approaches as used with the filament sensor.
 - Bug: The servo board address list doesn't update correctly when a new board is added.
 - Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
 - Enhancement: Analyze configuration and report potential channel conflicts.
+- Enhancement: Confirmation dialog  before deleting an acuator.  
+- Enhancement: 
 - Technical Debt: Code for managing boards is duplicated between GPIO and PMW boards
 
 

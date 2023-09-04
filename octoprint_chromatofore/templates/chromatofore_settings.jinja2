@@ -3,7 +3,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.availableServoBoards, value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options: $root.combinedServoBoards(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
@@ -11,11 +11,12 @@
     </td>
     <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
     <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
+    <td></td>
 </script>
 
 <script type="text/html" id="servo-template-row-2">
     <td></td>
-    <td colspan="4">
+    <td colspan="5">
         <table class="servo-sliders">
             <!-- Row for the Minimum slider -->
             <tr class="servo-slider">
@@ -63,7 +64,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.availableGpioBoards, value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options: $root.combinedGpioBoards(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>

@@ -197,8 +197,13 @@ class ChromatoforePlugin(
 
     def get_settings_defaults(self):
         return {
-            "gpio_boards": [0x20, 0x21],
-            "servo_driver_boards": [0x40],
+        "gpio_boards": [
+            {"i2c_address": 0x20, "note": "Pusher limit switches for first eight actuators"},
+            {"i2c_address": 0x21, "note": "Filament detector limit switches for first eight actuators"},
+        ],
+        "servo_driver_boards": [
+            {"i2c_address": 0x40, "note": "Pusher, moving clamp, and fixed clamp servos for the first five actuators."},
+        ],
             "actuators": [
                     {
                         "id": "black_wire",
@@ -217,7 +222,7 @@ class ChromatoforePlugin(
         # Define your plugin's asset files to automatically include in the
         # core UI here.
         return {
-            "js": ["js/chromatofore.js"],
+            "js": ["js/utilities.js""js/limitSwitch.js", "js/chromatofore.js", ],
             "css": ["css/chromatofore.css"],
             "less": ["less/chromatofore.less"]
         }
