@@ -348,8 +348,76 @@ $(function() {
                 pusher_limit_switch: self.pusher_limit_switch.toData(),
                 filament_sensor: self.filament_sensor.toData(),
             };
-        };          
-    }
+        };  
+        
+        self.getDataToBuildNextAcuator = function() {
+            return {
+                id: "new_actuator",
+                pusher: {
+                    role: "Pusher Servo",
+                    board: self.pusher.boardToInt(),
+                    channel: self.fixed_clamp.channelToInt() + 1,
+                    min_angle: self.pusher.min_angle(),
+                    max_angle: self.pusher.max_angle()
+                },
+                moving_clamp: {
+                    role: "Moving Clamp Servo",
+                    board: self.pusher.boardToInt(),
+                    channel: self.fixed_clamp.channelToInt() + 2,
+                    min_angle: self.moving_clamp.min_angle(),
+                    max_angle: self.moving_clamp.max_angle()
+                },
+                fixed_clamp: {
+                    role: "Fixed Clamp Servo",
+                    board: self.pusher.boardToInt(),
+                    channel: self.fixed_clamp.channelToInt() + 3,
+                    min_angle: self.fixed_clamp.min_angle(),
+                    max_angle: self.fixed_clamp.max_angle()
+                },
+                pusher_limit_switch: {
+                    board: self.pusher_limit_switch.boardToInt(), 
+                    channel: self.pusher_limit_switch.channelToInt() + 1,
+                },
+                filament_sensor: {
+                    board: self.filament_sensor.boardToInt(), 
+                    channel: self.filament_sensor.channelToInt() + 1
+                }
+            };
+        }
+    };       
+
+    Actuator.defaultData = {
+        id: "new_actuator",
+        pusher: {
+            role: "Pusher Servo",
+            board: 0x40,
+            channel: 0x01,
+            min_angle: 0,
+            max_angle: 180
+        },
+        moving_clamp: {
+            role: "Moving Clamp Servo",
+            board: 0x40,
+            channel: 0x1,
+            min_angle: 0,
+            max_angle: 90
+        },
+        fixed_clamp: {
+            role: "Fixed Clamp Servo",
+            board: 0x40,
+            channel: 0x2,
+            min_angle: 0,
+            max_angle: 90
+        },
+        pusher_limit_switch: {
+            board: 0x20,
+            channel: 0x0
+        },
+        filament_sensor: {
+            board: 0x21,
+            channel: 0x0
+        }
+    };    
     
     
 
@@ -402,88 +470,12 @@ $(function() {
         }  
 
         self.addActuator = function() {
-
-
-            const defaultData = {
-                id: "new_actuator",
-                pusher: {
-                    role: "Pusher Servo",
-                    board: 0x40,
-                    channel: 0x01,
-                    min_angle: 0,
-                    max_angle: 180
-                },
-                moving_clamp: {
-                    role: "Moving Clamp Servo",
-                    board: 0x40,
-                    channel: 0x1,
-                    min_angle: 0,
-                    max_angle: 90
-                },
-                fixed_clamp: {
-                    role: "Fixed Clamp Servo",
-                    board: 0x40,
-                    channel: 0x2,
-                    min_angle: 0,
-                    max_angle: 90
-                },
-                pusher_limit_switch: {
-                    board: 0x20,
-                    channel: 0x0
-                },
-                filament_sensor: {
-                    board: 0x21,
-                    channel: 0x0
-                }
-            };            
-
             let lastActuator = self.actuators()[self.actuators().length - 1];
-
-            if (!lastActuator) {
-                data = defaultData;
-            } else {
-                // Compute data from lastActuator
-                data = {
-                    id: "new_actuator",
-                    pusher: {
-                        role: "Pusher Servo",
-                        board: lastActuator.pusher.boardToInt(),
-                        channel: lastActuator.fixed_clamp.channelToInt() + 1,
-                        min_angle: lastActuator.pusher.min_angle(),
-                        max_angle: lastActuator.pusher.max_angle()
-                    },
-                    moving_clamp: {
-                        role: "Moving Clamp Servo",
-                        board: lastActuator.pusher.boardToInt(),
-                        channel: lastActuator.fixed_clamp.channelToInt() + 2,
-                        min_angle: lastActuator.moving_clamp.min_angle(),
-                        max_angle: lastActuator.moving_clamp.max_angle()
-                    },
-                    fixed_clamp: {
-                        role: "Fixed Clamp Servo",
-                        board: lastActuator.pusher.boardToInt(),
-                        channel: lastActuator.fixed_clamp.channelToInt() + 3,
-                        min_angle: lastActuator.fixed_clamp.min_angle(),
-                        max_angle: lastActuator.fixed_clamp.max_angle()
-                    },
-                    pusher_limit_switch: {
-                        board: lastActuator.pusher_limit_switch.boardToInt(), 
-                        channel: lastActuator.pusher_limit_switch.channelToInt() + 1,
-                    },
-                    filament_sensor: {
-                        board: lastActuator.filament_sensor.boardToInt(), 
-                        channel: lastActuator.filament_sensor.channelToInt() + 1
-                    }
-                };
-            }
-
+            let data = lastActuator ? lastActuator.getDataToBuildNextAcuator() : Actuator.defaultData;
             var actuator = new Actuator(data, self.selectedRefreshRateInSeconds);
             actuator.detailsVisible(true);
             self.actuators.push(actuator);
         }
-
-      
-        
 
         // This will get called before the ChromatoforeViewModel gets bound to the DOM, but after its
         // dependencies have already been initialized. It is especially guaranteed that this method
@@ -544,7 +536,6 @@ $(function() {
                 });
             
             }, null, "arrayChange");
-    
     
             
             self.updateAvailableServoBoards = function() {
