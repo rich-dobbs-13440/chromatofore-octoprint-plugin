@@ -70,7 +70,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Current Sprint
 
-THe Chromatofore plugin is currently at **Current Version: 0.4.256**. 
+THe Chromatofore plugin is currently at **Current Version: 0.4.257**. 
 
 We are working toward Version 0.5 as described in the Development Roadmap.  Version 0.5 features are
 probably complete, but need to be validated and refined.  To aid in validating 0.5, we'll make the initial 
@@ -115,6 +115,8 @@ approaches as used with the filament sensor.
   - Added: Real code for reading limit switch state to support assembly of actuators.
 - **Version 0.4.225 (9/3/2023)**:
      Added: When adding an actuator, start with last defined actuator and increment channels  Use the same board.
+- **Version 0.4.257 (9/3/2023)**:
+     Added: Display current board address even if it has been deleted from the list of servo or GPIO boards.   
 
 <!-- 
 
