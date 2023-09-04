@@ -2,33 +2,6 @@
 
 $(function() {
 
-    // var globalLimitSwitchCounter = 0;  
-
-    // function isElementInViewport(el) {
-    //     var rect = el.getBoundingClientRect();
-    
-    //     return (
-    //         rect.top >= 0 &&
-    //         rect.left >= 0 &&
-    //         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    //         rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    //     );
-    // }
-    
-
-
- 
-
-
-    function setServoValue(actuatorIndex, servoRole, value) {
-        var slider = document.querySelector('.angle-value[data-actuator-index="' + actuatorIndex + '"][data-servo-role="' + servoRole + '"]');
-        if (slider) {
-            slider.value = value;
-        }
-    }
-
- 
-    
 
     function containsBoardWithAddress(array, address) {
         return array.some(function(board) {
@@ -57,147 +30,8 @@ $(function() {
         return currentAddress;
     }
     
-    
-
-
-
-        
  
 
-
-
-    function GpioBoard(address) {
-        var self = this;
-        self.address = ko.observable(address);
-        self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0')); 
-    }
-
-    function ServoBoard(address) {
-        var self = this;
-        self.address = ko.observable(address);
-        self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0')); 
-    }    
-
-    function Actuator(data, refreshRateInSeconds) {
-        var self = this;
-        console.log("data:", data);
-
-        self.refreshRate = refreshRateInSeconds;
-        
-        // The user provides a name for actuator
-        self.id = ko.observable(data.id);
-    
-        // An acutuator has three servos:
-        self.pusher = new Servo(data.pusher);
-        self.moving_clamp = new Servo(data.moving_clamp);
-        self.fixed_clamp = new Servo(data.fixed_clamp);  
-
-    
-        // An actuator has two limit switches:
-        self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch, self.refreshRate);
-        self.filament_sensor = new LimitSwitch("Filament Sensor", data.filament_sensor, self.refreshRate);
-
-        // Observable to track visibility of details
-        self._detailsVisible = ko.observable(true);  // Use an "underscore" prefix to denote private observables
-
-        self.detailsVisible = ko.computed({
-            read: function() {
-                console.log("detailsVisible is being read:", self._detailsVisible());
-                return self._detailsVisible();
-            },
-            write: function(value) {
-                self._detailsVisible(value);
-            }
-        });
-
-        // Function to toggle the visibility
-        self.toggleDetails = function() {
-            self.detailsVisible(!self.detailsVisible());
-        };
-        
-
-        
-
-        self.toData = function() {
-            return {
-                id: self.id(),
-                pusher: self.pusher.toData(),
-                moving_clamp: self.moving_clamp.toData(),
-                fixed_clamp: self.fixed_clamp.toData(),
-                pusher_limit_switch: self.pusher_limit_switch.toData(),
-                filament_sensor: self.filament_sensor.toData(),
-            };
-        };  
-        
-        self.getDataToBuildNextAcuator = function() {
-            return {
-                id: "new_actuator",
-                pusher: {
-                    role: "Pusher Servo",
-                    board: self.pusher.boardToInt(),
-                    channel: self.fixed_clamp.channelToInt() + 1,
-                    min_angle: self.pusher.min_angle(),
-                    max_angle: self.pusher.max_angle()
-                },
-                moving_clamp: {
-                    role: "Moving Clamp Servo",
-                    board: self.pusher.boardToInt(),
-                    channel: self.fixed_clamp.channelToInt() + 2,
-                    min_angle: self.moving_clamp.min_angle(),
-                    max_angle: self.moving_clamp.max_angle()
-                },
-                fixed_clamp: {
-                    role: "Fixed Clamp Servo",
-                    board: self.pusher.boardToInt(),
-                    channel: self.fixed_clamp.channelToInt() + 3,
-                    min_angle: self.fixed_clamp.min_angle(),
-                    max_angle: self.fixed_clamp.max_angle()
-                },
-                pusher_limit_switch: {
-                    board: self.pusher_limit_switch.boardToInt(), 
-                    channel: self.pusher_limit_switch.channelToInt() + 1,
-                },
-                filament_sensor: {
-                    board: self.filament_sensor.boardToInt(), 
-                    channel: self.filament_sensor.channelToInt() + 1
-                }
-            };
-        }
-    };       
-
-    Actuator.defaultData = {
-        id: "new_actuator",
-        pusher: {
-            role: "Pusher Servo",
-            board: 0x40,
-            channel: 0x01,
-            min_angle: 0,
-            max_angle: 180
-        },
-        moving_clamp: {
-            role: "Moving Clamp Servo",
-            board: 0x40,
-            channel: 0x1,
-            min_angle: 0,
-            max_angle: 90
-        },
-        fixed_clamp: {
-            role: "Fixed Clamp Servo",
-            board: 0x40,
-            channel: 0x2,
-            min_angle: 0,
-            max_angle: 90
-        },
-        pusher_limit_switch: {
-            board: 0x20,
-            channel: 0x0
-        },
-        filament_sensor: {
-            board: 0x21,
-            channel: 0x0
-        }
-    };    
-    
     
 
     function ChromatoforeViewModel(parameters) {
@@ -217,7 +51,7 @@ $(function() {
 
         // Operations
         self.addGpioBoard = function() {
-            self.gpioBoards.push(new GpioBoard(0x20));
+            self.gpioBoards.push(new I2cBoard(0x20));
             console.log("After adding gpio board: ", self.gpioBoards());
             console.log(self.gpioBoards());
         };
@@ -228,7 +62,7 @@ $(function() {
         
         self.addServoBoard = function() {
             var nextAddress = findNextAvailableAddress(self.servoBoards(), 0x40); 
-            self.servoBoards.push(new ServoBoard(nextAddress));
+            self.servoBoards.push(new I2cBoard(nextAddress));
             sortServoBoards(self.servoBoards);
             console.log("After adding servo board: ", self.servoBoards());  
             self.availableServoBoards = self.servoBoards().map(function(board) {
@@ -276,29 +110,24 @@ $(function() {
             console.log("self.actuators() :", self.actuators());               
 
 
-            var gpioAddresses = self.pluginSettings.gpio_boards();
-            self.gpioBoards = ko.observableArray(gpioAddresses.map(function(address) {
-                var board = new GpioBoard(address);
-                board.addressInput("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
+            var gpioBoardData = ko.toJS(self.pluginSettings.gpio_boards);
+            self.gpioBoards = ko.observableArray(gpioBoardData.map(function(data) {
+                var board = new I2cBoard(data);
                 return board;
             }));
-            
             console.log("self.gpioBoards() :", self.gpioBoards());
 
 
-            var servoBoardAddresses = self.pluginSettings.servo_driver_boards();
-            self.servoBoards = ko.observableArray(servoBoardAddresses.map(function(address) {
-                var board = new ServoBoard(address);
-                board.addressInput("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
+            var servoBoardData = self.pluginSettings.servo_driver_boards();
+            self.servoBoards = ko.observableArray(servoBoardData.map(function(data) {
+                var board = new I2cBoard(data);
                 return board;
             }));
-
             console.log("self.servoBoards() :", self.servoBoards());  
          
             self.availableServoBoards = self.servoBoards().map(function(board) {
                 return board.addressInput();
             });
-
             console.log("self.availableServoBoards :", self.availableServoBoards);  
 
             self.servoBoards.subscribe(function(changes) {
@@ -356,32 +185,29 @@ $(function() {
         self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");
             {
-                var addresses = self.gpioBoards().map(function(gpioBoard) {
-                    return gpioBoard.address();
+                var data = self.gpioBoards().map(function(board) {
+                    return board.toData();
                 });
-                console.log("Addresses within gpioBoards: ", addresses);   
+                console.log("GPIO board data to save:", data);   
                 // Update the original settings with the new values
-                // self.settingsViewModel.settings.plugins.chromatofore.gpio_boards(addresses);    
-                self.pluginSettings.gpio_boards(addresses);                       
+                self.pluginSettings.gpio_boards(data);                       
             }
-
             {
-                var addresses = self.servoBoards().map(function(servoBoard) {
+                var data = self.servoBoards().map(function(board) {
                     return servoBoard.address();
                 });
-                console.log("Addresses within servoSoards: ", addresses);   
+                console.log("Servo board data to save:", data);   
                 // Update the original settings with the new values
-                //self.settingsViewModel.settings.plugins.chromatofore.servo_driver_boards(addresses); 
-                self.pluginSettings.servo_driver_boards(addresses);                            
-            }            
-
-            var actuatorDataToSave = self.actuators().map(function(actuator) {
-                return actuator.toData();
-            });
-            console.log("Actuators data to save: ", actuatorDataToSave);
-            
-            self.pluginSettings.actuators(actuatorDataToSave);
-
+                self.pluginSettings.servo_driver_boards(data);                            
+            }   
+            {
+                var data = self.actuators().map(function(actuator) {
+                    return actuator.toData();
+                });
+                console.log("Actuators data to save:", data);
+                // Update the original settings with the new values
+                self.pluginSettings.actuators(data);
+            }
         };
 
 

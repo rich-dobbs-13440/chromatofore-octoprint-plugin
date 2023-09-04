@@ -217,7 +217,14 @@ class ChromatoforePlugin(
         # Define your plugin's asset files to automatically include in the
         # core UI here.
         return {
-            "js": ["js/utilities.js", "js/limitSwitch.js", "js/servo.js", "js/chromatofore.js"],
+            "js": [
+                "js/utilities.js", 
+                "js/limitSwitch.js", 
+                "js/servo.js", 
+                "js/actuator.js", 
+                "js/i2cBoard.js",
+                "js/chromatofore.js"
+                ],
             "css": ["css/chromatofore.css"],
             "less": ["less/chromatofore.less"]
         }
