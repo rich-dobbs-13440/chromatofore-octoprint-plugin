@@ -39,13 +39,15 @@ On the settings page, users can specify the assembled configuration of the filam
 
 *Outlined below are the features and improvements planned for upcoming Chromatofore versions.*
 
-**Version 0.5** : 
+**Version 0.5**:
+   - Completed on 9/4/2023.
    - Configuration options for actuator servos.
    - Servo movement testing.
    - Limit switch configuration.
    - Testing for filament detection and pusher movement using limit switches.
 
 **Version 0.6**: 
+   - Current focus of efforts.
    - Scan the I2C bus for boards.  
    - Periodically check the boards for availability.  
    - Display board jumpers.  
@@ -137,6 +139,12 @@ approaches as used with the filament sensor.
 - **Version 0.4.324 (9/4/2023)**:
      Revised: Development Roadmap to merge version 0.5 and 0.6 features into version 0.5, and created a different 0.6 version.
      Refactored: Moved board list management features out of main plugin class, into I2cBoard.js.
+- **Version 0.5.0 (9/4/2023)**:
+     Completion: Version 0.5 features
+- **Version 0.5.34 (9/4/2023)**:
+   - Added: Check if board is on bus at startup
+   - Changed: Board validation is displayed in table, rather than through an alert.
+
 
 <!-- 
 

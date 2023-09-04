@@ -14,8 +14,8 @@ $(function() {
             { text: "Every 5 Seconds", value: 5 },
             { text: "Every 10 Seconds", value: 10 },
         ];
-        self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "Never".               
-            
+        self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "each second".               
+        self.selectedScanRefreshRateInSeconds = ko.observable(30); // Default to "every 30 seconds.     
 
         self.settingsViewModel = parameters[0];
 
@@ -51,13 +51,13 @@ $(function() {
 
 
             var gpioBoardData = ko.toJS(self.pluginSettings.gpio_boards);
-            self.gpioBoards = new I2cBoards(gpioBoardData, 0x20);
+            self.gpioBoards = new I2cBoards(gpioBoardData, 0x20, 8, self.selectedScanRefreshRateInSeconds);
             console.log("self.gpioBoards.toData()", self.gpioBoards.toData());
             console.log("GPIO Boards items:", ko.toJS(self.gpioBoards.boards));
 
 
             var servoBoardData = ko.toJS(self.pluginSettings.servo_driver_boards);
-            self.servoBoards = new I2cBoards(servoBoardData, 0x40);
+            self.servoBoards = new I2cBoards(servoBoardData, 0x40, 64, self.selectedScanRefreshRateInSeconds);
             console.log("self.servoBoards.toData()", self.servoBoards.toData());
             console.log("Servo Boards: items", ko.toJS(self.servoBoards.boards));         
         };    
@@ -87,22 +87,7 @@ $(function() {
         };
 
 
-        self.validateI2cBoard = function(address) {
-            // This should make an AJAX request to your plugin's backend to verify the address.
-            console.log("address", address());
-            OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address() })
-            .done(function(response) {
-                console.log("Got response from simpleApiCommand");
-                if (response.valid) {
-                    alert('Address ' + address + ' is valid!');
-                } else {
-                    alert('Address ' + address + ' is not accessible!');
-                }
-            })
-            .fail(function() {
-                console.log("Got fail from simpleApiCommand");
-            });
-        }
+
 
         self.updateAddressFromInput = function(board) {
             var inputValue = board.addressInput();

@@ -1,4 +1,29 @@
 
+checkI2cAddress = function(address, foundCallback, notFoundCallback, failCallback) {
+    OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address() })
+    .done(function(response) {
+        console.log("Got response from simpleApiCommand");
+        
+        if (response.valid) {
+            // If a callback for found is provided, call it
+            if (typeof foundCallback === 'function') {
+                foundCallback(address);
+            }
+        } else {
+            // If a callback for not found is provided, call it
+            if (typeof notFoundCallback === 'function') {
+                notFoundCallback(address);
+            }
+        }
+    })
+    .fail(function() {
+        if (typeof failCallback === 'function') {
+            failCallback(address);
+        }        
+    });
+}
+
+
 
 function I2cBoard(data) {
     var self = this;
@@ -9,7 +34,7 @@ function I2cBoard(data) {
         // It's a dictionary
         address = data.address;
         // If a note property exists in the data object, use it, else default to an empty string
-        self.note = ko.observable(data.note || "-- content to drive development--");
+        self.note = ko.observable(data.note || "-- specify purpose and range of acutators --");
     } else if (typeof data === "number") {
         // It's just the address
         address = data;
@@ -22,11 +47,29 @@ function I2cBoard(data) {
 
     self.address = ko.observable(address);
     self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
+    self.isValid = ko.observable(false);
 
     self.addressInput.subscribe(function(newValue) {
         var addrValue = parseInt(newValue, 16); // Convert hex string to integer
         self.address(addrValue);
-    });    
+    }); 
+    
+    self.checkIfOnBus = function() {
+        checkI2cAddress(self.address, 
+            function(address) {
+                self.isValid(true);
+            },
+            function(address) {
+                self.isValid(false);
+            },
+            function(address) {
+                console.log("Got a fail from checkI2cAddress for address", address);
+            }
+        );        
+
+    }
+
+    self.checkIfOnBus();
 
     self.toData = function() {
         return {
@@ -34,15 +77,17 @@ function I2cBoard(data) {
             note: self.note(),
         };
     };
-
-
 }
 
 
-function I2cBoards(boardData, baseAddress) {
+
+
+function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     var self = this;
 
     self.baseAddress = baseAddress;
+    self.addressRange = addressRange;
+    self.refreshRateInSeconds = refreshRateInSeconds;
 
     self.items = ko.observableArray(boardData.map(function(data) {
         return new I2cBoard(data);
@@ -53,6 +98,48 @@ function I2cBoards(boardData, baseAddress) {
             return board.addressInput();
         });
     });
+
+
+    self.scanForBoards = function() {
+        // AJAX call to scan for I2C boards and handle the response
+        // Update the self.items observable array accordingly
+
+        console.log("Scanning for boards...")
+
+        // Iterate through the address range
+        for (let i = 0; i < self.addressRange; i++) {
+            let currentAddress = self.baseAddress + i; 
+        }       
+    };   
+    
+    self.refreshIntervalId = null;
+
+    self.setupRefreshInterval = function() {
+        // Clear the existing interval
+        if (self.refreshIntervalId) {
+            clearInterval(self.refreshIntervalId);
+            self.refreshIntervalId = null;
+        }
+    
+        // Set up the new interval
+        if (self.refreshRateInSeconds() < 100000) {  // 100000 as the "never" value, just like in your LimitSwitch class
+            self.refreshIntervalId = setInterval(function() {
+                self.scanForBoards();
+            }, self.refreshRateInSeconds() * 1000);
+        }
+    };
+
+    self.refreshRateInSeconds.subscribe(function(newValue) {
+        self.setupRefreshInterval();
+    });      
+
+    self.dispose = function() {
+        if (self.refreshIntervalId) {
+            clearInterval(self.refreshIntervalId);
+        }
+    };    
+    
+    self.setupRefreshInterval();    
 
     self.addBoard = function(baseAddress) {
         var nextAddress = self.findNextAvailableAddress();
@@ -139,5 +226,7 @@ function I2cBoards(boardData, baseAddress) {
             return board.toData();
         });
     };
+
+
 
 }

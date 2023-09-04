@@ -1,4 +1,4 @@
-/* Generic styling for width adjustments */
+
 select.i2c-address {
     width: 70px; 
     margin-bottom: 2px;
@@ -9,7 +9,7 @@ input.i2c-address {
 }
 
 input.i2c-note {
-    width: 200px; 
+    width: 300px; 
 }
 
 .angle-edit-width {
@@ -190,12 +190,30 @@ td.servo-slider {
     margin-right: 10px;
 }
 
-
 td.pin-state div.api-response {
     display: inline-block;
     vertical-align: middle;
     margin-left: 10px;  /* Optional: Add some space between the arrow and the text */
     width: 200px;
+}
+
+div.item-status {
+    margin-left: 5px; 
+    margin-right: 5px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;    
+}
+
+span.item-found {
+    color: green;
+}
+
+span.item-not-found {
+    color: red;
 }
 
 
