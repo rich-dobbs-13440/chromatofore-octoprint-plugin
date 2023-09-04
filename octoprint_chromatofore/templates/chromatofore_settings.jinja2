@@ -63,7 +63,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.availableGpioBoards, value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options:  $root.combinedGpioBoards(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
