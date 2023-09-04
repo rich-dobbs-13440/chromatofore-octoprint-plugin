@@ -549,7 +549,7 @@ $(function() {
                 self.availableGpioBoards = self.gpioBoards().map(function(board) {
                     return board.addressInput();
                 });
-                console.log("self.availableGpioBoards() :", self.availableGpioBoards());  
+                console.log("self.availableGpioBoards() :", self.availableGpioBoards);  
             };              
         };    
         
@@ -615,6 +615,34 @@ $(function() {
                 board.addressInput("0x??");
             }
         };
+
+
+        self.combinedServoBoards = function(currentBoard) {
+            return ko.computed(function() {
+                // Check if the current board is already in the availableServoBoards list
+                if (self.availableServoBoards.indexOf(currentBoard()) === -1) {
+                    // If not, add it to the list
+                    return [self.availableServoBoards, currentBoard()].flat();
+                } else {
+                    // If it's already in the list, just return the original list
+                    return self.availableServoBoards;
+                }
+            });
+        };
+
+
+        self.combinedGpioBoards = function(currentBoard) {
+            return ko.computed(function() {
+                // Check if the current board is already in the availableServoBoards list
+                if (self.availableGpioBoards.indexOf(currentBoard()) === -1) {
+                    // If not, add it to the list
+                    return [self.availableGpioBoards, currentBoard()].flat();
+                } else {
+                    // If it's already in the list, just return the original list
+                    return self.availableGpioBoards;
+                }
+            });
+        };        
         
 
     }
