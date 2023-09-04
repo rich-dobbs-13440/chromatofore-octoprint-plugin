@@ -3,7 +3,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.combinedServoBoards(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options: $root.servoBoards.augmentedBoards(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
@@ -63,7 +63,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options:  $root.combinedGpioBoards(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options:  $root.gpioBoards.augmentedBoards(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
@@ -117,18 +117,18 @@
 
     <div> These boards are used to sense limit switches used for end stops and filament detectors </div>
 
-    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: gpioBoards, removeBoard: removeGpioBoard} }"></div>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: gpioBoards, removeBoard: gpioBoards.removeBoard} }"></div>
 
-    <button data-bind="click: addGpioBoard">Add GPIO Board</button>
+    <button data-bind="click: gpioBoards.addBoard">Add GPIO Board</button>
 
 
 
     <h5>PCA9685 16 Channel PWM Driver Board Addresses</h5>
     <div> These boards are used to control hobby servos used to clamp and push filament. </div>
 
-    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: servoBoards, removeBoard: removeServoBoard} }"></div>
+    <div data-bind="template: { name: 'i2c-boards-table-template', data: {boards: servoBoards, removeBoard: servoBoards.removeBoard} }"></div>
 
-    <button data-bind="click: addServoBoard">Add Servo Board</button>
+    <button data-bind="click: servoBoards.addBoard">Add Servo Board</button>
 
 
 

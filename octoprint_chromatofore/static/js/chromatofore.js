@@ -3,33 +3,23 @@
 $(function() {
 
 
-    function containsBoardWithAddress(array, address) {
-        return array.some(function(board) {
-            return ko.unwrap(board.address) === address; // ko.unwrap ensures that if it's an observable, you get the underlying value.
-        });
-    }
+    // function containsBoardWithAddress(array, address) {
+    //     return array.some(function(board) {
+    //         return ko.unwrap(board.address) === address; // ko.unwrap ensures that if it's an observable, you get the underlying value.
+    //     });
+    // }
 
-    function sortServoBoards(servoBoards) {
-        servoBoards.sort(function(a, b) {
-            // Convert hexadecimal strings to integers for comparison
-            var addressA = parseInt(ko.unwrap(a.address), 16);
-            var addressB = parseInt(ko.unwrap(b.address), 16);
+    // function sortServoBoards(servoBoards) {
+    //     servoBoards.sort(function(a, b) {
+    //         // Convert hexadecimal strings to integers for comparison
+    //         var addressA = parseInt(ko.unwrap(a.address), 16);
+    //         var addressB = parseInt(ko.unwrap(b.address), 16);
     
-            return addressA - addressB;  // Sort in ascending order
-        });
-    }
+    //         return addressA - addressB;  // Sort in ascending order
+    //     });
+    // }
 
-    function findNextAvailableAddress(boardsArray, baseAddress) {
-        var currentAddress = baseAddress;
-    
-        // Convert hex string to integer, e.g., "0x40" -> 64
-        while (containsBoardWithAddress(boardsArray, currentAddress)) {
-            currentAddress++;  // Increment the address
-        }
-    
-        return currentAddress;
-    }
-    
+
  
 
     
@@ -49,33 +39,33 @@ $(function() {
 
         self.settingsViewModel = parameters[0];
 
-        // Operations
-        self.addGpioBoard = function() {
-            self.gpioBoards.push(new I2cBoard(0x20));
-            console.log("After adding gpio board: ", self.gpioBoards());
-            console.log(self.gpioBoards());
-        };
+        // // Operations
+        // self.addGpioBoard = function() {
+        //     self.gpioBoards.push(new I2cBoard(0x20));
+        //     console.log("After adding gpio board: ", self.gpioBoards());
+        //     console.log(self.gpioBoards());
+        // };
 
-        self.removeGpioBoard = function(board) {
-            self.gpioBoards.remove(board);
-        };      
+        // self.removeGpioBoard = function(board) {
+        //     self.gpioBoards.remove(board);
+        // };      
         
-        self.addServoBoard = function() {
-            var nextAddress = findNextAvailableAddress(self.servoBoards(), 0x40); 
-            self.servoBoards.push(new I2cBoard(nextAddress));
-            sortServoBoards(self.servoBoards);
-            console.log("After adding servo board: ", self.servoBoards());  
-            self.availableServoBoards = self.servoBoards().map(function(board) {
-                return board.addressInput;
-            });
-        };
+        // self.addServoBoard = function() {
+        //     var nextAddress = findNextAvailableAddress(self.servoBoards( ), 0x40); 
+        //     self.servoBoards.push(new I2cBoard(nextAddress));
+        //     sortServoBoards(self.servoBoards);
+        //     console.log("After adding servo board: ", self.servoBoards( ));  
+        //     self.availableServoBoards = self.servoBoards( ).map(function(board) {
+        //         return board.addressInput;
+        //     });
+        // };
 
-        self.removeServoBoard = function(board) {
-            self.servoBoards.remove(board);
-            self.availableServoBoards = self.servoBoards().map(function(board) {
-                return board.addressInput;
-            });
-        }
+        // self.removeServoBoard = function(board) {
+        //     self.servoBoards.remove(board);
+        //     self.availableServoBoards = self.servoBoards( ).map(function(board) {
+        //         return board.addressInput;
+        //     });
+        // }
         
         self.removeActuator = function(actuator) {
             // TODO: Show confirmation dialog
@@ -98,9 +88,6 @@ $(function() {
             console.log("Inside onBeforeBinding");
             // console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
-            console.log("self.pluginSettings.gpio_boards() as JS", ko.toJS(self.pluginSettings.gpio_boards()));
-            console.log("self.pluginSettings.servo_driver_boards() as JS", ko.toJS(self.pluginSettings.servo_driver_boards()));
-            console.log("self.pluginSettings.actuators() as JS", ko.toJS(self.pluginSettings.actuators()));
 
             // For Actuators
             var actuatorData = ko.toJS(self.pluginSettings.actuators);
@@ -111,91 +98,79 @@ $(function() {
 
 
             var gpioBoardData = ko.toJS(self.pluginSettings.gpio_boards);
-            self.gpioBoards = ko.observableArray(gpioBoardData.map(function(data) {
-                var board = new I2cBoard(data);
-                return board;
-            }));
-            console.log("self.gpioBoards() :", self.gpioBoards());
+            self.gpioBoards = new I2cBoards(gpioBoardData, 0x20);
 
 
             var servoBoardData = ko.toJS(self.pluginSettings.servo_driver_boards);
-            self.servoBoards = ko.observableArray(servoBoardData.map(function(data) {
-                var board = new I2cBoard(data);
-                return board;
-            }));
-            console.log("self.servoBoards() :", self.servoBoards());  
+            self.servoBoards = new I2cBoards(servoBoardData, 0x40);
          
-            self.availableServoBoards = self.servoBoards().map(function(board) {
-                return board.addressInput();
-            });
-            console.log("self.availableServoBoards :", self.availableServoBoards);  
+            // self.availableServoBoards = self.servoBoards( ).map(function(board) {
+            //     return board.addressInput();
+            // });
+            // console.log("self.availableServoBoards :", self.availableServoBoards);  
 
-            self.servoBoards.subscribe(function(changes) {
-                // This callback will process changes (added or removed items)
+            // self.servoBoards.subscribe(function(changes) {
+            //     // This callback will process changes (added or removed items)
             
-                changes.forEach(function(change) {
-                    if (change.status === 'added') {
-                        // If a new board is added, we should subscribe to its addressInput changes
-                        change.value.addressInput.subscribe(function(newValue) {
-                            self.updateAvailableServoBoards();
-                        });
-                    }
-                    // You can also handle 'deleted' items if necessary
-                });
+            //     changes.forEach(function(change) {
+            //         if (change.status === 'added') {
+            //             // If a new board is added, we should subscribe to its addressInput changes
+            //             change.value.addressInput.subscribe(function(newValue) {
+            //                 self.updateAvailableServoBoards();
+            //             });
+            //         }
+            //         // You can also handle 'deleted' items if necessary
+            //     });
             
-            }, null, "arrayChange");
+            // }, null, "arrayChange");
     
             
-            self.updateAvailableServoBoards = function() {
-                self.availableServoBoards = self.servoBoards().map(function(board) {
-                    return board.addressInput();
-                });
-                console.log("self.availableServoBoards() :", self.availableServoBoards());  
-            };  
+            // self.updateAvailableServoBoards = function() {
+            //     self.availableServoBoards = self.servoBoards( ).map(function(board) {
+            //         return board.addressInput();
+            //     });
+            //     console.log("self.availableServoBoards() :", self.availableServoBoards());  
+            // };  
 
-            self.availableGpioBoards =  self.gpioBoards().map(function(board) {
-                return board.addressInput();
-            });
+            // self.availableGpioBoards =  self.gpioBoards().map(function(board) {
+            //     return board.addressInput();
+            // });
             
-            console.log("self.availableGpioBoards :", self.availableGpioBoards);  
+            // console.log("self.availableGpioBoards :", self.availableGpioBoards);  
 
-            self.gpioBoards.subscribe(function(changes) {
-                // This callback will process changes (added or removed items)
+            // self.gpioBoards.subscribe(function(changes) {
+            //     // This callback will process changes (added or removed items)
             
-                changes.forEach(function(change) {
-                    if (change.status === 'added') {
-                        // If a new board is added, we should subscribe to its addressInput changes
-                        change.value.addressInput.subscribe(function(newValue) {
-                            self.updateAvailableGpioBoards();
-                        });
-                    }
-                    // You can also handle 'deleted' items if necessary
-                });
+            //     changes.forEach(function(change) {
+            //         if (change.status === 'added') {
+            //             // If a new board is added, we should subscribe to its addressInput changes
+            //             change.value.addressInput.subscribe(function(newValue) {
+            //                 self.updateAvailableGpioBoards();
+            //             });
+            //         }
+            //         // You can also handle 'deleted' items if necessary
+            //     });
             
-            }, null, "arrayChange");  
+            // }, null, "arrayChange");  
             
-            self.updateAvailableGpioBoards = function() {
-                self.availableGpioBoards = self.gpioBoards().map(function(board) {
-                    return board.addressInput();
-                });
-                console.log("self.availableGpioBoards() :", self.availableGpioBoards);  
-            };              
+            // self.updateAvailableGpioBoards = function() {
+            //     self.availableGpioBoards = self.gpioBoards().map(function(board) {
+            //         return board.addressInput();
+            //     });
+            //     console.log("self.availableGpioBoards() :", self.availableGpioBoards);  
+            // };              
         };    
         
         self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");
             {
-                var data = self.gpioBoards().map(function(board) {
-                    return board.toData();
-                });
+                var data = self.gpioBoards.toData();
                 console.log("GPIO board data to save:", data);   
                 // Update the original settings with the new values
                 self.pluginSettings.gpio_boards(data);                       
             }
             {
-                var data = self.servoBoards().map(function(board) {
-                    return board.toData();
-                });
+                var data = self.servoBoards.toData();
                 console.log("Servo board data to save:", data);   
                 // Update the original settings with the new values
                 self.pluginSettings.servo_driver_boards(data);                            
@@ -243,32 +218,32 @@ $(function() {
         };
 
 
-        self.combinedServoBoards = function(currentBoard) {
-            return ko.computed(function() {
-                // Check if the current board is already in the availableServoBoards list
-                if (self.availableServoBoards.indexOf(currentBoard()) === -1) {
-                    // If not, add it to the list
-                    return [self.availableServoBoards, currentBoard()].flat();
-                } else {
-                    // If it's already in the list, just return the original list
-                    return self.availableServoBoards;
-                }
-            });
-        };
+        // self.combinedServoBoards = function(currentBoard) {
+        //     return ko.computed(function() {
+        //         // Check if the current board is already in the availableServoBoards list
+        //         if (self.availableServoBoards.indexOf(currentBoard()) === -1) {
+        //             // If not, add it to the list
+        //             return [self.availableServoBoards, currentBoard()].flat();
+        //         } else {
+        //             // If it's already in the list, just return the original list
+        //             return self.availableServoBoards;
+        //         }
+        //     });
+        // };
 
 
-        self.combinedGpioBoards = function(currentBoard) {
-            return ko.computed(function() {
-                // Check if the current board is already in the availableServoBoards list
-                if (self.availableGpioBoards.indexOf(currentBoard()) === -1) {
-                    // If not, add it to the list
-                    return [self.availableGpioBoards, currentBoard()].flat();
-                } else {
-                    // If it's already in the list, just return the original list
-                    return self.availableGpioBoards;
-                }
-            });
-        };        
+        // self.combinedGpioBoards = function(currentBoard) {
+        //     return ko.computed(function() {
+        //         // Check if the current board is already in the availableServoBoards list
+        //         if (self.availableGpioBoards.indexOf(currentBoard()) === -1) {
+        //             // If not, add it to the list
+        //             return [self.availableGpioBoards, currentBoard()].flat();
+        //         } else {
+        //             // If it's already in the list, just return the original list
+        //             return self.availableGpioBoards;
+        //         }
+        //     });
+        // };        
         
 
     }
