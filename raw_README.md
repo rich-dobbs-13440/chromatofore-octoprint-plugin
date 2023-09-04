@@ -45,10 +45,11 @@ On the settings page, users can specify the assembled configuration of the filam
    - Limit switch configuration.
    - Testing for filament detection and pusher movement using limit switches.
 
-
 **Version 0.6**: 
    - Scan the I2C bus for boards.  
-   - Periodically check the boards for availability.   
+   - Periodically check the boards for availability.  
+   - Display board jumpers.  
+   - Include display of notes in board selection dropdowns 
 
 **Version 0.7**: 
    - Logic and UI for loading/unloading filaments in the changer.
@@ -71,13 +72,28 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ---
 
-## Current Sprint
+## Development History
 
 THe Chromatofore plugin is currently at **Current Version: {{CURRENT_VERSION}}**. 
 
+## Current Sprint
+
+Intent: Do Version 0.6 and 0.7 as described in the Development Roadmap.
+
+Start: 9/4/2023
+
+End:  9/10/2023
+
+Currently, identification of boards is a manual process, but much of it can be automated 
+by scanning the I2C bus, and directly display whether the board is detected, rather than
+using an alert.  
+
+### Past Sprints
+
+#### Intent: Complete Version 0.5 - Start: 8/26/2023  End: Start: 9/4/2023   
+
 We are working toward Version 0.5 as described in the Development Roadmap.  Version 0.5 features are
-probably complete, but need to be validated and refined.  To aid in validating 0.5, we'll make the initial 
-implementation of 0.6 features.  
+probably complete, but need to be validated and refined.  
 
 The next step is implement code to read the limit switches and display their status in the settings dialog.  
 This will allow the user to test the limit switches, and correctly set the minimum and maximum angles
@@ -97,8 +113,6 @@ release the limit switch. This allows the user to verify that the limit switch i
 operating properly, and if it is, to adjust the length of the pusher linkage and the 
 minimum angle of the pusher servo.  Identified issues will require the same sort of 
 approaches as used with the filament sensor.
-
-
 
 
 
@@ -142,8 +156,10 @@ approaches as used with the filament sensor.
 *Below is a list of acknowledged features, enhancements, and bugs, not yet slated for a specific release.*
 
 - Bug: The servo board address list doesn't update correctly when a new board is added.
+- Bug: The user can delete a I2C board that is in use.
 - Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
 - Enhancement: Analyze configuration and report potential channel conflicts.
+- Enhancement: Require confirmation before deleting an acuator.
 - Technical Debt: Code for managing boards is duplicated between GPIO and PMW boards
 
 
