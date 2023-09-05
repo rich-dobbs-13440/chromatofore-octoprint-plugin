@@ -76,7 +76,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Development History
 
-THe Chromatofore plugin is currently at **Current Version: 0.5.34**. 
+THe Chromatofore plugin is currently at **Current Version: 0.5.46**. 
 
 ## Current Sprint
 
@@ -144,7 +144,9 @@ approaches as used with the filament sensor.
 - **Version 0.5.34 (9/4/2023)**:
    - Added: Check if board is on bus at startup
    - Changed: Board validation is displayed in table, rather than through an alert.
-
+- **Version 0.5.45 (9/4/2023)**:
+   - Added: Scan bus for boards with an address in the range of the specified board type.  
+   - Added: Automatically add a board that is found on the bus
 
 <!-- 
 
