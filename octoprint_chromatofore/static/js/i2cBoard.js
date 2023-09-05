@@ -1,8 +1,8 @@
 
 checkI2cAddress = function(address, foundCallback, notFoundCallback, failCallback) {
-    OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address() })
+    OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address })
     .done(function(response) {
-        console.log("Got response from simpleApiCommand");
+        //console.log("Got response from simpleApiCommand");
         
         if (response.valid) {
             // If a callback for found is provided, call it
@@ -55,7 +55,7 @@ function I2cBoard(data) {
     }); 
     
     self.checkIfOnBus = function() {
-        checkI2cAddress(self.address, 
+        checkI2cAddress(self.address(), 
             function(address) {
                 self.isValid(true);
             },
@@ -80,18 +80,28 @@ function I2cBoard(data) {
 }
 
 
+var globalI2cBoardsCounter = 0;  
+
 
 
 function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     var self = this;
 
+    self.id = "boards-" + globalI2cBoardsCounter++;    
+
     self.baseAddress = baseAddress;
     self.addressRange = addressRange;
+    self.addressMap = {};
+
     self.refreshRateInSeconds = refreshRateInSeconds;
 
     self.items = ko.observableArray(boardData.map(function(data) {
         return new I2cBoard(data);
     }));
+
+    self.items().forEach(function(board) {
+        self.addressMap[board.address()] = board;
+    });    
 
     self.availableAddresses = ko.computed(function() {
         return self.items().map(function(board) {
@@ -99,19 +109,71 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         });
     });
 
+    self.addressIsValid = function(address) {
+        console.log("TODO: Handle addressIsValid for ", address);
 
-    self.scanForBoards = function() {
+        var board = self.addressMap[address];
+        if (board) {
+            console.log("Board found for address:", address);
+            board.isValid(true); 
+        } else {
+            console.log("No board found for address:", address, "which is on bus.  Automatically added it:");
+            self.addBoard(address);
+        }        
+    }
+
+    self.addressIsNotValid = function(address) {
+        console.log("TODO: Handle addressIsNotValid for ", address);
+    }
+
+    self.addressIsNotValid = function(address) {
+        var board = self.addressMap[address];
+        if (board) {
+            console.log("Board not valid for address:", address);
+            board.isValid(false); 
+        } else {
+            //console.log("No board found for address:", address);
+        }
+    }
+    
+
+    self.scanForBoards = async function() {
         // AJAX call to scan for I2C boards and handle the response
         // Update the self.items observable array accordingly
 
         console.log("Scanning for boards...")
 
+        const pollingFrequenceInMillis = 500;
+
         // Iterate through the address range
         for (let i = 0; i < self.addressRange; i++) {
             let currentAddress = self.baseAddress + i; 
+            checkI2cAddress(currentAddress, 
+                function(address) {
+                    self.addressIsValid(address);
+                },
+                function(address) {
+                    self.addressIsNotValid(address);
+                },
+                function(address) {
+                    console.log("Got a fail from checkI2cAddress for address", address);
+                }
+            ); 
+            
+            await sleep(pollingFrequenceInMillis);
         }       
     };   
-    
+
+    self.conditionallyScanForBoards = function() {
+        // Target the specific element using the unique switchId
+        var boardsElement = $('[data-boards-id="' + self.id + '"]');    
+        // Check if the element is visible
+        if (boardsElement.is(':visible') && isElementInViewport(boardsElement[0])) {
+            console.debug("Starting scan: ", self.id);
+            self.scanForBoards();
+        }
+    }
+     
     self.refreshIntervalId = null;
 
     self.setupRefreshInterval = function() {
@@ -124,7 +186,7 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         // Set up the new interval
         if (self.refreshRateInSeconds() < 100000) {  // 100000 as the "never" value, just like in your LimitSwitch class
             self.refreshIntervalId = setInterval(function() {
-                self.scanForBoards();
+                self.conditionallyScanForBoards();
             }, self.refreshRateInSeconds() * 1000);
         }
     };
@@ -141,37 +203,89 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     
     self.setupRefreshInterval();    
 
-    self.addBoard = function(baseAddress) {
-        var nextAddress = self.findNextAvailableAddress();
-        self.items.push(new I2cBoard(nextAddress));
+    self.addBoard = function(address) {
+        // Check if the address is provided, if not find the next available address
+        var boardAddress = address || self.findNextAvailableAddress();
+        
+        var board = new I2cBoard(boardAddress);
+        self.addressMap[board.address()] = board;
+        self.items.push(board);
         self.sort();
         console.log("Items after sort:", self.items());
     };
+    
 
     self.removeBoard = function(board) {
+        delete self.addressMap[board.address()];
         self.items.remove(board);
     };
+
 
     self.subscribeToChanges = function() {
         // Subscribe to address changes for new boards
         self.items.subscribe(function(changes) {
             changes.forEach(function(change) {
                 if (change.status === 'added') {
-                    change.value.address.subscribe(function() {
+                    let previousAddress; // to store the old address value
+                    
+                    // Before updating, keep the old address
+                    change.value.address.subscribe(function(oldValue) {
+                        previousAddress = oldValue;
+                    }, null, "beforeChange");
+                    
+                    // When the new value is set
+                    change.value.address.subscribe(function(newAddress) {
+                        // If the previousAddress exists in the map, remove it
+                        if (previousAddress !== undefined) {
+                            delete self.addressMap[previousAddress];
+                        }
+    
+                        // Now add the new address to the map
+                        self.addressMap[newAddress] = change.value;
+                        
+                        // You may also want to check for conflicts here!
+                        // If a board with this address already existed, decide how to handle it.
+    
+                        // Finally, sort if necessary
                         self.sort();
                     });
                 }
                 // Handle 'deleted' items if necessary
+                // You should remove them from the addressMap
+                if (change.status === 'deleted') {
+                    delete self.addressMap[change.value.address()];
+                }
             });
         }, null, "arrayChange");
-        
+    
         // Subscribe to address changes for existing boards
         ko.utils.arrayForEach(self.items(), function(board) {
-            board.address.subscribe(function() {
+            let previousAddress; // to store the old address value
+            
+            // Before updating, keep the old address
+            board.address.subscribe(function(oldValue) {
+                previousAddress = oldValue;
+            }, null, "beforeChange");
+    
+            // When the new value is set
+            board.address.subscribe(function(newAddress) {
+                // If the previousAddress exists in the map, remove it
+                if (previousAddress !== undefined) {
+                    delete self.addressMap[previousAddress];
+                }
+    
+                // Now add the new address to the map
+                self.addressMap[newAddress] = board;
+                
+                // You may also want to check for conflicts here!
+                // If a board with this address already existed, decide how to handle it.
+    
+                // Finally, sort if necessary
                 self.sort();
             });
         });
     };
+    
 
     self.subscribeToChanges();
     

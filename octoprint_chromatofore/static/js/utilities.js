@@ -25,4 +25,8 @@ const gpioChannels = ko.observableArray(
 
 const servoChannels = ko.observableArray(
     Array.from({ length: 16 }, (_, i) => '0x' + i.toString(16).toUpperCase())
-);   
+);  
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
