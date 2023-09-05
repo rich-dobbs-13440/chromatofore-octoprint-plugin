@@ -3,7 +3,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.servoBoards.augmentedBoards(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options: $root.servoBoards.augmentedAddresses(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
@@ -63,7 +63,7 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options:  $root.gpioBoards.augmentedBoards(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options:  $root.gpioBoards.augmentedAddresses(board), value: board,  optionsCaption: 'Choose...'">
         </select>
     </td> 
     <td>
@@ -76,13 +76,21 @@
        <div class="api-response" data-bind="text: apiResponse, css: { 'error-text': isApiError }"></div>
     </td>
 
-</script>    
+</script>  
+
+
+<script type="text/html" id="jumper-template">
+    <!-- ko foreach: $data.jumpers -->
+    <input type="checkbox" class="jumper-input" data-bind="checked: $data">
+    <!-- /ko -->
+</script>
 
 
 <script type="text/html" id="i2c-boards-table-template">
     <table data-bind="attr: { 'data-boards-id': $data.id }">
         <thead>
             <tr>
+                <th>Jumpers</td>
                 <th>Address</th>
                 <th>On Bus</th>
                 <th>Note</th>
@@ -91,13 +99,18 @@
         </thead>
         <tbody data-bind="foreach: $data.boards">
             <tr>
+                <td> 
+                    <div data-bind="template: { name: 'jumper-template', data: {jumpers: jumpers}}"></div>
+                </td>
                 <td>
-                    <input type="text" class="i2c-address"
+                    <input type="text" 
+                        class="i2c-address"
+                        pattern="^0x[0-9a-fA-F]{2}$"
                         data-bind="textInput: addressInput, event: { change: $parent.updateAddressFromInput }" placeholder="Enter I2C address (in hex)">
                 </td>
                 <td>
                     <div class="fas item-status">
-                    <span data-bind="text: isValid() ? '&#xf00c;' : '&#xf00d;', css: isValid() ?  'item-found': 'item-not-found'"></span>
+                    <span data-bind="text: isFoundOnI2cBus() ? '&#xf00c;' : '&#xf00d;', css: isFoundOnI2cBus() ?  'item-found': 'item-not-found'"></span>
                     </div>                    
                 </td>
                 <td> 
@@ -129,7 +142,7 @@
         }">
     </div>
 
-    <button data-bind="click: gpioBoards.addBoard">Add GPIO Board</button>
+    <button data-bind="click: function() { gpioBoards.addBoard(); }">Add Servo Board</button>
 
 
 
@@ -142,7 +155,8 @@
         }">
     </div>
 
-    <button data-bind="click: servoBoards.addBoard">Add Servo Board</button>
+    <button data-bind="click: function() { servoBoards.addBoard(); }">Add Servo Board</button>
+
 
 
 

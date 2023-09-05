@@ -39,7 +39,6 @@ $(function() {
         // the SettingsViewModel been properly populated.
         self.onBeforeBinding = function() {
             console.log("Inside onBeforeBinding");
-            // console.log("gpio_boards via self.settingsViewModel.settings.plugins.chromatofore.gpio_boards()", self.settingsViewModel.settings.plugins.chromatofore.gpio_boards());
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
 
             // For Actuators
@@ -60,7 +59,11 @@ $(function() {
             self.servoBoards = new I2cBoards(servoBoardData, 0x40, 64, self.selectedScanRefreshRateInSeconds);
             console.log("self.servoBoards.toData()", self.servoBoards.toData());
             console.log("Servo Boards: items", ko.toJS(self.servoBoards.boards));         
-        };    
+        }; 
+        
+        self.onAfterBinding = function() {
+            initializeI2cBoardBindings();
+        }
         
         self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");

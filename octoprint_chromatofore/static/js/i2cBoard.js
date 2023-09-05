@@ -23,44 +23,83 @@ checkI2cAddress = function(address, foundCallback, notFoundCallback, failCallbac
     });
 }
 
+function initializeI2cBoardBindings() {
+    $("input.i2c-address").on("blur", function() {
+        var value = $(this).val();
+        var regex = /^0x[0-9a-fA-F]{2}$/;
+        if (!regex.test(value)) {
+            $(this).focus();
+        }
+    });
+}
 
 
-function I2cBoard(data) {
+
+function I2cBoard(data, jumperCount) {
     var self = this;
     
     // Check if data is an object (dictionary) or just a number (address)
     var address;
+    var defaultNote = "-- specify purpose and range of acutators --";
     if (typeof data === "object" && data.hasOwnProperty("address")) {
         // It's a dictionary
         address = data.address;
-        // If a note property exists in the data object, use it, else default to an empty string
-        self.note = ko.observable(data.note || "-- specify purpose and range of acutators --");
+        // If a note property exists in the data object, use it, else set to default
+        self.note = ko.observable(data.note || defaultNote);
     } else if (typeof data === "number") {
         // It's just the address
         address = data;
-        // Default note to empty string for this case
-        self.note = ko.observable("");
+        self.note = ko.observable(defaultNote);
     } else {
         console.error("Invalid data format for I2C Board:", data);
         return;
     }
-
+    self.jumperCount = jumperCount
     self.address = ko.observable(address);
-    self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0'));
-    self.isValid = ko.observable(false);
+    self.baseAddress = address & (~((1 << jumperCount) - 1));
+    self.jumpers = ko.observableArray(
+        Array.from({ length: self.jumperCount }).map((_, index) => 
+            Boolean((address >> index) & 1)
+        ).reverse()
+    ); 
+    self.jumpers.subscribe((newValue) => {
+        let jumperAddress = newValue.slice().reverse().reduce((acc, jumperState, index) => {
+            return acc + (jumperState ? (1 << index) : 0);
+        }, 0);
+        
+        let fullAddress = self.baseAddress | jumperAddress;
+        self.address(fullAddress);
+        self.addressInput("0x" + fullAddress.toString(16).toUpperCase().padStart(2, '0'));
+    });
 
+    self.address.subscribe((newValue) => {
+        let jumperBits = newValue & ((1 << self.jumperCount) - 1);
+        self.jumpers(
+            Array.from({ length: self.jumperCount }).map((_, index) => 
+                Boolean((jumperBits >> index) & 1)
+            ).reverse()
+        );
+    });
+    
+    
+    self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0'));     
+    self.isFoundOnI2cBus = ko.observable(false);      
     self.addressInput.subscribe(function(newValue) {
-        var addrValue = parseInt(newValue, 16); // Convert hex string to integer
-        self.address(addrValue);
-    }); 
+        // Use regex to check if newValue is a valid hex address
+        if (/^0x[0-9a-fA-F]{2}$/.test(newValue)) { // Assuming a 2-byte address
+            var addrValue = parseInt(newValue, 16);
+            self.address(addrValue);
+        }
+    });
+    
     
     self.checkIfOnBus = function() {
         checkI2cAddress(self.address(), 
             function(address) {
-                self.isValid(true);
+                self.isFoundOnI2cBus(true);
             },
             function(address) {
-                self.isValid(false);
+                self.isFoundOnI2cBus(false);
             },
             function(address) {
                 console.log("Got a fail from checkI2cAddress for address", address);
@@ -91,56 +130,131 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
 
     self.baseAddress = baseAddress;
     self.addressRange = addressRange;
-    self.addressMap = {};
+    self.jumperCount = Math.round(Math.log2(self.addressRange));
+   
 
     self.refreshRateInSeconds = refreshRateInSeconds;
 
     self.items = ko.observableArray(boardData.map(function(data) {
-        return new I2cBoard(data);
+        return new I2cBoard(data, self.jumperCount);
     }));
 
+    self.addressMap = {};
     self.items().forEach(function(board) {
         self.addressMap[board.address()] = board;
-    });    
+    });  
+
+    // When adding a board, it is intially given the lowest address that is no
+    // no other board is using.
+    self.findNextAvailableAddress = function() {
+        // Iterate through the address range
+        for (let i = 0; i < self.addressRange; i++) {
+            let currentAddress = self.baseAddress + i; 
+            if (!(currentAddress in self.addressMap)) {
+                return currentAddress;
+            }
+        }
+        return -1;
+    };       
+
+    self.addBoard = function(address) {
+        console.log("address in addBoard", address);
+        // Check if the address is provided, if not find the next available address
+        var boardAddress = address || self.findNextAvailableAddress();
+        console.log("boardAddress in addBoard", boardAddress);
+        if (boardAddress > 0) {
+            var board = new I2cBoard(boardAddress, self.jumperCount);
+            self.addressMap[board.address()] = board;
+            self.items.push(board);
+            self.sort();
+            console.log("Items after sort:", self.items());
+        } else {
+            var msg = "Can't add board.  Unable to next available address in range for baseAddress:" +  toI2cAddress(self.baseAddress) + " range: " + toI2cAddress(self.addressRange);
+            console.log(msg);
+            // OctoPrint.coreui.showAlert("Unable to find next available address in range", "alert-warning"); 
+            new PNotify({
+                title: 'Unable to Add Board',
+                text: msg,
+                type: 'error' // can be 'info', 'success', 'error', or 'notice'
+            });
+        }
+    }; 
+
+    self.removeBoard = function(board) {
+        delete self.addressMap[board.address()];
+        self.items.remove(board);
+    };
+    
+    self.sort = function() {
+        var sortedArray = self.items().slice().sort(function(a, b) {
+            return a.address() - b.address();  // Sort in ascending order
+        });
+        self.items(sortedArray);
+    };    
+
+    self.toData = function() {
+        return self.items().map(function(board) {
+            return board.toData();
+        });
+    };    
+
+
+    self.augmentedAddresses = function(currentAddressObservable) {
+        currentAddressAsInt = parseInt(currentAddressObservable(), 16);
+        var board = self.addressMap[currentAddressAsInt];
+        if (!board) {
+            self.addBoard(currentAddressAsInt);
+        }
+        return self.availableAddresses();
+    };    
+      
 
     self.availableAddresses = ko.computed(function() {
-        return self.items().map(function(board) {
+        var list = self.items().map(function(board) {
             return board.addressInput();
         });
+        console.log("availableAddresses list: ", list);
+        return list;
     });
 
-    self.addressIsValid = function(address) {
-        console.log("TODO: Handle addressIsValid for ", address);
+ 
 
+
+    // Handle the scan of the I2C bus in the address range for these boards
+    //   If something responds from the bus when queried and it is a board 
+    //   in the collection, then it is updated.  
+
+    //   If it not in the collection, a new board is created and
+    //   it is added to the collection.  Whenever a board is created,
+    //   it checks if it is on the bus, so it will have a current
+    //   check on the bus.
+
+    //   If nothing responds on the bus, and it is a board in the collection,
+    //   then it is update to show that it hasn't been found.    
+
+
+    self.addressFoundOnI2cBus = function(address) {
         var board = self.addressMap[address];
         if (board) {
-            console.log("Board found for address:", address);
-            board.isValid(true); 
+            console.log("Board found for address:", toI2cAddress(address));
+            board.isFoundOnI2cBus(true); 
         } else {
-            console.log("No board found for address:", address, "which is on bus.  Automatically added it:");
+            console.log("No board found for address:", toI2cAddress(address), "which is on bus.  Automatically added it:");
             self.addBoard(address);
         }        
     }
 
-    self.addressIsNotValid = function(address) {
-        console.log("TODO: Handle addressIsNotValid for ", address);
-    }
-
-    self.addressIsNotValid = function(address) {
+    self.addressNotFoundOnI2cBus = function(address) {
         var board = self.addressMap[address];
         if (board) {
             console.log("Board not valid for address:", address);
-            board.isValid(false); 
+            board.isFoundOnI2cBus(false); 
         } else {
-            //console.log("No board found for address:", address);
+            //console.log("No board found for address:", toI2cAddress(address));
         }
-    }
+    }    
     
-
     self.scanForBoards = async function() {
-        // AJAX call to scan for I2C boards and handle the response
-        // Update the self.items observable array accordingly
-
         console.log("Scanning for boards...")
 
         const pollingFrequenceInMillis = 500;
@@ -150,10 +264,10 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             let currentAddress = self.baseAddress + i; 
             checkI2cAddress(currentAddress, 
                 function(address) {
-                    self.addressIsValid(address);
+                    self.addressFoundOnI2cBus(address);
                 },
                 function(address) {
-                    self.addressIsNotValid(address);
+                    self.addressNotFoundOnI2cBus(address);
                 },
                 function(address) {
                     console.log("Got a fail from checkI2cAddress for address", address);
@@ -161,11 +275,14 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             ); 
             
             await sleep(pollingFrequenceInMillis);
-        }       
-    };   
+        }        
+    };  
 
     self.conditionallyScanForBoards = function() {
-        // Target the specific element using the unique switchId
+        // The periodic scan of the bus only happens when the settings page
+        // is displayed and the board details are visible.
+
+        // Find the specific element using the unique id
         var boardsElement = $('[data-boards-id="' + self.id + '"]');    
         // Check if the element is visible
         if (boardsElement.is(':visible') && isElementInViewport(boardsElement[0])) {
@@ -203,23 +320,8 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     
     self.setupRefreshInterval();    
 
-    self.addBoard = function(address) {
-        // Check if the address is provided, if not find the next available address
-        var boardAddress = address || self.findNextAvailableAddress();
-        
-        var board = new I2cBoard(boardAddress);
-        self.addressMap[board.address()] = board;
-        self.items.push(board);
-        self.sort();
-        console.log("Items after sort:", self.items());
-    };
+
     
-
-    self.removeBoard = function(board) {
-        delete self.addressMap[board.address()];
-        self.items.remove(board);
-    };
-
 
     self.subscribeToChanges = function() {
         // Subscribe to address changes for new boards
@@ -242,9 +344,6 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     
                         // Now add the new address to the map
                         self.addressMap[newAddress] = change.value;
-                        
-                        // You may also want to check for conflicts here!
-                        // If a board with this address already existed, decide how to handle it.
     
                         // Finally, sort if necessary
                         self.sort();
@@ -285,61 +384,18 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             });
         });
     };
+
+
+
     
 
     self.subscribeToChanges();
     
 
-    self.updateAvailableAddresses = function() {
-        // Logic to update available addresses if needed
-        // For now, just logging
-        console.log("Updated addresses:", self.availableAddresses());
-    };
 
-    self.augmentedBoards = function(currentBoard) {
-        return ko.computed(function() {
-            // Check if the current board is already in the items list
-            if (self.availableAddresses().indexOf(currentBoard()) === -1) {
-                // If not, add it to the list
-                return [self.availableAddresses(), currentBoard()].flat();
-            } else {
-                // If it's already in the list, just return the original list
-                return self.availableAddresses();
-            }
-        });
-    };
 
-    self.findNextAvailableAddress = function() {
-        var currentAddress = self.baseAddress;
 
-        while (self.containsBoardWithAddress(currentAddress)) {
-            currentAddress++;  // Increment the address
-        }
 
-        return currentAddress;
-    };
-
-    self.containsBoardWithAddress = function(address) {
-        return self.availableAddresses().indexOf("0x" + address.toString(16).toUpperCase().padStart(2, '0')) !== -1;
-    }; 
-
-    self.sort = function() {
-        var sortedArray = self.items().slice().sort(function(a, b) {
-            // Convert hexadecimal strings to integers for comparison
-            var addressA = parseInt(ko.unwrap(a.address), 16);
-            var addressB = parseInt(ko.unwrap(b.address), 16);
-            return addressA - addressB;  // Sort in ascending order
-        });
-        
-        self.items(sortedArray);
-    };
-    
-
-    self.toData = function() {
-        return self.items().map(function(board) {
-            return board.toData();
-        });
-    };
 
 
 
