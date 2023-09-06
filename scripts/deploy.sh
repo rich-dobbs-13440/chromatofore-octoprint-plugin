@@ -45,10 +45,12 @@ ssh rld@chromatofore.local "curl -s -X POST -H 'Content-Type: application/json' 
 ssh rld@chromatofore.local "sudo service octoprint restart"
 
 # Pause for a few seconds to let the plugin handle shutdown
-sleep 10s
+sleep 12s
 
 #View Octoprint to allow testing and debugging.  
 brave-browser --new-window http://chromatofore.local &
+
+sleep 2s
 
 # Let the user know when this happened.
 echo "Finish"

@@ -37,52 +37,17 @@ function initializeI2cBoardBindings() {
 
 function I2cBoard(parent, data, jumperCount) {
     var self = this;
-
+    // These variable are the persistent state of the board:
+    self.address = ko.observable();     
+    self.note = ko.observable(defaultNote);    
+    // These variable are 
     self.parent = parent;
-    
-    // Check if data is an object (dictionary) or just a number (address)
-    var address;
-    var defaultNote = "-- specify purpose and range of acutators --";
-    if (typeof data === "object" && data.hasOwnProperty("address")) {
-        // It's a dictionary
-        address = data.address;
-        // If a note property exists in the data object, use it, else set to default
-        self.note = ko.observable(data.note || defaultNote);
-    } else if (typeof data === "number") {
-        // It's just the address
-        address = data;
-        self.note = ko.observable(defaultNote);
-    } else {
-        console.error("Invalid data format for I2C Board:", data);
-        return;
-    }
-    self.jumperCount = jumperCount
-    self.baseAddress = address & (~((1 << jumperCount) - 1));
+    console.log(self.parent);    
+    self.jumperCount = jumperCount;    
 
-    self.address = ko.observable();
     self.addressInput = ko.observable();
-    self.isFoundOnI2cBus = ko.observable(false);     
+    self.isFoundOnI2cBus = ko.observable(false); 
 
-    self.address.subscribe((newValue) => {
-        const newInputValue = toI2cAddress(newValue);
-        if (self.addressInput() !== newInputValue) {
-            self.addressInput(newInputValue);
-        }     
-        self.checkIfOnBus();        
-        self.parent.childAddressHasChanged();
-    });
-
-    self.addressInput.subscribe(function(newValue) {
-        // Use regex to check if newValue is a valid hex address
-        if (/^0x[0-9a-fA-F]{2}$/.test(newValue)) { // Assuming a 2-byte address
-            var addrValue = parseInt(newValue, 16);
-            if (self.address() !== addrValue) {
-                self.address(addrValue);
-            }
-        }
-    });
-
-    self.address(address)    
 
     self.checkIfOnBus = function() {
         checkI2cAddress(self.address(), 
@@ -96,14 +61,59 @@ function I2cBoard(parent, data, jumperCount) {
                 console.log("Got a fail from checkI2cAddress for address", address);
             }
         );        
-    }
-
+    } 
+    
     self.toData = function() {
         return {
             address: self.address(),
             note: self.note(),
         };
-    };
+    };    
+
+    self.address.subscribe((newValue) => {
+        console.log("In self.address.subscribe, newValue:", toI2cAddress(newValue), "bits:", newValue.toString(2));
+        const newInputValue = toI2cAddress(newValue);
+        if (self.addressInput() !== newInputValue) {
+            self.addressInput(newInputValue);
+        }     
+        self.checkIfOnBus();        
+        self.parent.childAddressHasChanged();
+    });
+
+
+
+    // Check if data is an object (dictionary) or just a number (address)
+    var address;
+    var note;
+    var defaultNote = "-- specify purpose and range of acutators --";
+    if (typeof data === "object" && data.hasOwnProperty("address")) {
+        // It's a dictionary
+        address = data.address;
+        // If a note property exists in the data object, use it, else set to default
+        note = data.note || defaultNote;
+    } else if (typeof data === "number") {
+        // It's just the address
+        address = data;
+        note = defaultNote;
+    } else {
+        console.error("Invalid data format for I2C Board:", data);
+        return;
+    }    
+    self.baseAddress = address & (~((1 << jumperCount) - 1));       
+
+    self.address(address);
+    self.note(note); 
+    
+    self.addressInput.subscribe(function(newValue) {
+        // Use regex to check if newValue is a valid hex address
+        if (/^0x[0-9a-fA-F]{2}$/.test(newValue)) { // Assuming a 2-byte address
+            var addrValue = parseInt(newValue, 16);
+            if (self.address() !== addrValue) {
+                self.address(addrValue);
+            }
+        }
+    });    
+
 }
 
 
@@ -122,19 +132,16 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
    
 
     self.refreshRateInSeconds = refreshRateInSeconds;
-
-    self.items = ko.observableArray(boardData.map(function(data) {
-        return new I2cBoard(self, data, self.jumperCount);
-    }));
-
     self.addressMap = {};
+    self.items = ko.observableArray([]);
 
     self.populateAddressMap = function() {
         self.items().forEach(function(board) {
             self.addressMap[board.address()] = board;
         });
     };
-    self.populateAddressMap();
+
+
 
     self.childAddressHasChanged = function() {
         self.populateAddressMap();
@@ -314,5 +321,17 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         }
     };    
     
-    self.setupRefreshInterval();    
+
+    
+    // Populate the observable array
+    var boards = boardData.map(function(data) {
+        return new I2cBoard(self, data, self.jumperCount);
+    });
+    self.items(boards);
+    // self.items = ko.observableArray(boardData.map(function(data) {
+    //     return new I2cBoard(self, data, self.jumperCount);
+    // }));    
+    self.populateAddressMap();    
+
+    self.setupRefreshInterval();      
 }

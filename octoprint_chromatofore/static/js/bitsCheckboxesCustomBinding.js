@@ -40,6 +40,7 @@ ko.bindingHandlers.bitCheckboxes = {
 
         // Convert the integer value to a binary string and slice to keep the lower bits
         const binaryStr = value.toString(2).padStart(numBits, '0').slice(-numBits);
+        console.log("In bitCheckboxes init value:", toI2cAddress(value), "bits:", value.toString(2), "binaryStr", binaryStr);
 
         // Create checkboxes based on the bit values
         for(let i = 0; i < numBits; i++) {
@@ -49,21 +50,30 @@ ko.bindingHandlers.bitCheckboxes = {
             
             // Set checkbox to checked if the corresponding bit is 1
             checkbox.checked = binaryStr[i] === '1';
+
+            const bitIndex = numBits - 1 - i;
             
             // Event listener to handle checkbox changes
             checkbox.addEventListener('change', function() {
                 const currentValue = ko.unwrap(valueAccessor());
+                console.log("In bitCheckboxes change event listener, currentValue:", toI2cAddress(currentValue), "bits:", currentValue.toString(2));
+                var newValue;
                 if (checkbox.checked) {
-                    valueAccessor()(currentValue | (1 << i));
+                    console.log("Checkbox is checked for bitIndex", bitIndex);
+                    newValue = currentValue | (1 << bitIndex);
                 } else {
-                    valueAccessor()(currentValue & ~(1 << i));
+                    console.log("Checkbox is not checked for bitIndex", bitIndex);
+                    newValue = currentValue & ~(1 << bitIndex);
                 }
+                console.log("In bitCheckboxes change event listener, newValue:", toI2cAddress(newValue), "bits:", newValue.toString(2));
+                valueAccessor()(newValue);
             });
 
             element.appendChild(checkbox);
         }
     },
     update: function(element, valueAccessor, allBindings) {
+        console.log("In bitCheckboxes update valueAccessor():", toI2cAddress(valueAccessor()), "bits:", valueAccessor().toString(2));
         // Clear the existing checkboxes
         while (element.firstChild) {
             element.removeChild(element.firstChild);
