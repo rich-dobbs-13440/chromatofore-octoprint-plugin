@@ -88,7 +88,17 @@ End:  9/10/2023
 
 Currently, identification of boards is a manual process, but much of it can be automated 
 by scanning the I2C bus, and directly display whether the board is detected, rather than
-using an alert.  
+using an alert. 
+
+For controlling the actuators, we need to create server side objects from the settings 
+defined for 'actuators'.
+
+Then we need a tab in which the user can interact with each actuator to move filament
+as needed to load filament into and out of the filament changer and the printer.
+
+These need to be connected by expanding the SimpleApiCommands that are implement.
+
+
 
 ### Past Sprints
 
@@ -118,35 +128,8 @@ approaches as used with the filament sensor.
 
 
 
+
 ## Change Log
-
-*This section documents changes for Chromatofore versions.*
-
-- **Version 0.4.148 (9/1/2023)**:
-  - Added: Functionality to add or remove actuators.
-  - Added: Options to show or hide detailed actuator configurations.
-- **Version 0.4.159 (9/1/2023)**:
-  - Added: CI/CD workflow to update version number in README.md.
-- **Version 0.4.188 (9/2/2023)**:
-  - Added: Dummy server-side code for reading limit switch state to support UI development.
-  - Added: Client-side code for reading and displaying limit switch state.
-- **Version 0.4.218 (9/3/2023)**:
-  - Added: Real code for reading limit switch state to support assembly of actuators.
-- **Version 0.4.225 (9/3/2023)**:
-     Added: When adding an actuator, start with last defined actuator and increment channels  Use the same board.
-- **Version 0.4.257 (9/3/2023)**:
-     Added: Display current board address even if it has been deleted from the list of servo or GPIO boards.   
-- **Version 0.4.324 (9/4/2023)**:
-     Revised: Development Roadmap to merge version 0.5 and 0.6 features into version 0.5, and created a different 0.6 version.
-     Refactored: Moved board list management features out of main plugin class, into I2cBoard.js.
-- **Version 0.5.0 (9/4/2023)**:
-     Completion: Version 0.5 features
-- **Version 0.5.34 (9/4/2023)**:
-   - Added: Check if board is on bus at startup
-   - Changed: Board validation is displayed in table, rather than through an alert.
-- **Version 0.5.45 (9/4/2023)**:
-   - Added: Scan bus for boards with an address in the range of the specified board type.  
-   - Added: Automatically add a board that is found on the bus
 
 <!-- 
 
@@ -155,9 +138,41 @@ approaches as used with the filament sensor.
   - Fixed: Bug fixes.
   - Changed: Updates in existing feature.
 
-*(Continue with the list of versions and their respective changes.)*
+*(Continue with the list of versions and their respective changes with new entries add a start)*
 
 -->
+
+*This section documents changes for Chromatofore versions.*
+
+- **Version 0.5.120 (9/4/2023)**:
+   - Added: Server side objects that correspond to the actuator list. Just configuration information. No actions yet.
+- **Version 0.5.45 (9/4/2023)**:
+   - Added: Scan bus for boards with an address in the range of the specified board type.  
+   - Added: Automatically add a board that is found on the bus
+- **Version 0.5.34 (9/4/2023)**:
+   - Added: Check if board is on bus at startup
+   - Changed: Board validation is displayed in table, rather than through an alert.
+- **Version 0.5.0 (9/4/2023)**:
+     Completion: Version 0.5 features
+- **Version 0.4.324 (9/4/2023)**:
+     Revised: Development Roadmap to merge version 0.5 and 0.6 features into version 0.5, and created a different 0.6 version.
+     Refactored: Moved board list management features out of main plugin class, into I2cBoard.js.
+- **Version 0.4.257 (9/3/2023)**:
+     Added: Display current board address even if it has been deleted from the list of servo or GPIO boards.  
+- **Version 0.4.225 (9/3/2023)**:
+     Added: When adding an actuator, start with last defined actuator and increment channels. Use the same board.
+- **Version 0.4.218 (9/3/2023)**:
+   - Added: Real code for reading limit switch state to support assembly of actuators.
+- **Version 0.4.188 (9/2/2023)**:
+   - Added: Dummy server-side code for reading limit switch state to support UI development.
+   - Added: Client-side code for reading and displaying limit switch state.
+- **Version 0.4.159 (9/1/2023)**:
+   - Added: CI/CD workflow to update version number in README.md.
+- **Version 0.4.148 (9/1/2023)**:
+   - Added: Functionality to add or remove actuators.
+   - Added: Options to show or hide detailed actuator configurations.   
+
+
 
 ---
 

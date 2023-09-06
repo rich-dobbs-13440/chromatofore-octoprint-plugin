@@ -58,4 +58,21 @@ class Servo:
         # If everything succeeds
         return None
     
+
+    def __init__(self, data):
+        self.board = data.get("board")
+        self.channel = data.get("channel")
+        self.max_angle = data.get("max_angle")
+        self.min_angle = data.get("min_angle")
+        self.role = data.get("role")
+
+
+    def __str__(self):
+        return f"Servo(Role: {self.role}, Board: 0x{self.board:02X}, Channel: {self.channel}, " \
+               f"Angle Range: {self.min_angle}° - {self.max_angle}°)"
+
+    def __repr__(self):
+        return f"Servo(data={{'board': 0x{self.board:02X}, 'channel': {self.channel}, " \
+               f"'max_angle': {self.max_angle}, 'min_angle': {self.min_angle}, 'role': {repr(self.role)}}})"
+    
   

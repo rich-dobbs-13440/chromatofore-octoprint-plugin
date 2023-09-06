@@ -1,11 +1,14 @@
-import octoprint.plugin
-from smbus2 import SMBus
-import flask
 from http import HTTPStatus
 
+import flask
+import octoprint.plugin
+from smbus2 import SMBus
+
+from .actuators import Actuators
 from .filament_sensors import FilamentSensors
-from .servo import Servo
 from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
+from .servo import Servo
+
 
 def jsonify_no_cache(status, **kwargs):
     response = flask.jsonify(**kwargs)
@@ -34,8 +37,9 @@ class ChromatoforePlugin(
 
     def on_after_startup(self):
         self._logger.info("In on_after_startup")
-        # self.filament_sensors.start()  
         Pcf8574GpioExtenderBoard.logger = self._logger
+        self.actuators = Actuators(self._settings.get(["actuators"]));
+        self._logger.info(f" self.actuators:\n {self.actuators}")
   
 
     # ShutdownPlugin mixin
@@ -210,8 +214,21 @@ class ChromatoforePlugin(
                     },
                 ],
         }
+    
+    def on_settings_save(self, data):
+        old_actuators = self._settings.get(["actuators"])
 
-    ##~~ AssetPlugin mixin
+        # Calling the parent class's implementation of on_settings_save
+        # This will save the settings.
+        super(ChromatoforePlugin, self).on_settings_save(data)
+
+        new_actuators = self._settings.get(["actuators"])
+
+        if old_actuators != new_actuators:
+            # setting1 was changed, react to this.
+            self._logger.info(f"actuators changed from {old_actuators} to {new_actuators}")    
+
+        ##~~ AssetPlugin mixin
 
     def get_assets(self):
         # Define your plugin's asset files to automatically include in the

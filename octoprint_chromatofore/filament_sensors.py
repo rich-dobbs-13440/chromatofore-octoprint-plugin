@@ -23,12 +23,26 @@ Consequently, the filament is sensed when the pin value is false.
 
 
 '''
+from .limit_switch import LimitSwitch
 
 from smbus2 import SMBus
 import threading
 import time
 
 from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
+
+
+class FilamentSensor:
+    def __init__(self, data):
+        self.role = data.get("role")
+        self.limit_switch = LimitSwitch(data)
+
+    def __str__(self):
+        return (f"FilamentSensor(Role: {self.role}, LimitSwitch: {self.limit_switch}")
+
+    def __repr__(self):
+        return (f"FilamentSensor(data={{'board': 0x{self.board:02X}, 'channel': {self.channel}, 'role': {repr(self.role)}}})")
+
 
 class FilamentSensors :
     
