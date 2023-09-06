@@ -100,7 +100,8 @@
         <tbody data-bind="foreach: $data.boards">
             <tr>
                 <td> 
-                    <div data-bind="template: { name: 'jumper-template', data: {jumpers: jumpers}}"></div>
+                    
+                    <div data-bind="bitCheckboxes: address, numberOfBitsToShow: $parent.jumperCount"></div>
                 </td>
                 <td>
                     <input type="text" 
@@ -137,9 +138,14 @@
     <div> These boards are used to sense limit switches used for end stops and filament detectors </div>
 
     <div data-bind="template: { 
-            name: 'i2c-boards-table-template', 
-            data: {boards: gpioBoards.items, id: gpioBoards.id, removeBoard: gpioBoards.removeBoard} 
-        }">
+        name: 'i2c-boards-table-template', 
+        data: {
+            boards: gpioBoards.items, 
+            id: gpioBoards.id, 
+            removeBoard: gpioBoards.removeBoard, 
+            jumperCount: gpioBoards.jumperCount 
+        }
+    }">
     </div>
 
     <button data-bind="click: function() { gpioBoards.addBoard(); }">Add Servo Board</button>
@@ -149,10 +155,15 @@
     <h5>PCA9685 16 Channel PWM Driver Board Addresses</h5>
     <div> These boards are used to control hobby servos used to clamp and push filament. </div>
 
-    <div data-bind="template: { 
-            name: 'i2c-boards-table-template', 
-            data: {boards: servoBoards.items, id: servoBoards.id, removeBoard: servoBoards.removeBoard} 
-        }">
+<div data-bind="template: { 
+        name: 'i2c-boards-table-template', 
+        data: {
+            boards: servoBoards.items, 
+            id: servoBoards.id, 
+            removeBoard: servoBoards.removeBoard, 
+            jumperCount: servoBoards.jumperCount 
+        }
+    }">
     </div>
 
     <button data-bind="click: function() { servoBoards.addBoard(); }">Add Servo Board</button>

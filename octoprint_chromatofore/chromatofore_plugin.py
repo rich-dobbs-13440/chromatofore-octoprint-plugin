@@ -219,6 +219,7 @@ class ChromatoforePlugin(
         return {
             "js": [
                 "js/utilities.js", 
+                "js/bitsCheckboxesCustomBinding.js",
                 "js/limitSwitch.js", 
                 "js/servo.js", 
                 "js/actuator.js", 

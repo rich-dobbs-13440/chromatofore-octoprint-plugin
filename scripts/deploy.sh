@@ -8,6 +8,9 @@
 set -e  # Stop script on error
 set -x  # Echo commands
 
+echo "Start"
+date
+
 # Get the directory where the script is located
 script_dir=$(dirname "$0")
 version_file="$script_dir/../version.txt"
@@ -36,11 +39,17 @@ ssh rld@chromatofore.local "~/oprint/bin/pip install ~/chromatofore-octoprint-pl
 # Signal the plugin to shut down
 ssh rld@chromatofore.local "curl -s -X POST -H 'Content-Type: application/json' -H 'X-Api-Key: $OCTOPRINT_API_KEY' -d '{\"command\":\"shutdown_chromatofore_plugin\"}' http://localhost:5000/api/plugin/chromatofore"
 
-# Pause for a few seconds to let the plugin handle shutdown
-#sleep 5
+
 
 # Restart the OctoPrint service
 ssh rld@chromatofore.local "sudo service octoprint restart"
 
+# Pause for a few seconds to let the plugin handle shutdown
+sleep 10s
+
+#View Octoprint to allow testing and debugging.  
+brave-browser --new-window http://chromatofore.local &
+
 # Let the user know when this happened.
+echo "Finish"
 date

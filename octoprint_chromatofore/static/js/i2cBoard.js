@@ -35,8 +35,10 @@ function initializeI2cBoardBindings() {
 
 
 
-function I2cBoard(data, jumperCount) {
+function I2cBoard(parent, data, jumperCount) {
     var self = this;
+
+    self.parent = parent;
     
     // Check if data is an object (dictionary) or just a number (address)
     var address;
@@ -55,44 +57,33 @@ function I2cBoard(data, jumperCount) {
         return;
     }
     self.jumperCount = jumperCount
-    self.address = ko.observable(address);
     self.baseAddress = address & (~((1 << jumperCount) - 1));
-    self.jumpers = ko.observableArray(
-        Array.from({ length: self.jumperCount }).map((_, index) => 
-            Boolean((address >> index) & 1)
-        ).reverse()
-    ); 
-    self.jumpers.subscribe((newValue) => {
-        let jumperAddress = newValue.slice().reverse().reduce((acc, jumperState, index) => {
-            return acc + (jumperState ? (1 << index) : 0);
-        }, 0);
-        
-        let fullAddress = self.baseAddress | jumperAddress;
-        self.address(fullAddress);
-        self.addressInput("0x" + fullAddress.toString(16).toUpperCase().padStart(2, '0'));
-    });
+
+    self.address = ko.observable();
+    self.addressInput = ko.observable();
+    self.isFoundOnI2cBus = ko.observable(false);     
 
     self.address.subscribe((newValue) => {
-        let jumperBits = newValue & ((1 << self.jumperCount) - 1);
-        self.jumpers(
-            Array.from({ length: self.jumperCount }).map((_, index) => 
-                Boolean((jumperBits >> index) & 1)
-            ).reverse()
-        );
+        const newInputValue = toI2cAddress(newValue);
+        if (self.addressInput() !== newInputValue) {
+            self.addressInput(newInputValue);
+        }     
+        self.checkIfOnBus();        
+        self.parent.childAddressHasChanged();
     });
-    
-    
-    self.addressInput = ko.observable("0x" + address.toString(16).toUpperCase().padStart(2, '0'));     
-    self.isFoundOnI2cBus = ko.observable(false);      
+
     self.addressInput.subscribe(function(newValue) {
         // Use regex to check if newValue is a valid hex address
         if (/^0x[0-9a-fA-F]{2}$/.test(newValue)) { // Assuming a 2-byte address
             var addrValue = parseInt(newValue, 16);
-            self.address(addrValue);
+            if (self.address() !== addrValue) {
+                self.address(addrValue);
+            }
         }
     });
-    
-    
+
+    self.address(address)    
+
     self.checkIfOnBus = function() {
         checkI2cAddress(self.address(), 
             function(address) {
@@ -105,10 +96,7 @@ function I2cBoard(data, jumperCount) {
                 console.log("Got a fail from checkI2cAddress for address", address);
             }
         );        
-
     }
-
-    self.checkIfOnBus();
 
     self.toData = function() {
         return {
@@ -136,13 +124,21 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     self.refreshRateInSeconds = refreshRateInSeconds;
 
     self.items = ko.observableArray(boardData.map(function(data) {
-        return new I2cBoard(data, self.jumperCount);
+        return new I2cBoard(self, data, self.jumperCount);
     }));
 
     self.addressMap = {};
-    self.items().forEach(function(board) {
-        self.addressMap[board.address()] = board;
-    });  
+
+    self.populateAddressMap = function() {
+        self.items().forEach(function(board) {
+            self.addressMap[board.address()] = board;
+        });
+    };
+    self.populateAddressMap();
+
+    self.childAddressHasChanged = function() {
+        self.populateAddressMap();
+    }
 
     // When adding a board, it is intially given the lowest address that is no
     // no other board is using.
@@ -163,7 +159,7 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         var boardAddress = address || self.findNextAvailableAddress();
         console.log("boardAddress in addBoard", boardAddress);
         if (boardAddress > 0) {
-            var board = new I2cBoard(boardAddress, self.jumperCount);
+            var board = new I2cBoard(self, boardAddress, self.jumperCount);
             self.addressMap[board.address()] = board;
             self.items.push(board);
             self.sort();
@@ -319,84 +315,4 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     };    
     
     self.setupRefreshInterval();    
-
-
-    
-
-    self.subscribeToChanges = function() {
-        // Subscribe to address changes for new boards
-        self.items.subscribe(function(changes) {
-            changes.forEach(function(change) {
-                if (change.status === 'added') {
-                    let previousAddress; // to store the old address value
-                    
-                    // Before updating, keep the old address
-                    change.value.address.subscribe(function(oldValue) {
-                        previousAddress = oldValue;
-                    }, null, "beforeChange");
-                    
-                    // When the new value is set
-                    change.value.address.subscribe(function(newAddress) {
-                        // If the previousAddress exists in the map, remove it
-                        if (previousAddress !== undefined) {
-                            delete self.addressMap[previousAddress];
-                        }
-    
-                        // Now add the new address to the map
-                        self.addressMap[newAddress] = change.value;
-    
-                        // Finally, sort if necessary
-                        self.sort();
-                    });
-                }
-                // Handle 'deleted' items if necessary
-                // You should remove them from the addressMap
-                if (change.status === 'deleted') {
-                    delete self.addressMap[change.value.address()];
-                }
-            });
-        }, null, "arrayChange");
-    
-        // Subscribe to address changes for existing boards
-        ko.utils.arrayForEach(self.items(), function(board) {
-            let previousAddress; // to store the old address value
-            
-            // Before updating, keep the old address
-            board.address.subscribe(function(oldValue) {
-                previousAddress = oldValue;
-            }, null, "beforeChange");
-    
-            // When the new value is set
-            board.address.subscribe(function(newAddress) {
-                // If the previousAddress exists in the map, remove it
-                if (previousAddress !== undefined) {
-                    delete self.addressMap[previousAddress];
-                }
-    
-                // Now add the new address to the map
-                self.addressMap[newAddress] = board;
-                
-                // You may also want to check for conflicts here!
-                // If a board with this address already existed, decide how to handle it.
-    
-                // Finally, sort if necessary
-                self.sort();
-            });
-        });
-    };
-
-
-
-    
-
-    self.subscribeToChanges();
-    
-
-
-
-
-
-
-
-
 }
