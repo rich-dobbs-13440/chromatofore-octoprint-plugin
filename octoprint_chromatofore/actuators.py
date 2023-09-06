@@ -3,6 +3,8 @@ from .filament_sensors import FilamentSensor
 from .limit_switch import LimitSwitch
 from .servo import Servo
 
+_logger = None
+
 class Actuator:
     def __init__(self, data):
         self.id = data.get("id")        
@@ -37,13 +39,81 @@ class Actuator:
         return f"Actuator(data={{'id': {repr(self.id)}, 'filament_sensor': {repr(self.filament_sensor)}, " \
                f"'fixed_clamp': {repr(self.fixed_clamp)}, 'moving_clamp': {repr(self.moving_clamp)}, " \
                f"'pusher': {repr(self.pusher)}, 'pusher_limit_switch': {repr(self.pusher_limit_switch)}}})"
+    
+    def unique_hash(self):
+        essential_data = (
+            self.filament_sensor.unique_hash(), 
+            self.fixed_clamp.unique_hash(), 
+            self.moving_clamp.unique_hash(), 
+            self.pusher_limit_switch.unique_hash())
+        return hex(hash(essential_data))[2:]
+    
+    def load_filament(self) -> None:
+        """
+        Stub method for loading filament into the actuator.
+        """
+        _logger.info(f"Loading filament for actuator with hash {self.unique_hash()}")
+        # Actual loading logic here
 
-# Assume the other classes (FilamentSensor, Servo, LimitSwitch) also have appropriate __str__ and __repr__ methods.
+    def unload_filament(self) -> None:
+        """
+        Stub method for unloading filament from the actuator.
+        """
+        _logger.info(f"Unloading filament for actuator with hash {self.unique_hash()}")
+        # Actual unloading logic here
+
+    def advance_filament(self, stop_at: int, speed: int) -> None:
+        """
+        Stub method for advancing filament using the actuator.
+        """
+        _logger.info(f"Advancing filament for actuator with hash {self.unique_hash()}, stopping at {stop_at} with speed {speed}")
+        # Actual advancing logic here
+
+    def retract_filament(self, stop_at: int, speed: int) -> None:
+        """
+        Stub method for retracting filament using the actuator.
+        """
+        _logger.info(f"Retracting filament for actuator with hash {self.unique_hash()}, stopping at {stop_at} with speed {speed}")
+        # Actual retracting logic here    
 
 
+
+  
 class Actuators:
-    def __init__(self, actuators_data):
+    def __init__(self, logger, actuators_data):
+        global _logger
+        _logger = logger
         self.actuators = [Actuator(data) for data in actuators_data]
 
     def __str__(self):
-        return "\n".join(str(actuator) for actuator in self.actuators)        
+        return "\n".join(str(actuator) for actuator in self.actuators)
+
+    def handle_command(self, command, actuator_value, stop_at=None, speed=None):
+        # Searching for the actuator
+        target_actuator = None
+        for actuator in self.actuators:
+            if actuator.unique_hash() == actuator_value:
+                target_actuator = actuator
+                break
+
+        if target_actuator is None:
+            return f"No actuator found with identifier {actuator_value}"
+
+        if command == "load_filament":
+            target_actuator.load_filament()
+        elif command == "unload_filament":
+            target_actuator.unload_filament()
+        elif command == "advance_filament":
+            target_actuator.advance_filament(stop_at=stop_at, speed=speed)
+        elif command == "retract_filament":
+            target_actuator.retract_filament(stop_at=stop_at, speed=speed)
+        else:
+            # Unknown command
+            return f"Unknown command {command}"
+
+        # If everything goes well
+        return None
+    
+    def dump(self):
+        for actuator in self.actuators:
+            _logger.info(f"Actuator Identifier: {actuator.unique_hash()}")    

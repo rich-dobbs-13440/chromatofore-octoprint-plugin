@@ -15,3 +15,8 @@ class LimitSwitch:
 
     def __repr__(self):
         return f"LimitSwitch(data={{'board': 0x{self.board:02X}, 'channel': {self.channel}, 'role': {repr(self.role)}}})"
+    
+    def unique_hash(self):
+        essential_data = (self.board, self.channel)
+        return hex(hash(essential_data))[2:]
+

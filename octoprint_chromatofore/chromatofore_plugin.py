@@ -38,7 +38,7 @@ class ChromatoforePlugin(
     def on_after_startup(self):
         self._logger.info("In on_after_startup")
         Pcf8574GpioExtenderBoard.logger = self._logger
-        self.actuators = Actuators(self._settings.get(["actuators"]));
+        self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
         self._logger.info(f" self.actuators:\n {self.actuators}")
   
 
@@ -79,7 +79,11 @@ class ChromatoforePlugin(
             "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
             "read_limit_switch": ["board", "channel"], 
             "shutdown_chromatofore_plugin": [],
-            "set_servo_angle": ["board", "channel", "angle"]  
+            "set_servo_angle": ["board", "channel", "angle"],
+            "load_filament":["actuator"],
+            "unload_filament":["actuator"],
+            "advance_filament":["actuator", "stop_at", "speed"],
+            "retract_filament":["actuator", "stop_at", "speed"] 
         }
     
     def on_api_command(self, command, data):
@@ -180,7 +184,24 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=board, channel=channel)
             else:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel, pin_state=pin_state)
+
+        elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
+            actuator_value = data.get("actuator")
+            if actuator_value is None:
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing actuator parameter")
+
+            # As you said, other parameters are optional, I'll get them without validation for now.
+            stop_at = data.get("stop_at", None)
+            speed = data.get("speed", None)
             
+            # Forwarding the request to the actuators handler. I'm assuming it returns an error message if something goes wrong.
+            error_message = self.actuators.handle_command(command, actuator_value, stop_at, speed)
+
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, actuator=actuator_value)
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, actuator=actuator_value)
+
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
 
@@ -226,7 +247,9 @@ class ChromatoforePlugin(
 
         if old_actuators != new_actuators:
             # setting1 was changed, react to this.
-            self._logger.info(f"actuators changed from {old_actuators} to {new_actuators}")    
+            self._logger.info(f"actuators changed from {old_actuators} to {new_actuators}")   
+            self.actuators = Actuators(self._settings.get(["actuators"]));
+            self._logger.info(f" self.actuators:\n {self.actuators}") 
 
         ##~~ AssetPlugin mixin
 
@@ -274,6 +297,12 @@ class ChromatoforePlugin(
             {
                 "type": "settings",
                 "custom_bindings": True,
-                "template": "chromatofore_settings.jinja2"
-            }
-        ]        
+                "template": "chromatofore_settings.html"
+            },
+            {
+                "type": "tab",
+                "custom_bindings": True,
+                "template": "chromatofore_tab.html"
+            } 
+        ]
+    
