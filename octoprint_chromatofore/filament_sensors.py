@@ -45,7 +45,7 @@ class FilamentSensor:
     
     def unique_hash(self):
         essential_data = (self.limit_switch.unique_hash())
-        return hex(hash(essential_data))[2:]
+        return f"{hash(essential_data):08x}"
 
 
 class FilamentSensors :

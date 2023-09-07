@@ -185,6 +185,6 @@ approaches as used with the filament sensor.
 - Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
 - Enhancement: Analyze configuration and report potential channel conflicts.
 - Enhancement: Require confirmation before deleting an acuator.
-- Technical Debt: Code for managing boards is duplicated between GPIO and PMW boards
+- Enhancement: Create a log specific the Chromatofore plugin, to assist in troubleshooting.
 
 

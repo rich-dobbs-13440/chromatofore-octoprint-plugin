@@ -46,7 +46,7 @@ class Actuator:
             self.fixed_clamp.unique_hash(), 
             self.moving_clamp.unique_hash(), 
             self.pusher_limit_switch.unique_hash())
-        return hex(hash(essential_data))[2:]
+        return f"{abs(hash(essential_data)):8x}"
     
     def load_filament(self) -> None:
         """
@@ -83,15 +83,21 @@ class Actuators:
     def __init__(self, logger, actuators_data):
         global _logger
         _logger = logger
-        self.actuators = [Actuator(data) for data in actuators_data]
+        self.items = [Actuator(data) for data in actuators_data]
+
+        self.fred = "Fred"
+
+    def __iter__(self):
+        return iter(self.items)        
+
 
     def __str__(self):
-        return "\n".join(str(actuator) for actuator in self.actuators)
+        return "\n".join(str(actuator) for actuator in self.items)
 
     def handle_command(self, command, actuator_value, stop_at=None, speed=None):
         # Searching for the actuator
         target_actuator = None
-        for actuator in self.actuators:
+        for actuator in self.items:
             if actuator.unique_hash() == actuator_value:
                 target_actuator = actuator
                 break
@@ -115,5 +121,5 @@ class Actuators:
         return None
     
     def dump(self):
-        for actuator in self.actuators:
+        for actuator in self.items:
             _logger.info(f"Actuator Identifier: {actuator.unique_hash()}")    

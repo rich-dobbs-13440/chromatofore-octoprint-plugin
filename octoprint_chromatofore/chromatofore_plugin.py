@@ -40,6 +40,7 @@ class ChromatoforePlugin(
         Pcf8574GpioExtenderBoard.logger = self._logger
         self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
         self._logger.info(f" self.actuators:\n {self.actuators}")
+        self.actuators.dump()
   
 
     # ShutdownPlugin mixin
@@ -293,6 +294,8 @@ class ChromatoforePlugin(
         }
     
     def get_template_configs(self):
+        self._logger.info(f"Actuators in get_template_configs: {len(self.actuators.items)} actuators found")
+        self._logger.info(f"self.actuators.fred: {self.actuators.fred}")    
         return [
             {
                 "type": "settings",
@@ -302,7 +305,12 @@ class ChromatoforePlugin(
             {
                 "type": "tab",
                 "custom_bindings": True,
-                "template": "chromatofore_tab.html"
+                "template": "chromatofore_tab.html",
             } 
         ]
+    
+    def get_template_vars(self):
+        self._logger.info(f"Actuators in get_template_vars: {len(self.actuators.items)} actuators found")
+        self._logger.info(f"self.actuators.fred: {self.actuators.fred}")    
+        return {"actuators": self.actuators}    
     

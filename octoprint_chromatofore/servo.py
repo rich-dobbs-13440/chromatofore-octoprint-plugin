@@ -77,7 +77,7 @@ class Servo:
     
     def unique_hash(self):
         essential_data = (self.board, self.channel)
-        return hex(hash(essential_data))[2:]
+        return f"{hash(essential_data):08x}"
 
     
   

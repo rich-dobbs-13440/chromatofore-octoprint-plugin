@@ -3,10 +3,6 @@
 $(function() {
 
 
-
-
-    
-
     function ChromatoforeViewModel(parameters) {
 
         var self = this;
@@ -123,16 +119,6 @@ $(function() {
 });
 
 
-// $(function() {
-//     // Adjust the order of the tabs
-//     var tabOrder = $("#tabs").data("tabOrder") || [];
-//     var index = tabOrder.indexOf("tab_plugin_chromatofore_link");
-//     if (index > -1) {
-//         tabOrder.splice(index, 1);
-//     }
-//     tabOrder.unshift("tab_plugin_chromatofore_link");
-//     $("#tabs").data("tabOrder", tabOrder);
-// });
 
 console.log("Exit chromatofore.js")
 

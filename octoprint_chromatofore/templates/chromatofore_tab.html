@@ -1,7 +1,8 @@
+
 <!-- octoprint_chromatofore/templates/chromatofore_tab.html -->
 
 <div>
-    <h4>Chromatofore Filament Changer Control</h4>
+    <h4>Chromatofore Filament Changer Control Mark I - 0.5.142</h4>
 </div>
 
 <h5>Earwig Filament Actuators</h5>
@@ -9,7 +10,7 @@
     This requires the extruder to be disenaged.  
     Unloading filament requires the hot end to be at temperature.
 </div>
-
+<div> Fred: '{{ plugin_chromatofore_actuators.fred if plugin_chromatofore_actuators else 'No fred!' }}' </div>
 
 
 <table> 
@@ -18,10 +19,18 @@
             <th>Actuator</th>
             <th>Actions</th>
         </tr>
-    </thead>    
-    <tr>
-        <td></td>                           
-    </tr>             
+    </thead>
+    <tbody>
+        {% for actuator in plugin_chromatofore_actuators %}
+            <tr>
+                <td>{{ actuator.unique_hash() }}</td>
+                <td>
+                    You can also list out any available actions for this actuator here. 
+                </td>
+            </tr>
+        {% endfor %}
     </tbody> 
-</table>               
+</table>
+
+    
 
