@@ -1,4 +1,6 @@
 
+from typing import Optional, Dict, Any
+
 from .filament_sensors import FilamentSensor
 from .limit_switch import LimitSwitch
 from .servo import Servo
@@ -20,7 +22,7 @@ default_actuators = [
 
 
 class Actuator:
-    def __init__(self, data):
+    def __init__(self, data: Dict[str, Any]):
         self.id = data.get("id")    # Need to rename - this is a nickname, not the id    
 
         self.fixed_clamp = Servo(data.get("fixed_clamp"))
@@ -79,14 +81,14 @@ class Actuator:
         _logger.info(f"Unloading filament for actuator with hash {self.hash_code}")
         # Actual unloading logic here
 
-    def advance_filament(self, stop_at: int, speed: int) -> None:
+    def advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
         """
         Stub method for advancing filament using the actuator.
         """
         _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         # Actual advancing logic here
 
-    def retract_filament(self, stop_at: int, speed: int) -> None:
+    def retract_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
         """
         Stub method for retracting filament using the actuator.
         """
@@ -101,6 +103,7 @@ class Actuators:
         global _logger
         _logger = logger
         self.items = [Actuator(data) for data in actuators_data]
+        self.filament_in_printer = None
 
     def __iter__(self):
         return iter(self.items)        
@@ -113,6 +116,7 @@ class Actuators:
         return "\n      ".join(f"'{actuator.hash_code}'" for actuator in self.items)
 
     def handle_command(self, command, hash_code, stop_at=None, speed=None):
+        _logger.info(f"In handle_command with command: {command}  hash_code: {hash_code} stop_at: {stop_at}, speed: {speed}")
         # Searching for the actuator
         target_actuator = None
         for actuator in self.items:
@@ -134,6 +138,7 @@ class Actuators:
         elif command == "unload_filament":
             target_actuator.unload_filament()
         elif command == "advance_filament":
+            _logger.info(f"Calling advance_filament with stop_at: {stop_at}, speed: {speed}")
             target_actuator.advance_filament(stop_at=stop_at, speed=speed)
         elif command == "retract_filament":
             target_actuator.retract_filament(stop_at=stop_at, speed=speed)
@@ -151,4 +156,13 @@ class Actuators:
     
     def dump(self):
         for actuator in self.items:
-            _logger.info(f"Actuator Identifier: {actuator.hash_code()}")    
+            _logger.info(f"Actuator Identifier: {actuator.hash_code}") 
+
+    def data_to_store(self) -> Dict[str, Any]: 
+        return {
+            'filament_in_printer': self.filament_in_printer
+        }
+    
+    def restore_data(self, data: Dict[str, Any]) -> None:
+        self.filament_in_printer = data.get('filament_in_printer')
+ 

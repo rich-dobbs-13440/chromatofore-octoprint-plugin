@@ -13,7 +13,7 @@
 
 
 
-Need to handle ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
+
 <table> 
     <thead>
         <tr>
@@ -30,6 +30,8 @@ Need to handle ["load_filament", "unload_filament", "advance_filament", "retract
                 <td>
                     <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {}); }">Load Filament</button>
                     <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload Filament</button>
+                    <button data-bind="click: function() { actuator_command('advance_filament', hashCode(), {stop_at: {step: 1}}); }">Step +</button>
+                    <button data-bind="click: function() { actuator_command('retract_filament', hashCode(), {stop_at: {step: 1}}); }">Step -</button>
                 </td>
             </tr>
     </tbody> 

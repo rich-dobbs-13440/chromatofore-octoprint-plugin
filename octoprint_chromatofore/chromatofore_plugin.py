@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+import json
+import os
 import flask
 import octoprint.plugin
 import datetime
@@ -40,8 +42,9 @@ class ChromatoforePlugin(
         self._logger.info("In on_after_startup")
         Pcf8574GpioExtenderBoard.logger = self._logger
         self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
-        self._logger.info(f" self.actuators:\n {self.actuators}")
+        self._logger.info(f"self.actuators:\n {self.actuators}")
         self.actuators.dump()
+        self._logger.info(f"self.get_plugin_data_folder(): {self.get_plugin_data_folder()}")
   
 
     # ShutdownPlugin mixin
@@ -84,8 +87,8 @@ class ChromatoforePlugin(
             "set_servo_angle": ["board", "channel", "angle"],
             "load_filament":["actuator"],
             "unload_filament":["actuator"],
-            "advance_filament":["actuator", "stop_at", "speed"],
-            "retract_filament":["actuator", "stop_at", "speed"] 
+            "advance_filament":["actuator"], # "stop_at" and "speed" are optional
+            "retract_filament":["actuator"], # "stop_at" and "speed" are optional
         }
     
     def on_api_command(self, command, data):
@@ -188,6 +191,8 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=board_str, channel=channel, pin_state=pin_state)
 
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
+
+            self._logger.info(f"At actuator command handling with {command}")
             actuator_value = data.get("actuator")
             if actuator_value is None:
                 return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="Missing actuator parameter")
@@ -306,5 +311,16 @@ class ChromatoforePlugin(
     def get_template_vars(self):
         return {
             "ss_actuators": self.actuators,
-            "current_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}    
-    
+            "current_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
+
+    def store_data(self):
+        path = os.path.join(self.get_plugin_data_folder(), "chromatofore_data.json")
+        with open(path, 'w') as file:
+            json.dump(self.actuators.data_to_store(), file)
+
+    def restore_data(self):
+        path = os.path.join(self.get_plugin_data_folder(), "chromatofore_data.json")
+        if os.path.exists(path):
+            with open(path, 'r') as file:
+                data = json.load(file)
+                self.actuators.restore_data(data)
