@@ -28,13 +28,12 @@ class Actuator:
         self.pusher = Servo(data.get("pusher"))
         self.pusher_limit_switch = LimitSwitch(data.get("pusher_limit_switch"))
         self.filament_sensor = FilamentSensor(data.get("filament_sensor")) 
-        self.essential_id = self.unique_hash()   
+        self.hash_code =  data.get("hash_code", "-- hash code_ missing -- ")
 
 
 
     def __str__(self):
         return "Actuator " \
-            f"\n   Essential ID: {self.essential_id}," \
             f"\n   ID: {self.id}," \
             f"\n   Filament Sensor: {self.filament_sensor}, " \
             f"\n   Fixed Clamp: {self.fixed_clamp}," \
@@ -54,14 +53,6 @@ class Actuator:
             f"}})"
             )        
     
-    def unique_hash(self):
-        essential_data = (
-            self.filament_sensor.unique_hash(), 
-            self.fixed_clamp.unique_hash(), 
-            self.moving_clamp.unique_hash(), 
-            self.pusher_limit_switch.unique_hash())
-        return f"{hash(essential_data):8x}"[-8:] # slice to remove possible negative sign
-    
     def to_data(self):
         return {
             'id': self.id,
@@ -70,7 +61,7 @@ class Actuator:
             'pusher': self.pusher.to_data(),
             'pusher_limit_switch': self.pusher_limit_switch.to_data(),
             'filament_sensor': self.filament_sensor.to_data(),
-            'essential_id': self.essential_id
+            'hash_code': self.hash_code
         }
 
     
@@ -78,28 +69,28 @@ class Actuator:
         """
         Stub method for loading filament into the actuator.
         """
-        _logger.info(f"Loading filament for actuator with hash {self.unique_hash()}")
+        _logger.info(f"Loading filament for actuator with hash {self.hash_code}")
         # Actual loading logic here
 
     def unload_filament(self) -> None:
         """
         Stub method for unloading filament from the actuator.
         """
-        _logger.info(f"Unloading filament for actuator with hash {self.unique_hash()}")
+        _logger.info(f"Unloading filament for actuator with hash {self.hash_code}")
         # Actual unloading logic here
 
     def advance_filament(self, stop_at: int, speed: int) -> None:
         """
         Stub method for advancing filament using the actuator.
         """
-        _logger.info(f"Advancing filament for actuator with hash {self.unique_hash()}, stopping at {stop_at} with speed {speed}")
+        _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         # Actual advancing logic here
 
     def retract_filament(self, stop_at: int, speed: int) -> None:
         """
         Stub method for retracting filament using the actuator.
         """
-        _logger.info(f"Retracting filament for actuator with hash {self.unique_hash()}, stopping at {stop_at} with speed {speed}")
+        _logger.info(f"Retracting filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         # Actual retracting logic here    
 
 
@@ -118,22 +109,22 @@ class Actuators:
     def __str__(self):
         return "\n".join(str(actuator) for actuator in self.items)
     
-    def essential_ids_str(self):
-        return "\n      ".join(f"'{actuator.essential_id}'" for actuator in self.items)
+    def hash_codes_str(self):
+        return "\n      ".join(f"'{actuator.hash_code}'" for actuator in self.items)
 
-    def handle_command(self, command, actuator_value, stop_at=None, speed=None):
+    def handle_command(self, command, hash_code, stop_at=None, speed=None):
         # Searching for the actuator
         target_actuator = None
         for actuator in self.items:
-            if actuator.essential_id == actuator_value:
+            if actuator.hash_code == hash_code:
                 target_actuator = actuator
                 break
 
         if target_actuator is None:
             error_msg = (
-                f"No actuator found with identifier '{actuator_value}'.\n "
-                f"  Actuator type: {type(actuator_value)}"
-                f"  Essential Ids: {self.essential_ids_str()}"
+                f"No actuator found with hash_code '{hash_code}'.\n "
+                f"  Type of hash_code: {type(hash_code)}"
+                f"  Possible hash_codes: {self.hash_codes_str()}"
             )
             _logger.warning(error_msg)           
             return error_msg
@@ -160,4 +151,4 @@ class Actuators:
     
     def dump(self):
         for actuator in self.items:
-            _logger.info(f"Actuator Identifier: {actuator.unique_hash()}")    
+            _logger.info(f"Actuator Identifier: {actuator.hash_code()}")    

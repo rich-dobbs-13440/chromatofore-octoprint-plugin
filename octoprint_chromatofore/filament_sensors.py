@@ -53,10 +53,7 @@ class FilamentSensor:
 
     def __repr__(self):
         return (f"FilamentSensor(data={{'board': 0x{self.board:02X}, 'channel': {self.channel}, 'role': {repr(self.role)}}})")
-    
-    def unique_hash(self):
-        essential_data = (self.limit_switch.unique_hash())
-        return f"{hash(essential_data):08x}"
+
 
 
 class FilamentSensors :

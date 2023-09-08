@@ -91,8 +91,8 @@ function Actuator(data, refreshRateInSeconds) {
     };
      
 
-    self.toData = function() {
-        new_to_data =  {
+    self.toData = function() { 
+        return {
             id: self.id(),
             pusher: self.pusher.toData(),
             moving_clamp: self.moving_clamp.toData(),
@@ -101,7 +101,6 @@ function Actuator(data, refreshRateInSeconds) {
             filament_sensor: self.filament_sensor.toData(),
             hash_code : self.hashCode()
         };
-        return new_data;
     };  
     
     self.getDataToBuildNextAcuator = function() {
