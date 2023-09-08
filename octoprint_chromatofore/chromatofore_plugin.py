@@ -2,12 +2,13 @@ from http import HTTPStatus
 
 import flask
 import octoprint.plugin
+import datetime
 from smbus2 import SMBus
 
-from .actuators import Actuators
+from .actuators import Actuators, default_actuators
 from .filament_sensors import FilamentSensors
 from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
-from .servo import Servo
+from .servo import Servo, default_servo_driver_boards
 
 
 def jsonify_no_cache(status, **kwargs):
@@ -224,33 +225,28 @@ class ChromatoforePlugin(
     def get_settings_defaults(self):
         return {
             "gpio_boards": [0x20, 0x21],
-            "servo_driver_boards": [0x40],
-            "actuators": [
-                    {
-                        "id": "black_wire",
-                        "pusher": {"role": "Pusher Servo", "board": 0x40, "channel": 0x0, "min_angle":0, "max_angle":180},
-                        "moving_clamp": {"role": "Moving Clamp Servo", "board": 0x40, "channel": 0x1, "min_angle":0, "max_angle":180},
-                        "fixed_clamp": {"role": "Fixed Clamp Servo", "board": 0x40, "channel": 0x2, "min_angle":0, "max_angle":180},
-                        "pusher_limit_switch": {"board": 0x20, "channel": 0x0},
-                        "filament_sensor": {"board": 0x21, "channel": 0x0},
-                    },
-                ],
+            "servo_driver_boards": default_servo_driver_boards,
+            "actuators": default_actuators
         }
     
     def on_settings_save(self, data):
-        old_actuators = self._settings.get(["actuators"])
-
+        self._logger.info("In on_settings_save");
+        # Figure out structure of data here:
+        # self._logger.info(data);
+        actuators_data = data.get('actuators') 
+        if actuators_data is None:
+            self._logger.error("No actuators key found.  Just creatin an empty list ")
+            self.actuators = Actuators(self._logger, [])
+        else:
+            self.actuators = Actuators(self._logger, actuators_data)
+        # Add or update unique ids on the actuators
+        data['actuators'] = self.actuators.to_data()
+    
         # Calling the parent class's implementation of on_settings_save
         # This will save the settings.
         super(ChromatoforePlugin, self).on_settings_save(data)
-
-        new_actuators = self._settings.get(["actuators"])
-
-        if old_actuators != new_actuators:
-            # setting1 was changed, react to this.
-            self._logger.info(f"actuators changed from {old_actuators} to {new_actuators}")   
-            self.actuators = Actuators(self._settings.get(["actuators"]));
-            self._logger.info(f" self.actuators:\n {self.actuators}") 
+        
+        self._logger.info(f" self.actuators:\n {self.actuators}") 
 
         ##~~ AssetPlugin mixin
 
@@ -294,8 +290,6 @@ class ChromatoforePlugin(
         }
     
     def get_template_configs(self):
-        self._logger.info(f"Actuators in get_template_configs: {len(self.actuators.items)} actuators found")
-        self._logger.info(f"self.actuators.fred: {self.actuators.fred}")    
         return [
             {
                 "type": "settings",
@@ -304,13 +298,13 @@ class ChromatoforePlugin(
             },
             {
                 "type": "tab",
-                "custom_bindings": True,
+                "custom_bindings": False,
                 "template": "chromatofore_tab.html",
             } 
         ]
     
     def get_template_vars(self):
-        self._logger.info(f"Actuators in get_template_vars: {len(self.actuators.items)} actuators found")
-        self._logger.info(f"self.actuators.fred: {self.actuators.fred}")    
-        return {"actuators": self.actuators}    
+        return {
+            "ss_actuators": self.actuators,
+            "current_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}    
     

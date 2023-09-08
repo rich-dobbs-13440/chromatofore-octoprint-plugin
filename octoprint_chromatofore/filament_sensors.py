@@ -33,9 +33,20 @@ from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
 
 
 class FilamentSensor:
-    def __init__(self, data):
+    def __init__(self, data):  
         self.role = data.get("role")
+        self.board = data.get("board")
+        self.channel = data.get("channel")
+        
         self.limit_switch = LimitSwitch(data)
+
+
+    def to_data(self):
+        return {
+            'board': self.limit_switch.board,
+            'channel': self.limit_switch.channel,     
+            'role': self.role
+        }        
 
     def __str__(self):
         return (f"FilamentSensor(Role: {self.role}, LimitSwitch: {self.limit_switch}")

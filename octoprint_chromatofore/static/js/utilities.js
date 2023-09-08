@@ -30,3 +30,24 @@ const servoChannels = ko.observableArray(
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+
+function simpleHash(...values) {
+    // Combine input values into a single string
+    let combinedData = values.join('');
+
+    var hash = 0;
+    if (combinedData.length === 0) return hash.toString(16);
+
+    for (var i = 0; i < combinedData.length; i++) {
+        var char = combinedData.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+
+    // Convert the hash to a hex string
+    let hashHex = (hash >>> 0).toString(16);  // ">>>" ensures we get an unsigned value
+
+    // Return the last 8 characters
+    return hashHex.slice(-8);
+}

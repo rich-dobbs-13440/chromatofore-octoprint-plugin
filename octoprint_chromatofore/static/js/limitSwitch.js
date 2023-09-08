@@ -34,6 +34,14 @@ function LimitSwitch(role, data, refreshRateInSeconds) {
         };
     };
 
+    self.hashCode = function() {
+        return simpleHash(
+            self.role(),
+            self.boardToInt(),
+            self.channelToInt(),
+        );
+    };    
+
     self.isApiError = ko.observable(false);     
     self.apiResponse = ko.observable("");    
     self.pinState = ko.observable(); // true, false, or null

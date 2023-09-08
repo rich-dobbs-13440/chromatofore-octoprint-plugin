@@ -3,6 +3,17 @@ from typing import Optional
 from smbus2 import SMBus
 import Adafruit_PCA9685
 
+default_servo_driver_boards = [
+    {   
+        'address': 0x40,
+        'note': 'Actuator servos for first five actuators'
+     },
+    {
+        'address': 0x70,
+        'note': 'Typically, reset boards address'
+    }
+]
+
 class Servo:
 
     bus_number = 1 # Use bus number 1 for Raspberry Pi 3 and newer
@@ -78,6 +89,13 @@ class Servo:
     def unique_hash(self):
         essential_data = (self.board, self.channel)
         return f"{hash(essential_data):08x}"
-
     
-  
+    def to_data(self):
+        return {
+            'board': self.board,
+            'channel': self.channel,
+            'role': self.role,
+            'max_angle': self.max_angle,
+            'min_angle': self.min_angle           
+        } 
+    

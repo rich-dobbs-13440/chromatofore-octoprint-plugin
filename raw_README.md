@@ -186,5 +186,6 @@ approaches as used with the filament sensor.
 - Enhancement: Analyze configuration and report potential channel conflicts.
 - Enhancement: Require confirmation before deleting an acuator.
 - Enhancement: Create a log specific the Chromatofore plugin, to assist in troubleshooting.
+- Technical Debt: Use ES6 classes and mark variables as public or private.
 
 

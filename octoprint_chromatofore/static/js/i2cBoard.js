@@ -174,7 +174,6 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         } else {
             var msg = "Can't add board.  Unable to next available address in range for baseAddress:" +  toI2cAddress(self.baseAddress) + " range: " + toI2cAddress(self.addressRange);
             console.log(msg);
-            // OctoPrint.coreui.showAlert("Unable to find next available address in range", "alert-warning"); 
             new PNotify({
                 title: 'Unable to Add Board',
                 text: msg,
@@ -328,9 +327,6 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         return new I2cBoard(self, data, self.jumperCount);
     });
     self.items(boards);
-    // self.items = ko.observableArray(boardData.map(function(data) {
-    //     return new I2cBoard(self, data, self.jumperCount);
-    // }));    
     self.populateAddressMap();    
 
     self.setupRefreshInterval();      

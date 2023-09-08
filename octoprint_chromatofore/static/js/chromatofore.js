@@ -4,6 +4,7 @@ $(function() {
 
 
     function ChromatoforeViewModel(parameters) {
+        console.log("In ChromatoforeViewModel");
 
         var self = this;
         self.refreshRates = [
@@ -14,7 +15,9 @@ $(function() {
             { text: "Every 10 Seconds", value: 10 },
         ];
         self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "each second".               
-        self.selectedScanRefreshRateInSeconds = ko.observable(30); // Default to "every 30 seconds.     
+        self.selectedScanRefreshRateInSeconds = ko.observable(30); // Default to "every 30 seconds.    
+        
+        console.log(parameters);
 
         self.settingsViewModel = parameters[0];
 
@@ -86,32 +89,22 @@ $(function() {
                 // Update the original settings with the new values
                 self.pluginSettings.actuators(data);
             }
-        };
 
-
-
-
-        self.updateAddressFromInput = function(board) {
-            var inputValue = board.addressInput();
-            var intValue = parseInt(inputValue, 16);
-            
-            if (!isNaN(intValue) && intValue >= 0x00 && intValue <= 0x7F) {
-                board.address(intValue);
-                board.addressInput("0x" + intValue.toString(16).toUpperCase().padStart(2, '0'));  // this updates the input field with the formatted hex
-            } else {
-                // Handle invalid input, possibly reset to previous value or show an error
-                //board.addressInput("0x" + board.address().toString(16).toUpperCase().padStart(2, '0'));
-                board.addressInput("0x??");
+            const reloadMillis = 2000;
+            if (self.settingsWereSaved) {
+                setTimeout(function() {
+                    console.error("Reload in response to settingsWereSaved");
+                    location.reload();
+                }, reloadMillis);  
             }
         };
-
     }
 
     // Register the ViewModel
     OCTOPRINT_VIEWMODELS.push({ 
         construct: ChromatoforeViewModel,
         dependencies: ["settingsViewModel"],
-        elements: ["#settings_plugin_chromatofore"]
+        elements: ["#settings_plugin_chromatofore", "#tab_plugin_chromatofore"]
     }); 
  
 

@@ -1,17 +1,62 @@
+
+actuator_command = function(command, actuator, options) {
+    console.log("In acutator_command");
+    console.log(actuator);
+    // Handles "load_filament", "unload_filament", "advance_filament", "retract_filament"
+    var data = { actuator: actuator};
+    if ("stop_at" in options) {
+        data.stop_at = options.stop_at;
+    }
+    if ("speed" in options) {
+        data.speed = options.speed;
+    }
+
+    const context_message = `Context: command: ${command} options: ${JSON.stringify(options)} actuator: ${actuator} data: ${JSON.stringify(data)} `;
+    console.log("In acutator_command", context_message);
+
+    OctoPrint.simpleApiCommand("chromatofore", command, data)
+    .done(function(response) {
+        if (response.success) {    
+            console.log("Got response from simpleApiCommand that succeeded", response, context_message);
+            new PNotify({
+                title: 'Actuator Command Succeed',
+                text: context_message,
+                type: 'success' // can be 'info', 'success', 'error', or 'notice'
+            });
+        } else {
+            console.log("Got response from simpleApiCommand that did not succeed", response, context_message);
+            new PNotify({
+                title: 'Actuator Command Failed',
+                text: context_message,
+                type: 'error' // can be 'info', 'success', 'error', or 'notice'
+            });
+        }
+    })
+    .fail(function() {
+        new PNotify({
+            title: 'Actuator Command Error',
+            text: context_message,
+            type: 'error' // can be 'info', 'success', 'error', or 'notice'
+        });     
+    });
+}
+
+
+
 function Actuator(data, refreshRateInSeconds) {
     var self = this;
+    console.log('In Actuator');
     console.log("data:", data);
 
     self.refreshRate = refreshRateInSeconds;
     
-    // The user provides a name for actuator
+    // TODO: change id to nickname
     self.id = ko.observable(data.id);
 
     // An acutuator has three servos:
     self.pusher = new Servo(data.pusher);
     self.moving_clamp = new Servo(data.moving_clamp);
     self.fixed_clamp = new Servo(data.fixed_clamp);  
-
 
     // An actuator has two limit switches:
     self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch, self.refreshRate);
@@ -34,19 +79,29 @@ function Actuator(data, refreshRateInSeconds) {
     self.toggleDetails = function() {
         self.detailsVisible(!self.detailsVisible());
     };
-    
 
-    
+    self.hashCode = function() {
+        return simpleHash(
+            self.filament_sensor.hashCode(),
+            self.fixed_clamp.hashCode(),
+            self.moving_clamp.hashCode(),
+            self.pusher.hashCode(),
+            self.pusher_limit_switch.hashCode()
+        );
+    };
+     
 
     self.toData = function() {
-        return {
+        new_to_data =  {
             id: self.id(),
             pusher: self.pusher.toData(),
             moving_clamp: self.moving_clamp.toData(),
             fixed_clamp: self.fixed_clamp.toData(),
             pusher_limit_switch: self.pusher_limit_switch.toData(),
             filament_sensor: self.filament_sensor.toData(),
+            hash_code : self.hashCode()
         };
+        return new_data;
     };  
     
     self.getDataToBuildNextAcuator = function() {

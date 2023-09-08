@@ -75,5 +75,14 @@ function Servo(data) {
             min_angle: parseInt(self.min_angle()),
             max_angle: parseInt(self.max_angle())
         };
-    };        
+    }; 
+    
+    self.hashCode = function() {
+        return simpleHash(
+            self.boardToInt(),
+            self.channelToInt(),
+            parseInt(self.min_angle()),
+            parseInt(self.max_angle())
+        );
+    };
 }   

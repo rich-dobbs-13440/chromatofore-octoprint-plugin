@@ -10,27 +10,35 @@
     This requires the extruder to be disenaged.  
     Unloading filament requires the hot end to be at temperature.
 </div>
-<div> Fred: '{{ plugin_chromatofore_actuators.fred if plugin_chromatofore_actuators else 'No fred!' }}' </div>
 
 
+
+Need to handle ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
 <table> 
     <thead>
         <tr>
             <th>Actuator</th>
+            <th>Nickname</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for actuator in plugin_chromatofore_actuators %}
+    <tbody data-bind="foreach: actuators">
             <tr>
-                <td>{{ actuator.unique_hash() }}</td>
+                <td><div data-bind="text: hashCode()"></div></td>
+                <td><div data-bind="text: id"></div></td>
                 <td>
-                    You can also list out any available actions for this actuator here. 
+                    <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {}); }">Load Filament</button>
+                    <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload Filament</button>
                 </td>
             </tr>
-        {% endfor %}
     </tbody> 
 </table>
 
+
+
+
+selectedScanRefreshRateInSeconds:
+<div data-bind="text: selectedScanRefreshRateInSeconds"></div>
     
 
