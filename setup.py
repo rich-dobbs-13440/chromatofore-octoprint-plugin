@@ -11,16 +11,22 @@ plugin_package = "octoprint_chromatofore"
 
 # The plugin's human readable name. Can be overwritten within OctoPrint's internal data via __plugin_name__ in the
 # plugin module
-plugin_name = "OctoPrint-Chromatofore" # "Chromatofore Filament Changer" #"OctoPrint-Chromatofore"
+# Note: This defines the name of the dist-info file.  The name inside of Octoprint is set in the module.
+plugin_name = "OctoPrint_ChromatoforeFilamentExchanger" 
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
 plugin_version = "0.0.0"
 with open('version.txt', 'r') as f:
     plugin_version = f.read().strip()
 
+# Generate plugin_version.py
+with open('octoprint_chromatofore/plugin_version.py', 'w') as f:
+    f.write("# This file is generated automatically by setup.py\n")
+    f.write(f"PLUGIN_VERSION = '{plugin_version}'")    
+
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = """OctoPrint plug-in for the Chromatofore filament changer."""
+plugin_description = """OctoPrint plug-in for the Chromatofore filament exchanger."""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "Rich Dobbs"
@@ -48,7 +54,7 @@ plugin_requires = [
 # already be installed automatically if they exist. Note that if you add something here you'll also need to update
 # MANIFEST.in to match to ensure that python setup.py sdist produces a source distribution that contains all your
 # files. This is sadly due to how python's setup.py works, see also http://stackoverflow.com/a/14159430/2028598
-plugin_additional_data = []
+plugin_additional_data = ["data"]
 
 # Any additional python packages you need to install with your plugin that are not contained in <plugin_package>.*
 plugin_additional_packages = []

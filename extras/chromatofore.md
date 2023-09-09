@@ -3,7 +3,7 @@ layout: plugin
 
 id: chromatofore
 title: OctoPrint-Chromatofore
-description: Octopi plug-in for the Chromatofore filament changer.
+description: Octopi plug-in for the Chromatofore filament exchanger.
 authors:
 - Rich Dobbs
 license: AGPLv3

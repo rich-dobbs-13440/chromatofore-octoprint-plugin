@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Script  deploy.sh is used to transfer the current code from the development PC over to
+# Script deploy.sh is used to transfer the current code from the development PC over to
 # the Raspberry PI, install the plugin, and then restart the octoprint service, 
-# so that the new code for the plug in is used.
-
+# so that the new code for the plugin is used.
 
 set -e  # Stop script on error
 set -x  # Echo commands
@@ -11,9 +10,16 @@ set -x  # Echo commands
 echo "Start"
 date
 
+# Configuration Variables
+ssh_user="rld"
+remote_system="chromatofore.local"
+remote_dir="~/chromatofore-octoprint-plugin"
+
 # Get the directory where the script is located
 script_dir=$(dirname "$0")
-version_file="$script_dir/../version.txt"
+# Get the base directory, which is one directory up from the script directory
+base_dir=$(dirname "$script_dir")
+version_file="$base_dir/version.txt"
 
 # Read current version from version.txt
 current_version=$(cat $version_file)
@@ -30,25 +36,26 @@ new_version="$major.$minor.$new_patch"
 # Update version.txt with new version
 echo "$new_version" > $version_file
 
+cp "$base_dir/README.md" "$base_dir/octoprint_chromatofore/data/README.md"
+cp "$base_dir/version.txt" "$base_dir/octoprint_chromatofore/data/version.txt"
+
 # Sync the plugin files to the remote Raspberry Pi
-rsync -avz ~/code/chromatofore-octoprint-plugin/ rld@chromatofore.local:~/chromatofore-octoprint-plugin/
+rsync --exclude '.git/' --exclude '.github/' -avz $base_dir/ $ssh_user@$remote_system:$remote_dir/
 
 # Install the updated plugin
-ssh rld@chromatofore.local "~/oprint/bin/pip install ~/chromatofore-octoprint-plugin"
+ssh $ssh_user@$remote_system "~/oprint/bin/pip install $remote_dir"
 
 # Signal the plugin to shut down
-ssh rld@chromatofore.local "curl -s -X POST -H 'Content-Type: application/json' -H 'X-Api-Key: $OCTOPRINT_API_KEY' -d '{\"command\":\"shutdown_chromatofore_plugin\"}' http://localhost:5000/api/plugin/chromatofore"
-
-
+ssh $ssh_user@$remote_system "curl -s -X POST -H 'Content-Type: application/json' -H 'X-Api-Key: $OCTOPRINT_API_KEY' -d '{\"command\":\"shutdown_chromatofore_plugin\"}' http://localhost:5000/api/plugin/chromatofore"
 
 # Restart the OctoPrint service
-ssh rld@chromatofore.local "sudo service octoprint restart"
+ssh $ssh_user@$remote_system "sudo service octoprint restart"
 
 # Pause for a few seconds to let the plugin handle shutdown
 sleep 12s
 
-#View Octoprint to allow testing and debugging.  
-brave-browser --new-window http://chromatofore.local &
+# View Octoprint to allow testing and debugging.  
+brave-browser --new-window http://$remote_system &
 
 sleep 2s
 

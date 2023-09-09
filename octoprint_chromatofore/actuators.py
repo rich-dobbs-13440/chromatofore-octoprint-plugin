@@ -67,14 +67,14 @@ class Actuator:
         }
 
     
-    def load_filament(self) -> None:
+    def load_filament(self, speed: Optional[Dict] = None) -> None:
         """
         Stub method for loading filament into the actuator.
         """
         _logger.info(f"Loading filament for actuator with hash {self.hash_code}")
         # Actual loading logic here
 
-    def unload_filament(self) -> None:
+    def unload_filament(self, speed: Optional[Dict] = None) -> None:
         """
         Stub method for unloading filament from the actuator.
         """

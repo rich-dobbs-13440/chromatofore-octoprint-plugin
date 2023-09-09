@@ -1,12 +1,12 @@
-# OctoPrint plug-in for the Chromatofore Filament Changer
+# OctoPrint plug-in for the Chromatofore Filament Exchanger
 
 **Description:** 
 
-Chromatofore is an affordable automatic filament changer tailored for entry-level Bowden 3D printers such as the Creality Ender 3 v2 and CR-6 SE.
+Chromatofore is an affordable automatic filament exchanger tailored for entry-level Bowden 3D printers such as the Creality Ender 3 v2 and CR-6 SE.
 
-This Chromatofore plugin integrates the filament changer with the OctoPrint 3D print server running on a Raspberry Pi. The plugin enables users to:
-- Specify the configuration of the filament changer's electronic components.
-- Test the changer's functionality and setup.
+This Chromatofore plugin integrates the filament exchanger with the OctoPrint 3D print server running on a Raspberry Pi. The plugin enables users to:
+- Specify the configuration of the filament exchanger's electronic components.
+- Test the exchanger's functionality and setup.
 - Change filaments through the OctoPrint web interface.
 - Automatically change filaments during a print job.
 
@@ -22,11 +22,11 @@ Install using the bundled [Plugin Manager](https://docs.octoprint.org/en/master/
 
     https://github.com/rich-dobbs-13440/chromatofore
 
-Purchase the necessary parts as detailed in the cost calculator worksheet in the repository. Install the plug-in to configure and test the actuator during assembly. Once one or two actuators are operational, print the parts to mount the filament changer on your 3D printer. Then, begin using the filament changer as you print more actuators and integrate them into the system.
+Purchase the necessary parts as detailed in the cost calculator worksheet in the repository. Install the plug-in to configure and test the actuator during assembly. Once one or two actuators are operational, print the parts to mount the filament exchanger on your 3D printer. Then, begin using the filament exchanger as you print more actuators and integrate them into the system.
 
 ## Configuration
 
-On the settings page, users can specify the assembled configuration of the filament changer:
+On the settings page, users can specify the assembled configuration of the filament exchanger:
 
 1. For each actuator, define the electronic connections.
 2. Specify the I2C board, channel, and min/max angles for each of the three servo motors per actuator.
@@ -54,7 +54,7 @@ On the settings page, users can specify the assembled configuration of the filam
    - Include display of notes in board selection dropdowns 
 
 **Version 0.7**: 
-   - Logic and UI for loading/unloading filaments in the changer.
+   - Logic and UI for loading/unloading filaments in the exchanger.
    - Logic and UI for loading/unloading filaments in the 3D printer.
 
 **Version 0.8**: 
@@ -94,9 +94,11 @@ For controlling the actuators, we need to create server side objects from the se
 defined for 'actuators'.
 
 Then we need a tab in which the user can interact with each actuator to move filament
-as needed to load filament into and out of the filament changer and the printer.
+as needed to load filament into and out of the filament exchanger and the printer.
 
-These need to be connected by expanding the SimpleApiCommands that are implement.
+These need to be connected by expanding the SimpleApiCommands that are implemented.
+
+Next, the actual movement of the servo
 
 
 
@@ -185,7 +187,10 @@ approaches as used with the filament sensor.
 - Enhancement: Allow specifying board addresses via jumper checkboxes, complementing hexadecimal input.
 - Enhancement: Analyze configuration and report potential channel conflicts.
 - Enhancement: Require confirmation before deleting an acuator.
-- Enhancement: Create a log specific the Chromatofore plugin, to assist in troubleshooting.
+- Enhancement: Wizard to guide user through initial configuration, such as how to print out 3d parts, assemble, 
+               and get an initial settings for the number of actuators that they are using.  
+- Enhancement: Create a log specific to the Chromatofore plugin, to assist in troubleshooting.
+- Investigation: Installation on a clean machine, especially how to handle access to I2c, and I2c bus speed.
 - Technical Debt: Use ES6 classes and mark variables as public or private.
 
 
