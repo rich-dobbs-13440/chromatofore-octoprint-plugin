@@ -137,6 +137,7 @@ class Actuator:
 
         # Ignore stop_at, and speed, and default to moving one step.
         self.fixed_clamp.position = CLOSED
+        sleep(CLAMP_DELAY_SECONDS)
         self.moving_clamp.position = OPEN
         sleep(CLAMP_DELAY_SECONDS)
         
@@ -144,6 +145,7 @@ class Actuator:
         sleep(PUSHER_DELAY_SECONDS)
         
         self.fixed_clamp.position = OPEN
+        sleep(CLAMP_DELAY_SECONDS)
         self.moving_clamp.position = CLOSED
         sleep(CLAMP_DELAY_SECONDS)
 
