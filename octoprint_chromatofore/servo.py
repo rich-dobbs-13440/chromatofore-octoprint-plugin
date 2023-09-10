@@ -73,8 +73,7 @@ class Servo:
     def rest_servo(board: int, channel: int):
         """Set the servo at rest."""
         pwm = Adafruit_PCA9685.PCA9685(address=board, busnum=Servo.bus_number)
-        pwm.set_pwm(channel, 0, 0)    
-    
+        pwm.set_pwm(channel, 0, 0)          
 
     def __init__(self, data):
         self.board = data.get("board")
@@ -119,7 +118,7 @@ class Servo:
             # If the servo is at rest, its position is not definitive.
             return None        
         """Get the current angle."""
-        return self._current_angle            
+        return self._current_angle 
 
     @current_angle.setter
     def current_angle(self, angle: float):
@@ -131,21 +130,19 @@ class Servo:
         error_msg = self.set_servo_angle(self.board, self.channel, int(self._current_angle))
         if error_msg:
             raise Exception(error_msg)  
-        self._at_rest = False          
-        
+        self._at_rest = False   
+
+    @property
+    def at_rest(self) -> bool:
+        """Get the state of the servo."""
+        return self._at_rest        
+
     @at_rest.setter
     def at_rest(self, state: bool):
         """Set the state of the servo."""
         if state:
             Servo.rest_servo(self.board, self.channel)
-        self._at_rest = state
-
-    @staticmethod
-    def rest_servo(board: int, channel: int):
-        """Set the servo at rest."""
-        pwm = Adafruit_PCA9685.PCA9685(address=board, busnum=Servo.bus_number)
-        pwm.set_pwm(channel, 0, 0)        
-
+        self._at_rest = state                 
 
     def __str__(self):
         return f"Servo(Role: {self.role}, Board: 0x{self.board:02X}, Channel: {self.channel}, " \
