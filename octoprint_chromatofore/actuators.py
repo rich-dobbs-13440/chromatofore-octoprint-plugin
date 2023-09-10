@@ -1,5 +1,6 @@
 
-from typing import Optional, Dict, Any
+from time import sleep
+from typing import Any, Dict, Optional
 
 from .filament_sensors import FilamentSensor
 from .limit_switch import LimitSwitch
@@ -18,6 +19,14 @@ default_actuators = [
         "filament_sensor": {"board": 0x21, "channel": 0x0},
     },
 ]
+
+# Constants for servo positions and delays
+OPEN = 0
+CLOSED = 1
+BACK = 1
+FRONT = 0
+CLAMP_DELAY_SECONDS = 1
+PUSHER_DELAY_SECONDS = 2
 
 
 
@@ -66,35 +75,74 @@ class Actuator:
             'hash_code': self.hash_code
         }
 
-    
+
     def load_filament(self, speed: Optional[Dict] = None) -> None:
         """
-        Stub method for loading filament into the actuator.
+        Method for loading filament into the actuator.
         """
         _logger.info(f"Loading filament for actuator with hash {self.hash_code}")
-        # Actual loading logic here
+        self.task_load_filament(speed)
+
+    def task_load_filament(self, speed: Optional[Dict] = None) -> None:
+        """
+        Task method that handles the actual loading of the filament.
+        """
+        # Your loading logic here
+        pass
 
     def unload_filament(self, speed: Optional[Dict] = None) -> None:
         """
-        Stub method for unloading filament from the actuator.
+        Method for unloading filament from the actuator.
         """
         _logger.info(f"Unloading filament for actuator with hash {self.hash_code}")
-        # Actual unloading logic here
+        self.task_unload_filament(speed)
 
+    def task_unload_filament(self, speed: Optional[Dict] = None) -> None:
+        """
+        Task method that handles the actual unloading of the filament.
+        """
+        # Your unloading logic here
+        pass
+
+    # Similarly for advance and retract:
     def advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
-        """
-        Stub method for advancing filament using the actuator.
-        """
         _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
-        # Actual advancing logic here
+        self.task_advance_filament(stop_at, speed)
+
+     
+
+    def task_advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
+
+        # Ignore stop_at, and speed, and default to moving one step.
+        self.fixed_clamp.position = CLOSED
+        self.moving_clamp.position = OPEN
+        sleep(CLAMP_DELAY_SECONDS)
+        
+        self.pusher.position = BACK
+        sleep(PUSHER_DELAY_SECONDS)
+        
+        self.fixed_clamp.position = OPEN
+        self.moving_clamp.position = CLOSED
+        sleep(CLAMP_DELAY_SECONDS)
+
+        self.pusher.position = FRONT   
+        sleep(PUSHER_DELAY_SECONDS)
+
+        self.moving_clamp.position = OPEN  
+        sleep(CLAMP_DELAY_SECONDS)
+
+        # Rest all of the servos, so that they don't chatter and strain. 
+        self.pusher.at_rest = True
+        self.moving_clamp.at_rest = True
+        self.fixed_clamp.at_rest = True
 
     def retract_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
-        """
-        Stub method for retracting filament using the actuator.
-        """
         _logger.info(f"Retracting filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
-        # Actual retracting logic here    
+        self.task_retract_filament(stop_at, speed)
 
+    def task_retract_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
+        # Your retracting logic here
+        pass
 
 
   
