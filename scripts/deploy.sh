@@ -40,7 +40,7 @@ cp "$base_dir/README.md" "$base_dir/octoprint_chromatofore/data/README.md"
 cp "$base_dir/version.txt" "$base_dir/octoprint_chromatofore/data/version.txt"
 
 # Sync the plugin files to the remote Raspberry Pi
-rsync --exclude '.git/' --exclude '.github/' -avz $base_dir/ $ssh_user@$remote_system:$remote_dir/
+rsync --exclude '.git/' --exclude '.github/' --exclude 'venv/' --exclude 'scripts/' -avz $base_dir/ $ssh_user@$remote_system:$remote_dir/
 
 # Install the updated plugin
 ssh $ssh_user@$remote_system "~/oprint/bin/pip install $remote_dir"

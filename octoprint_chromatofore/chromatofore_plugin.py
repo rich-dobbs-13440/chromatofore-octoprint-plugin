@@ -9,10 +9,9 @@ from smbus2 import SMBus
 
 from .actuators import Actuators, default_actuators
 from .filament_sensors import FilamentSensors
-from .pcf8574GpioExtenderBoard import Pcf8574GpioExtenderBoard
+from .pcf8574_gpio_extender_board import Pcf8574GpioExtenderBoard
 from .servo import Servo, default_servo_driver_boards
 
-from .plugin_version import PLUGIN_VERSION
 
 
 def jsonify_no_cache(status, **kwargs):
@@ -35,13 +34,13 @@ class ChromatoforePlugin(
     octoprint.plugin.SimpleApiPlugin):
 
     def __init__(self):
-        pass
         self.filament_sensors = FilamentSensors(i2c_address=0x21)
         
     # StartupPlugin mixin         
 
     def on_after_startup(self):
         self._logger.info("In on_after_startup")
+        self._logger.info(f"self.get_update_information(): {self.get_update_information()}") 
         Pcf8574GpioExtenderBoard.logger = self._logger
         self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
         self._logger.info(f"self.actuators:\n {self.actuators}")
@@ -327,16 +326,17 @@ class ChromatoforePlugin(
         ]
     
     def get_template_vars(self):
+        """
+        Returns a dictionary of template variables for the plugin's templates.
+
+        Note: 
+        Variables are automatically prefixed in the templates with 'plugin_<plugin_identifier>_'. 
+        For example, the 'version' variable here can be accessed in the template as '{{ plugin_chromatofore_version }}'.
+        """        
         return {
-            "chromatofore_version": PLUGIN_VERSION,
+            "version": self._plugin_version,
             "current_time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }  
-    
-    # def get_version(self):
-    #     self._logger.info(f"self._identifier: {self._identifier}")
-    #     plugin_manager = self._plugin_manager
-    #     plugin_info = plugin_manager.get_plugin_info(self._identifier)
-    #     return plugin_info.version    
+        }   
 
     def store_data(self):
         path = os.path.join(self.get_plugin_data_folder(), "chromatofore_data.json")
