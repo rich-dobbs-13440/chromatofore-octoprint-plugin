@@ -31,7 +31,13 @@
             </div>
             <div class="retract-step">
                 <button data-bind="click: function() { 
-                    actuator_command('retract_filament', hashCode(), {stop_at: {step: 1}}); }">Step</button>
+                    actuator_command(
+                        'retract_filament', 
+                        hashCode(), 
+                        {
+                            stop_at: {step: 1},
+                            speed: {qualitive: selectedSpeedToRetract()} 
+                        }); }">Step</button>
             </div>
             <div class="retract-step-n">
                 <button data-bind="click: function() { 
@@ -39,10 +45,9 @@
                         'retract_filament', 
                         hashCode(), 
                         {
-                            stop_at: {step: selecteNumStepsToRetract(),
-                            speed: {qualitive: selectedSpeedToRetract() }    
-                        }
-                    }); }">Take</button>
+                            stop_at: {step: selecteNumStepsToRetract()},
+                            speed: {qualitive: selectedSpeedToRetract()}    
+                        }); }">Take</button>
             </div>
             <div class="retract-nsteps">
                 <select data-bind="value: selecteNumStepsToRetract">
@@ -78,7 +83,7 @@
                         hashCode(), 
                         { 
                             stop_at: {step: 1}, 
-                            speed: {qualitive: selectedSpeedToAdvance() }
+                            speed: {qualitive: selectedSpeedToAdvance()}
                         }
                     ); }">
                     Step
@@ -90,9 +95,9 @@
                         'advance_filament', 
                         hashCode(), 
                         {
-                            stop_at: {step: selecteNumStepsToAdvance(),
-                            speed: {qualitive: selectedSpeedToAdvance() }
-                        }}
+                            stop_at: {step: selecteNumStepsToAdvance()},
+                            speed: {qualitive: selectedSpeedToAdvance()}
+                        }
                     ); }">Take</button>
             </div>
             <div class="advance-nsteps">

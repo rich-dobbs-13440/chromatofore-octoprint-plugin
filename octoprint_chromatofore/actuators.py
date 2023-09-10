@@ -8,6 +8,12 @@ from .servo import Servo
 
 _logger = None
 
+def seconds_range(start, stop, step):
+    i = 0
+    while start + i * step < stop:
+        yield start + i * step
+        i += 1
+
 
 default_actuators = [
     {
@@ -40,6 +46,21 @@ class Actuator:
         self.pusher_limit_switch = LimitSwitch(data.get("pusher_limit_switch"))
         self.filament_sensor = FilamentSensor(data.get("filament_sensor")) 
         self.hash_code =  data.get("hash_code", "-- hash code_ missing -- ")
+
+        self.step_length_in_mm = 30
+        self.time_step_seconds = 0.025
+
+        slow_step_time = 4
+        moderate_step_time = 1
+        brisk_step_time = 0.5
+        quick_step_time = 0.25
+
+        self.qualitative_speed_to_mm_per_second = {
+            'slow': self.step_length_in_mm/slow_step_time, 
+            'moderate': self.step_length_in_mm/moderate_step_time,
+            'brisk': self.step_length_in_mm/brisk_step_time,
+            'quick': self.step_length_in_mm/quick_step_time,
+        }
 
 
 
@@ -104,20 +125,11 @@ class Actuator:
         # Your unloading logic here
         pass
 
-    # Similarly for advance and retract:
+
+
     def advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
         _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         self.task_advance_filament(stop_at, speed)
-
-
-
-     
-
-    def task_advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
-        pass
-        # Default situation that we're going to take one step.  
-        # If there is a key in stop_at that is "step" use its values to get the step count.
-        # For each step call task_advance_filament_one_step
 
     def task_advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
         # Default to one step if "step" is not provided in stop_at
@@ -131,27 +143,85 @@ class Actuator:
                 return
         
         for _ in range(steps):
-            self.task_advance_filament_one_step(stop_at=stop_at, speed=speed)        
+            self.task_advance_filament_one_step(stop_at=stop_at, speed=speed)    
+
+    
+    def rate_from_speed(self, speed: Optional[Dict] = None) -> float:
+
+        if speed is None:
+            speed = {}
+
+        qualitative_speed = speed.get("qualitive", "quick")
+        try:
+            mm_per_second = self.qualitative_speed_to_mm_per_second[qualitative_speed]
+        except KeyError:
+            raise ValueError(f"Unknown qualitative speed value: {qualitative_speed} speed: {speed}")
+
+        # Attempt to override with quantitative speed if it exists
+        try:
+            quantitative_speed = speed.get("quantitative")
+            if quantitative_speed is not None:
+                mm_per_second = float(quantitative_speed)
+        except ValueError:
+            raise ValueError(f"Invalid quantitative speed value: {quantitative_speed} speed: {speed}")
+
+        return mm_per_second
+
+    
+    def calc_position_from_location(self, location_mm):
+        position = location_mm/self.step_length_in_mm # Front is 0, back is 0
+        return max(min(position, BACK), FRONT)
+    
+    def calc_location_from_position(self, position):
+        # Location is measured from front to back.  
+        # The position must be between  the front and the back
+        position = max(min(position, BACK), FRONT)
+        location = position * self.step_length_in_mm
+        return location
+    
+    def next_position_for_advancing(self, rate_in_mm_per_sec):
+        # The distance traveled in each time step
+        delta_location = rate_in_mm_per_sec * self.time_step_seconds
+
+        current_location = self.calc_location_from_position(BACK)
+        yield self.calc_position_from_location(current_location)
+
+        final_location = self.calc_location_from_position(FRONT)
+
+        while current_location > final_location:
+            current_location -= delta_location
+            yield self.calc_position_from_location(current_location)
 
     def task_advance_filament_one_step(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None):
 
-        # Ignore stop_at, and speed, and default to moving one step.
+        rate_in_mm_per_sec = self.rate_from_speed(speed)       
+
+        # Ignore stop_at for now.
+
+        # Lock the filament so that the pusher can pull back
         self.fixed_clamp.position = CLOSED
         sleep(CLAMP_DELAY_SECONDS)
         self.moving_clamp.position = OPEN
         sleep(CLAMP_DELAY_SECONDS)
         
+        # Retract the pusher
         self.pusher.position = BACK
         sleep(PUSHER_DELAY_SECONDS)
         
+        # Lock the filament so that the pusher advance filament
         self.fixed_clamp.position = OPEN
         sleep(CLAMP_DELAY_SECONDS)
         self.moving_clamp.position = CLOSED
         sleep(CLAMP_DELAY_SECONDS)
 
-        self.pusher.position = FRONT   
-        sleep(PUSHER_DELAY_SECONDS)
+        # Advance the filament at the desired rate
+        _logger.info(f"Advance the filament at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
+        for position in self.next_position_for_advancing(rate_in_mm_per_sec):
+            _logger.debug(position)
+            self.pusher.position = position
+            sleep(self.time_step_seconds)
 
+        # Open up clamp in preparation for next step
         self.moving_clamp.position = OPEN  
         sleep(CLAMP_DELAY_SECONDS)
 

@@ -10,6 +10,7 @@ from smbus2 import SMBus
 from .actuators import Actuators, default_actuators
 from .filament_sensors import FilamentSensors
 from .pcf8574_gpio_extender_board import Pcf8574GpioExtenderBoard
+from .pca9685_servo_driver_board import Pca9685ServoDriverBoard
 from .servo import Servo, default_servo_driver_boards
 
 
@@ -42,6 +43,7 @@ class ChromatoforePlugin(
         self._logger.info("In on_after_startup")
         self._logger.info(f"self.get_update_information(): {self.get_update_information()}") 
         Pcf8574GpioExtenderBoard.logger = self._logger
+        Pca9685ServoDriverBoard.logger = self._logger
         self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
         self._logger.info(f"self.actuators:\n {self.actuators}")
         self.actuators.dump()

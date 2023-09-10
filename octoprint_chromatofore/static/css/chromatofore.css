@@ -194,7 +194,7 @@ td.servo-slider {
 td.pin-state div.api-response {
     display: inline-block;
     vertical-align: middle;
-    margin-left: 10px;  /* Optional: Add some space between the arrow and the text */
+    margin-left: 10px;  
     width: 200px;
 }
 
@@ -218,7 +218,7 @@ span.item-not-found {
 }
 
 
-
+ /* This section implements the layout for the controls for causing actuators to take actions interactively. */
 
 .actuator-hash { grid-area: hash; }
 .actuator-nickname { grid-area: nickname; }
@@ -249,13 +249,6 @@ span.item-not-found {
     gap: 2px;
   }
 
-/*
-.advance-nsteps,
-.retract-nsteps {
-    display: flex;
-    align-items: center; / * vertically centers the children elements * /
-}
-*/
 
 div.advance-load,
 div.retract-unload,
@@ -289,16 +282,4 @@ div.retract,
 .retract-speed select {
     width: 120px;
 }
-
-
-
-/*
-.actuator-actions-grid > div {
-  text-align: center;
-  padding: 2px 0;
-}
-*/
-
-
-
 
