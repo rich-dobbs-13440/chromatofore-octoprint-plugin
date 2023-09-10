@@ -107,6 +107,7 @@ td.servo-slider {
 .no-track-color {
     width: 600px; 
     -webkit-appearance: none;
+    appearance: none;
     width: 100%;
     margin: 2px 0;
 }
@@ -215,5 +216,89 @@ span.item-found {
 span.item-not-found {
     color: red;
 }
+
+
+
+
+.actuator-hash { grid-area: hash; }
+.actuator-nickname { grid-area: nickname; }
+
+.retract-header { grid-area: retract; }
+.retract-unload { grid-area: unload; }
+.retract-step { grid-area: rstep; }
+.retract-step-n { grid-area: rstepn; }
+.retract-nsteps { grid-area: rnsteps; }
+.retract-speed { grid-area: rspeed; }
+
+.advance-header { grid-area: advance; }
+.advance-unload{ grid-area: load; }
+.advance-step{ grid-area: astep; }
+.advance-step-n { grid-area: astepn; }
+.advance-nsteps { grid-area: ansteps; }
+.advance-speed { grid-area: aspeed; }
+
+.actuator-actions-sep1 {grid-area: sep1; width: 30px;}
+.actuator-actions-sep2 {grid-area: sep2; width: 30px;}
+
+.actuator-actions-grid  {
+    display: grid;
+    grid-template-areas:
+      'nickname nickname nickname nickname nickname hash    hash      hash'
+      'retract  unload   sep1     rstep    sep2     rstepn  rnsteps   rspeed'
+      'advance  load     sep1     astep    sep2     astepn  ansteps   aspeed';
+    gap: 2px;
+  }
+
+/*
+.advance-nsteps,
+.retract-nsteps {
+    display: flex;
+    align-items: center; / * vertically centers the children elements * /
+}
+*/
+
+div.advance-load,
+div.retract-unload,
+.advance-load button,
+.retract-unload button {
+    width: 64px; 
+}
+
+
+div.advance-step-n button,
+.retract-step-n button,
+.advance-step-n button,
+.retract-step-n button {
+    width: 50px;
+}
+
+div.advance-step-n,
+div.retract-step-n {
+    width: 50px;
+}
+
+div.advance,
+div.retract,
+.advance-nsteps select,
+.retract-nsteps select {
+    width: 80px;
+}
+
+
+.advance-speed select,
+.retract-speed select {
+    width: 120px;
+}
+
+
+
+/*
+.actuator-actions-grid > div {
+  text-align: center;
+  padding: 2px 0;
+}
+*/
+
+
 
 

@@ -53,6 +53,12 @@ function Actuator(data, refreshRateInSeconds) {
     // TODO: change id to nickname
     self.id = ko.observable(data.id);
 
+    self.selecteNumStepsToRetract = ko.observable(5);
+    self.selecteNumStepsToAdvance = ko.observable(5);
+
+    self.selectedSpeedToRetract = ko.observable("moderate")
+    self.selectedSpeedToAdvance = ko.observable("moderate")
+
     // An acutuator has three servos:
     self.pusher = new Servo(data.pusher);
     self.moving_clamp = new Servo(data.moving_clamp);

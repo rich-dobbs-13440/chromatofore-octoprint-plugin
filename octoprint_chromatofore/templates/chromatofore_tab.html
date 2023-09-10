@@ -13,37 +13,116 @@
     Unloading filament requires the hot end to be at temperature.
 </div>
 
+<div class="actuator-actions-table">
 
+    <div data-bind="foreach: actuators">
 
+        <div class="actuator-actions-grid">
+            <div class="actuator-actions-sep1"></div> 
+            <div class="actuator-actions-sep2"></div> 
+            <!-- Header row-->
+            <div class="actuator-hash">Hash - <span data-bind="text: hashCode()"></span></div>
+            <div class="actuator-nickname">Nickname - <span data-bind="text: id"></span></div>
+            
+            <!-- Retract row-->
+            <div class="retract-header">Retract</div>
+            <div class="retract-unload">
+                <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload</button>
+            </div>
+            <div class="retract-step">
+                <button data-bind="click: function() { 
+                    actuator_command('retract_filament', hashCode(), {stop_at: {step: 1}}); }">Step</button>
+            </div>
+            <div class="retract-step-n">
+                <button data-bind="click: function() { 
+                    actuator_command(
+                        'retract_filament', 
+                        hashCode(), 
+                        {
+                            stop_at: {step: selecteNumStepsToRetract(),
+                            speed: {qualitive: selectedSpeedToRetract() }    
+                        }
+                    }); }">Take</button>
+            </div>
+            <div class="retract-nsteps">
+                <select data-bind="value: selecteNumStepsToRetract">
+                    <option value="2">2 steps</option>
+                    <option value="3">3 steps</option>
+                    <option value="4">4 steps</option>
+                    <option value="5">5 steps</option>
+                    <option value="6">6 steps</option>
+                    <option value="7">7 steps</option>
+                    <option value="8">8 steps</option>
+                    <option value="9">9 steps</option>
+                    <option value="10">10 steps</option>
+                </select>
+            </div>
+            <div class="retract-speed">
+                <select data-bind="value: selectedSpeedToRetract">
+                    <option value="slow">slowly</option>
+                    <option value="moderate">moderately</option>
+                    <option value="brisk">briskly</option>
+                    <option value="quick">quickly</option>
+                </select>
+            </div>
+            
+            <!-- Advance row-->
+            <div class="advance-header">Advance</div>
+            <div class="advance-load">
+                <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {}); }">Load</button>
+            </div>
+            <div class="advance-step">
+                <button data-bind="click: function() { 
+                    actuator_command(
+                        'advance_filament', 
+                        hashCode(), 
+                        { 
+                            stop_at: {step: 1}, 
+                            speed: {qualitive: selectedSpeedToAdvance() }
+                        }
+                    ); }">
+                    Step
+                </button>
+            </div>
+            <div class="advance-step-n">
+                <button data-bind="click: function() { 
+                    actuator_command(
+                        'advance_filament', 
+                        hashCode(), 
+                        {
+                            stop_at: {step: selecteNumStepsToAdvance(),
+                            speed: {qualitive: selectedSpeedToAdvance() }
+                        }}
+                    ); }">Take</button>
+            </div>
+            <div class="advance-nsteps">
+                <select data-bind="value: selecteNumStepsToAdvance">
+                    <option value="2">2 steps</option>
+                    <option value="3">3 steps</option>
+                    <option value="4">4 steps</option>
+                    <option value="5">5 steps</option>
+                    <option value="6">6 steps</option>
+                    <option value="7">7 steps</option>
+                    <option value="8">8 steps</option>
+                    <option value="9">9 steps</option>
+                    <option value="10">10 steps</option>
+                </select>
+            </div>
+            <div class="advance-speed">
+                <select data-bind="value: selectedSpeedToAdvance">
+                    <option value="slow">slowly</option>
+                    <option value="moderate">moderately</option>
+                    <option value="brisk">briskly</option>
+                    <option value="quick">quickly</option>
+                </select>
+            </div>
+            
+        </div>        
+    </div>
 
-<table> 
-    <thead>
-        <tr>
-            <th>Actuator</th>
-            <th>Nickname</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    <tbody data-bind="foreach: actuators">
-            <tr>
-                <td><div data-bind="text: hashCode()"></div></td>
-                <td><div data-bind="text: id"></div></td>
-                <td>
-                    <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {}); }">Load Filament</button>
-                    <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload Filament</button>
-                    <button data-bind="click: function() { actuator_command('advance_filament', hashCode(), {stop_at: {step: 1}}); }">Step +</button>
-                    <button data-bind="click: function() { actuator_command('retract_filament', hashCode(), {stop_at: {step: 1}}); }">Step -</button>
+</div>
 
-                    <button data-bind="click: function() { actuator_command('advance_filament', hashCode(), {stop_at: {step: 5}}); }">Step +5</button>
-                    <button data-bind="click: function() { actuator_command('retract_filament', hashCode(), {stop_at: {step: 5}}); }">Step -5</button>                    
-                </td>
-            </tr>
-    </tbody> 
-</table>
-
-
-
+ 
 
 selectedScanRefreshRateInSeconds:
 <div data-bind="text: selectedScanRefreshRateInSeconds"></div>
