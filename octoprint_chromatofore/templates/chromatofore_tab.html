@@ -34,6 +34,9 @@
                     <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload Filament</button>
                     <button data-bind="click: function() { actuator_command('advance_filament', hashCode(), {stop_at: {step: 1}}); }">Step +</button>
                     <button data-bind="click: function() { actuator_command('retract_filament', hashCode(), {stop_at: {step: 1}}); }">Step -</button>
+
+                    <button data-bind="click: function() { actuator_command('advance_filament', hashCode(), {stop_at: {step: 5}}); }">Step +5</button>
+                    <button data-bind="click: function() { actuator_command('retract_filament', hashCode(), {stop_at: {step: 5}}); }">Step -5</button>                    
                 </td>
             </tr>
     </tbody> 

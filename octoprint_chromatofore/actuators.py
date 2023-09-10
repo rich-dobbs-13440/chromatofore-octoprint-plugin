@@ -109,9 +109,31 @@ class Actuator:
         _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         self.task_advance_filament(stop_at, speed)
 
+
+
      
 
     def task_advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
+        pass
+        # Default situation that we're going to take one step.  
+        # If there is a key in stop_at that is "step" use its values to get the step count.
+        # For each step call task_advance_filament_one_step
+
+    def task_advance_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
+        # Default to one step if "step" is not provided in stop_at
+        steps = 1
+        
+        if stop_at and "step" in stop_at:
+            try:
+                steps = int(stop_at["step"])
+            except ValueError:
+                _logger.error("Invalid step value provided in stop_at.")
+                return
+        
+        for _ in range(steps):
+            self.task_advance_filament_one_step(stop_at=stop_at, speed=speed)        
+
+    def task_advance_filament_one_step(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None):
 
         # Ignore stop_at, and speed, and default to moving one step.
         self.fixed_clamp.position = CLOSED
