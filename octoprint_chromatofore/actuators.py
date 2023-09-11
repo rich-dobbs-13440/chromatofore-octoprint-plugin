@@ -2,6 +2,7 @@
 from time import sleep, perf_counter
 from typing import Any, Dict, Optional
 import logging
+import threading
 
 from .filament_sensors import FilamentSensor
 from .limit_switch import LimitSwitch
@@ -30,6 +31,13 @@ FRONT = 0
 CLAMP_DELAY_SECONDS = 0.9
 PUSHER_DELAY_SECONDS = 1.5
 
+class ActuatorRuntimeError(RuntimeError):
+    """Exception raised for runtime errors in the Servo class."""
+    def __init__(self, message: str, original_exception: Exception = None):
+        self.original_exception = original_exception
+        message = f"{messge} Original exception:  {self.original_exception}"
+        super().__init__(message)
+
 
 
 class Actuator:
@@ -43,8 +51,12 @@ class Actuator:
         self.filament_sensor = FilamentSensor(data.get("filament_sensor")) 
         self.hash_code =  data.get("hash_code", "-- hash code_ missing -- ")
 
-        self.step_length_in_mm = 30
-        self.time_step_seconds = 0.025
+        # TODO: add next three to persisted settings data.
+        self.distance_to_filament_sensor_mm = data.get("distance_to_filament_sensor_mm", 280)
+        self.step_length_in_mm = data.get("step_length_in_mm", 18.0)
+        self.time_step_seconds = data.get("time_step_seconds", 0.05)
+
+        self._task_thread = None        
 
         slow_step_time = 4
         moderate_step_time = 1
@@ -98,20 +110,39 @@ class Actuator:
         Method for loading filament into the actuator.
         """
         _logger.info(f"Loading filament for actuator with hash {self.hash_code}")
-        self.task_load_filament(speed)
+        # TODO: Parse speed in the foreground so that we can fail fast.
+        max_steps = max(1, int(self.distance_to_filament_sensor_mm/self.step_length_in_mm))
+        stop_at = {
+            "step": max_steps,
+            "filament_sensed": True
+        }        
 
-    def task_load_filament(self, speed: Optional[Dict] = None) -> None:
-        """
-        Task method that handles the actual loading of the filament.
-        """
-        # Your loading logic here
-        pass
+        if self._task_thread is not None:
+            raise ActuatorRuntimeError(f"Task already running.   Cancel or rety later.")
+
+        # This is a long running task, so we'll run it in a thread.
+        def task_runner(): 
+            # Advance until number of steps reached or filament is sensed
+            self.advance_filament(stop_at, speed) 
+            # Retract one step, so that the filament is ready to be loaded, 
+            # but not signalling that it is loaded into printer.
+            self.retract_filament(speed=speed)
+            self._task_thread = None
+
+        self._task_thread = threading.Thread(target=task_runner)
+        self._task_thread.daemon = True
+        self._task_thread.start()  
+        # TODO Report back message to user.  
+        
 
     def unload_filament(self, speed: Optional[Dict] = None) -> None:
         """
         Method for unloading filament from the actuator.
         """
         _logger.info(f"Unloading filament for actuator with hash {self.hash_code}")
+
+        
+
         self.task_unload_filament(speed)
 
     def task_unload_filament(self, speed: Optional[Dict] = None) -> None:
@@ -138,8 +169,12 @@ class Actuator:
                 _logger.error("Invalid step value provided in stop_at.")
                 return
         
+        do_stop_at_filament_sensor = stop_at is not None and stop_at.get("filament_sensed", False) 
         for _ in range(steps):
-            self.task_advance_filament_one_step(stop_at=stop_at, speed=speed)    
+            self.task_advance_filament_one_step(stop_at=stop_at, speed=speed) 
+            if do_stop_at_filament_sensor:
+                if self.filament_sensor.is_filament_sensed():
+                    break               
 
     
     def rate_from_speed(self, speed: Optional[Dict] = None) -> float:
@@ -194,10 +229,10 @@ class Actuator:
 
         yield self.calc_position_from_location(end_mm)
 
-
     def task_advance_filament_one_step(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None):
 
-        rate_in_mm_per_sec = self.rate_from_speed(speed)       
+        rate_in_mm_per_sec = self.rate_from_speed(speed) 
+        do_stop_at_filament_sensor = stop_at is not None and stop_at.get("filament_sensed", False) 
 
         # Ignore stop_at for now.
 
@@ -226,7 +261,9 @@ class Actuator:
             if self.pusher_limit_switch.is_triggered():
                 _logger.warning("Limit switch triggered! Stopping filament advance.")
                 break
-
+            if do_stop_at_filament_sensor:
+                if self.filament_sensor.is_filament_sensed():
+                    break
 
         # Open up clamp in preparation for next step
         self.moving_clamp.position = OPEN  
@@ -242,8 +279,64 @@ class Actuator:
         self.task_retract_filament(stop_at, speed)
 
     def task_retract_filament(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
-        # Your retracting logic here
-        pass
+        # Default to one step if "step" is not provided in stop_at
+        steps = 1
+        
+        if stop_at and "step" in stop_at:
+            try:
+                steps = int(stop_at["step"])
+            except ValueError:
+                _logger.error("Invalid step value provided in stop_at.")
+                return
+            if steps < 0:
+                _logger.error(f"Invalid step value {stop_at['step']}provided in stop_at.")
+        
+        for _ in range(steps):
+            self.task_retract_filament_one_step(stop_at=stop_at, speed=speed)    
+
+
+    def task_retract_filament_one_step(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None, start_position=FRONT, end_position=BACK): 
+        # TODO: generalize this to move filament_one_step, and handle limit switch correctly for both advance an retraction.     
+        rate_in_mm_per_sec = self.rate_from_speed(speed)       
+        # Ignore stop_at for now.  
+
+        # Lock the filament so that the pusher can move to starting position
+        self.fixed_clamp.position = CLOSED
+        # Try to move both servos at same time:  sleep(CLAMP_DELAY_SECONDS)
+        self.moving_clamp.position = OPEN
+        sleep(CLAMP_DELAY_SECONDS)
+        
+        # Retract the pusher
+        self.pusher.position = start_position
+        sleep(PUSHER_DELAY_SECONDS)
+        
+        # Lock the filament so that the pusher advance filament
+        self.fixed_clamp.position = OPEN
+        # Try to move both servos at same time:  sleep(CLAMP_DELAY_SECONDS)
+        self.moving_clamp.position = CLOSED
+        sleep(CLAMP_DELAY_SECONDS)
+
+        # Move the filament at the desired rate
+        _logger.info(f"Advance the filament at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
+        for position in self.next_position(rate_in_mm_per_sec, start_position, end_position):
+            _logger.debug(position)
+            self.pusher.position = position
+            sleep(self.time_step_seconds)
+            # TODO: When checking for jams need to see if the pusher is still triggered 
+            # if the position is out of range of the limit switch and enough
+            # time has passed and the switch is not being ignore.  
+            # if self.pusher_limit_switch.is_triggered() and other conditions:
+            #     _logger.warning("Limit switch still triggered! Likely jam or malfunction. Stopping filament retraction.")
+            #     break
+
+        # Open up clamp in preparation for next step
+        self.moving_clamp.position = OPEN  
+        sleep(CLAMP_DELAY_SECONDS)
+
+        # Rest all of the servos, so that they don't chatter and strain. 
+        self.pusher.at_rest = True
+        self.moving_clamp.at_rest = True
+        self.fixed_clamp.at_rest = True
 
 
   

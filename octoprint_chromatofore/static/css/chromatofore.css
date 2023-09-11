@@ -257,21 +257,23 @@ div.retract-unload,
     width: 64px; 
 }
 
-
-div.advance-step-n button,
-.retract-step-n button,
-.advance-step-n button,
-.retract-step-n button {
-    width: 50px;
+div.advance-step,
+div.retract-step,
+.advance-step button,
+.retract-step button {
+    width: 120px;
 }
 
 div.advance-step-n,
-div.retract-step-n {
-    width: 50px;
+div.retract-step-n,
+.advance-step-n button,
+.retract-step-n button {
+    width: 80px;
 }
 
-div.advance,
-div.retract,
+
+div.advance-nsteps,
+div.retract-nsteps,
 .advance-nsteps select,
 .retract-nsteps select {
     width: 80px;
@@ -280,6 +282,6 @@ div.retract,
 
 .advance-speed select,
 .retract-speed select {
-    width: 120px;
+    width: 110px;
 }
 

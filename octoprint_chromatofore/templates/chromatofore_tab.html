@@ -37,7 +37,7 @@
                         {
                             stop_at: {step: 1},
                             speed: {qualitive: selectedSpeedToRetract()} 
-                        }); }">Step</button>
+                        }); }">Step Back</button>
             </div>
             <div class="retract-step-n">
                 <button data-bind="click: function() { 
@@ -47,7 +47,7 @@
                         {
                             stop_at: {step: selecteNumStepsToRetract()},
                             speed: {qualitive: selectedSpeedToRetract()}    
-                        }); }">Take</button>
+                        }); }">Retract</button>
             </div>
             <div class="retract-nsteps">
                 <select data-bind="value: selecteNumStepsToRetract">
@@ -85,9 +85,7 @@
                             stop_at: {step: 1}, 
                             speed: {qualitive: selectedSpeedToAdvance()}
                         }
-                    ); }">
-                    Step
-                </button>
+                    ); }">Step Foreward</button>
             </div>
             <div class="advance-step-n">
                 <button data-bind="click: function() { 
@@ -98,7 +96,7 @@
                             stop_at: {step: selecteNumStepsToAdvance()},
                             speed: {qualitive: selectedSpeedToAdvance()}
                         }
-                    ); }">Take</button>
+                    ); }">Advance</button>
             </div>
             <div class="advance-nsteps">
                 <select data-bind="value: selecteNumStepsToAdvance">

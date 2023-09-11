@@ -56,8 +56,8 @@ function Actuator(data, refreshRateInSeconds) {
     self.selecteNumStepsToRetract = ko.observable(5);
     self.selecteNumStepsToAdvance = ko.observable(5);
 
-    self.selectedSpeedToRetract = ko.observable("moderate")
-    self.selectedSpeedToAdvance = ko.observable("moderate")
+    self.selectedSpeedToRetract = ko.observable("quick")
+    self.selectedSpeedToAdvance = ko.observable("quick")
 
     // An acutuator has three servos:
     self.pusher = new Servo(data.pusher);

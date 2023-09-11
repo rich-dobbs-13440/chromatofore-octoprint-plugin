@@ -40,6 +40,9 @@ class FilamentSensor:
         
         self.limit_switch = LimitSwitch(data)
 
+    def is_filament_sensed(self) -> bool:
+        return self.limit_switch.is_triggered()
+
 
     def to_data(self):
         return {
