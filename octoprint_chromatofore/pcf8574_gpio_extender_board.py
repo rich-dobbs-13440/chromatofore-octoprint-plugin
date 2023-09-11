@@ -17,6 +17,12 @@ import time
 
 from typing import Optional, Dict
 
+
+class Pcf8574GpioExtenderBoardRuntimeError(RuntimeError):
+    """Exception raised for runtime errors in the Servo class."""
+    def __init__(self, message: str):
+        super().__init__(message)
+
 class Pcf8574GpioExtenderBoard:
 
     common_bus_number = 1 # Use bus number 1 for Raspberry Pi 3 and newer
@@ -40,22 +46,29 @@ class Pcf8574GpioExtenderBoard:
             board_instance.start()
             Pcf8574GpioExtenderBoard.logger.info(f"New Pcf8574GpioExtenderBoard instance created for address: {board}")
         return board_instance
+    
+
 
     @staticmethod         
-    def read_channel(board: int, channel: int) -> (Optional[str], Optional[bool]):
+    def read_channel(board: int, channel: int) -> bool:
             
         # Check if the channel is valid
         if channel < 0 or channel > 7:
-            return f"In read_limit_switch, Bad channel {channel}", None            
+            raise IndexError(f"Invalid channel: {channel}. Expected a value between 0 and 7.")
 
-        board_instance = Pcf8574GpioExtenderBoard.get_board(board) 
+        board_instance = Pcf8574GpioExtenderBoard.get_board(board)
+
+        # Check if board_instance is None
+        if board_instance is None:
+            raise Pcf8574GpioExtenderBoardRuntimeError("Board instance is None. Unable to proceed.")
 
         # Read the byte for all channels
         byte_value = board_instance.get_input()
 
         # Extract the value for the specific channel using bit shift logic
         channel_value = (byte_value >> channel) & 0b1
-        return None, bool(channel_value)
+        return bool(channel_value)
+
     
     @staticmethod
     def get_input_for_board(board: int) -> int:

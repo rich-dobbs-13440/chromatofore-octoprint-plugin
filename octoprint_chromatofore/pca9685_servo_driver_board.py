@@ -22,6 +22,20 @@ class Pca9685ServoDriverBoard:
 
     @staticmethod
     def get_board(board_address: int) -> 'Pca9685ServoDriverBoard':
+
+        # Convert board to integer and validate the value
+        try:
+            board_int = int(board_address)
+        except ValueError:
+            error_msg = f"Failed to get Pca9685ServoDriverBoard instance  for: '{board_address}'"
+            Pca9685ServoDriverBoard.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        if not 0x00 <= board_int <= 0x7F:
+            error_msg = f"Failed to get Pca9685ServoDriverBoard instance  for: '{board_address}'"
+            Pca9685ServoDriverBoard.logger.error(error_msg)
+            raise IndexError(error_msg)
+
         # Get the board instance from the dictionary or create a new one
         board_instance = Pca9685ServoDriverBoard.instances.get(board_address)
         if not board_instance:
@@ -64,6 +78,3 @@ class Pca9685ServoDriverBoard:
         except:
             return False
         return True;          
-
-
-# return f"Error: board 0x{board:02X} not found on bus {Servo.bus_number}"   

@@ -159,12 +159,18 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"), angle=extracted_data.get("angle"))
 
         elif command == "read_limit_switch":
-            error_message, pin_state = Pcf8574GpioExtenderBoard.read_channel(extracted_data.get("board"), extracted_data.get("channel"))
-            if error_message is None:
-                return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
-            else:
-                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"))
-                
+            try: 
+                pin_state = Pcf8574GpioExtenderBoard.read_channel(extracted_data.get("board"), extracted_data.get("channel"))
+            except IndexError as e:
+                error_msg = f"Problem in handling command {command} IndexError: {e}"
+                return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason=f"{error_msg}", command=command)
+            except RuntimeError as e:
+                error_msg = f"Problem in handling command {command} RuntimeError: {e}"
+                # Not sure if INTERNAL_SERVER_ERROR is the right status to use here.
+                return jsonify_no_cache(HTTPStatus.INTERNAL_SERVER_ERROR, success=False, reason=f"{error_msg}", board=extracted_data.get("board"), channel=extracted_data.get("channel"))
+            
+            return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
+               
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
             error_message = self.actuators.handle_command(command, extracted_data.get("actuator"), extracted_data.get("stop_at"), extracted_data.get("speed"))
             if error_message is None:

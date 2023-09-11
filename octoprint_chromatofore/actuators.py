@@ -1,18 +1,14 @@
 
-from time import sleep
+from time import sleep, perf_counter
 from typing import Any, Dict, Optional
+import logging
 
 from .filament_sensors import FilamentSensor
 from .limit_switch import LimitSwitch
 from .servo import Servo
 
-_logger = None
-
-def seconds_range(start, stop, step):
-    i = 0
-    while start + i * step < stop:
-        yield start + i * step
-        i += 1
+_logger = logging.getLogger('Actuator Logger')
+_logger.addHandler(logging.NullHandler())
 
 
 default_actuators = [
@@ -31,8 +27,8 @@ OPEN = 0
 CLOSED = 1
 BACK = 1
 FRONT = 0
-CLAMP_DELAY_SECONDS = 1
-PUSHER_DELAY_SECONDS = 2
+CLAMP_DELAY_SECONDS = 0.9
+PUSHER_DELAY_SECONDS = 1.5
 
 
 
@@ -179,18 +175,25 @@ class Actuator:
         location = position * self.step_length_in_mm
         return location
     
-    def next_position_for_advancing(self, rate_in_mm_per_sec):
-        # The distance traveled in each time step
-        delta_location = rate_in_mm_per_sec * self.time_step_seconds
+    def next_position(self, rate_in_mm_per_sec, start_position, end_position):
+        start_time = perf_counter()
+        start_mm = self.calc_location_from_position(start_position)
+        end_mm = self.calc_location_from_position(end_position)
+        end_time = start_time + abs(end_mm - start_mm) / rate_in_mm_per_sec
+        direction = 1 if end_mm > start_mm else -1
 
-        current_location = self.calc_location_from_position(BACK)
-        yield self.calc_position_from_location(current_location)
+        def mm_at_time(t):
+            elapsed_time = t - start_time
+            distance_moved = elapsed_time * rate_in_mm_per_sec
+            return start_mm + direction * distance_moved
 
-        final_location = self.calc_location_from_position(FRONT)
+        current_time = start_time
+        while current_time < end_time:
+            yield self.calc_position_from_location(mm_at_time(current_time))
+            current_time = perf_counter()
 
-        while current_location > final_location:
-            current_location -= delta_location
-            yield self.calc_position_from_location(current_location)
+        yield self.calc_position_from_location(end_mm)
+
 
     def task_advance_filament_one_step(self, stop_at: Optional[Dict] = None, speed: Optional[Dict] = None):
 
@@ -216,10 +219,14 @@ class Actuator:
 
         # Advance the filament at the desired rate
         _logger.info(f"Advance the filament at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
-        for position in self.next_position_for_advancing(rate_in_mm_per_sec):
+        for position in self.next_position(rate_in_mm_per_sec, BACK, FRONT):
             _logger.debug(position)
             self.pusher.position = position
             sleep(self.time_step_seconds)
+            if self.pusher_limit_switch.is_triggered():
+                _logger.warning("Limit switch triggered! Stopping filament advance.")
+                break
+
 
         # Open up clamp in preparation for next step
         self.moving_clamp.position = OPEN  
