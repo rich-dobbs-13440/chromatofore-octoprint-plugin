@@ -47,13 +47,13 @@ On the settings page, users can specify the assembled configuration of the filam
    - Testing for filament detection and pusher movement using limit switches.
 
 **Version 0.6**: 
-   - Current focus of efforts.
+   - Completed on 9/11/2023.
    - Scan the I2C bus for boards.  
    - Periodically check the boards for availability.  
    - Display board jumpers.  
-   - Include display of notes in board selection dropdowns 
 
 **Version 0.7**: 
+   - Current focus of efforts.
    - Logic and UI for loading/unloading filaments in the exchanger.
    - Logic and UI for loading/unloading filaments in the 3D printer.
 
@@ -76,15 +76,17 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Development History
 
-The Chromatofore plugin is currently at **Current Version: 0.5.344**. 
+The Chromatofore plugin is currently at **Current Version: 0.6.0**. 
 
 ## Current Sprint
 
-Intent: Do Version 0.6 and 0.7 as described in the Development Roadmap.
+### Past Sprints
+
+#### Intent: Do Version 0.6 as described in the Development Roadmap.
 
 Start: 9/4/2023
 
-End:  9/10/2023
+End:  9/11/2023
 
 Currently, identification of boards is a manual process, but much of it can be automated 
 by scanning the I2C bus, and directly display whether the board is detected, rather than
@@ -98,11 +100,11 @@ as needed to load filament into and out of the filament exchanger and the printe
 
 These need to be connected by expanding the SimpleApiCommands that are implemented.
 
-Next, the actual movement of the servo
+Next, start on implementing the logic for moving filament for loading and unloader.
+
+Version 0.6.0 release was achieved, and Version 0.7 features were started.
 
 
-
-### Past Sprints
 
 #### Intent: Complete Version 0.5 - Start: 8/26/2023  End: Start: 9/4/2023   
 
@@ -190,6 +192,7 @@ approaches as used with the filament sensor.
 - Enhancement: Wizard to guide user through initial configuration, such as how to print out 3d parts, assemble, 
                and get an initial settings for the number of actuators that they are using.  
 - Enhancement: Create a log specific to the Chromatofore plugin, to assist in troubleshooting.
+- Enhancement:  Include display of notes in board selection dropdowns 
 - Investigation: Installation on a clean machine, especially how to handle access to I2c, and I2c bus speed.
 - Technical Debt: Use ES6 classes and mark variables as public or private.
 
