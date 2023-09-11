@@ -1,18 +1,17 @@
-from http import HTTPStatus
-
+import datetime
 import json
 import os
+from http import HTTPStatus
+
 import flask
 import octoprint.plugin
-import datetime
 from smbus2 import SMBus
 
 from .actuators import Actuators, default_actuators
 from .filament_sensors import FilamentSensors
-from .pcf8574_gpio_extender_board import Pcf8574GpioExtenderBoard
 from .pca9685_servo_driver_board import Pca9685ServoDriverBoard
-from .servo import Servo, default_servo_driver_boards
-
+from .pcf8574_gpio_extender_board import Pcf8574GpioExtenderBoard
+from .servo import Servo, ServoRuntimeError, default_servo_driver_boards
 
 
 def jsonify_no_cache(status, **kwargs):
@@ -83,8 +82,8 @@ class ChromatoforePlugin(
 
     def get_api_commands(self):
         return {
-            "validate_i2c": ["address"],
-            "is_filament_sensed": ["pin"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
+            "check_if_on_bus": ["address"],
+            "read_filament_sensor": ["board", "channel"],  # For example http://chromatofore.local/api/plugin/chromatofore?command=is_filament_sensed&pin=1
             "read_limit_switch": ["board", "channel"], 
             "shutdown_chromatofore_plugin": [],
             "set_servo_angle": ["board", "channel", "angle"],
@@ -97,8 +96,8 @@ class ChromatoforePlugin(
     # Well also define the optional parameters for each command
     def get_api_optional_parameters(self): 
         return {
-            "validate_i2c": [],
-            "is_filament_sensed": [],
+            "check_if_on_bus": [],
+            "read_filament_sensor": [],
             "read_limit_switch": [],
             "shutdown_chromatofore_plugin": [],
             "set_servo_angle": [],
@@ -111,15 +110,15 @@ class ChromatoforePlugin(
     def get_parameter_types(self):
         # Define the expected data types for each command and parameter combination
         return {
-            ("validate_i2c", "address"): int,
-            ("is_filament_sensed", "pin"): int,
+            ("check_if_on_bus", "address"): int,
+            ("read_filament_sensor", "pin"): int,
+            ("read_filament_sensor", "board"): int,
             ("read_limit_switch", "board"): int,
             ("read_limit_switch", "channel"): int,
             ("set_servo_angle", "board"): int,
             ("set_servo_angle", "channel"): int,
             ("set_servo_angle", "angle"): int,
             ("unload_filament", "actuator"): str,
-
             ("unload_filament", "speed"): dict,
             ("advance_filament", "speed"): dict,
             ("advance_filament", "stop_at"): dict,            
@@ -129,7 +128,7 @@ class ChromatoforePlugin(
     
     def get_allowed_get_commands(self):
         """Return a list of commands that are allowed as GET requests."""
-        return ["is_filament_sensed", "validate_i2c"]    
+        return ["check_if_on_bus", "read_filament_sensor", "read_limit_switch"]    
     
     def handle_commands(self, command, extracted_data):
         # Now handle the specific command actions
@@ -137,23 +136,23 @@ class ChromatoforePlugin(
             self.on_shutdown()
             return jsonify_no_cache(HTTPStatus.OK, action="Shutting down Chromatofore")
         
-        elif command == "validate_i2c":
+        elif command == "check_if_on_bus":
             try:
                 with SMBus(1) as bus:
                     bus.write_quick(extracted_data.get("address"))
-                return jsonify_no_cache(HTTPStatus.OK, valid=True)
+                return jsonify_no_cache(HTTPStatus.OK, is_on_bus=True)
             except:
-                return jsonify_no_cache(HTTPStatus.OK, valid=False, reason="Address not found")
+                return jsonify_no_cache(HTTPStatus.OK, is_on_bus=False, reason="Address not found")
         
-        elif command == "is_filament_sensed":
+        elif command == "read_filament_sensor":
             error_message, sensed = self.filament_sensors.is_filament_sensed(extracted_data.get("pin"))
             if error_message is None:
-                return jsonify_no_cache(HTTPStatus.OK, success=True, sensed=sensed)
+                return jsonify_no_cache(HTTPStatus.OK, is_filament_sensed=sensed, sensed=sensed)
             else:
-                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message)
+                return jsonify_no_cache(HTTPStatus.OK, is_filament_sensed=False, reason=error_message)
 
         elif command == "set_servo_angle":
-            error_message = Servo.set_servo_angle(extracted_data.get("board"), extracted_data.get("channel"), extracted_data.get("angle"))
+            error_message = Servo.set_servo_angle(board=extracted_data.get("board"), channel=extracted_data.get("channel"), angle=extracted_data.get("angle"))
             if error_message is None:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), angle=extracted_data.get("angle"))
             else:
@@ -161,11 +160,11 @@ class ChromatoforePlugin(
 
         elif command == "read_limit_switch":
             error_message, pin_state = Pcf8574GpioExtenderBoard.read_channel(extracted_data.get("board"), extracted_data.get("channel"))
-            if error_message:
-                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"))
-            else:
+            if error_message is None:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
-
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"))
+                
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
             error_message = self.actuators.handle_command(command, extracted_data.get("actuator"), extracted_data.get("stop_at"), extracted_data.get("speed"))
             if error_message is None:

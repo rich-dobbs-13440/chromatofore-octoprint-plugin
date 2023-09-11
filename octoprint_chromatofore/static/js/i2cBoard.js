@@ -1,10 +1,10 @@
 
 checkI2cAddress = function(address, foundCallback, notFoundCallback, failCallback) {
-    OctoPrint.simpleApiCommand("chromatofore", "validate_i2c", { address: address })
+    OctoPrint.simpleApiCommand("chromatofore", "check_if_on_bus", { address: address })
     .done(function(response) {
         //console.log("Got response from simpleApiCommand");
         
-        if (response.valid) {
+        if (response.is_on_bus) {
             // If a callback for found is provided, call it
             if (typeof foundCallback === 'function') {
                 foundCallback(address);

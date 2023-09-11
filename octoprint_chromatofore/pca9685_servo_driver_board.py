@@ -1,6 +1,7 @@
 import Adafruit_PCA9685
 
 from typing import Optional, Dict
+from smbus2 import SMBus
 
 class Pca9685ServoDriverBoard:
 
@@ -31,6 +32,7 @@ class Pca9685ServoDriverBoard:
 
     def __init__(self, i2c_address: int, bus_number: int = 1):
         self.i2c_address = i2c_address
+        self.bus_number = bus_number
         self.pwm = Adafruit_PCA9685.PCA9685(address=self.i2c_address, busnum=bus_number)
         self.pwm.set_pwm_freq(self.SERVO_FREQ)  # Set the PWM frequency
 
@@ -52,3 +54,16 @@ class Pca9685ServoDriverBoard:
     def rest_servo(self, channel: int):
         """Set the servo at rest."""
         self.pwm.set_pwm(channel, 0, 0)
+
+    def is_on_bus(self) ->bool:
+        # Check if the board is accessible
+        try:
+            with SMBus(self.bus_number) as bus: 
+                # Simple check, adjust based on your board specifics
+                bus.write_quick(self.board)
+        except:
+            return False
+        return True;          
+
+
+# return f"Error: board 0x{board:02X} not found on bus {Servo.bus_number}"   
