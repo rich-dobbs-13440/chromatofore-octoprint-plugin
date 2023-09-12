@@ -148,6 +148,10 @@ approaches as used with the filament sensor.
 
 *This section documents changes for Chromatofore versions.*
 
+- **Version 0.6.59 (9/10/2023)**:
+     Added: Can trigger loading filament, with the actuator moving the filament until the filament sensor is triggered.
+- **Version 0.6.0 (9/10/2023)**:
+   - Completion: Version 0.6 features
 - **Version 0.5.120 (9/4/2023)**:
    - Added: Server side objects that correspond to the actuator list. Just configuration information. No actions yet.
 - **Version 0.5.45 (9/4/2023)**:
