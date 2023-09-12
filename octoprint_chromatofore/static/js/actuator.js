@@ -1,6 +1,6 @@
 
 actuator_command = function(command, actuator, options) {
-    console.log("In acutator_command");
+    console.log("In actuator_command");
     console.log(actuator);
     // Handles "load_filament", "unload_filament", "advance_filament", "retract_filament"
     var data = { actuator: actuator};
@@ -12,7 +12,7 @@ actuator_command = function(command, actuator, options) {
     }
 
     const context_message = `Context: command: ${command} options: ${JSON.stringify(options)} actuator: ${actuator} data: ${JSON.stringify(data)} `;
-    console.log("In acutator_command", context_message);
+    console.log("In actuator_command", context_message);
 
     OctoPrint.simpleApiCommand("chromatofore", command, data)
     .done(function(response) {
@@ -40,6 +40,7 @@ actuator_command = function(command, actuator, options) {
         });     
     });
 }
+
 
 
 
@@ -85,6 +86,7 @@ function Actuator(data, refreshRateInSeconds) {
     self.toggleDetails = function() {
         self.detailsVisible(!self.detailsVisible());
     };
+
 
     self.hashCode = function() {
         return simpleHash(
@@ -143,6 +145,9 @@ function Actuator(data, refreshRateInSeconds) {
             }
         };
     }
+
+
+
 };   
 
 Actuator.defaultData = {

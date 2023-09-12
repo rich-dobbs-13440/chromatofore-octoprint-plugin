@@ -44,7 +44,8 @@ class Pcf8574GpioExtenderBoard:
             board_instance = Pcf8574GpioExtenderBoard(i2c_address=board, bus_number=Pcf8574GpioExtenderBoard.common_bus_number)
             Pcf8574GpioExtenderBoard.instances[board] = board_instance
             board_instance.start()
-            Pcf8574GpioExtenderBoard.logger.info(f"New Pcf8574GpioExtenderBoard instance created for address: {board}")
+            Pcf8574GpioExtenderBoard.logger.info(f"New Pcf8574GpioExtenderBoard instance created for address: {board:02X}")
+
         return board_instance
     
 
@@ -102,7 +103,7 @@ class Pcf8574GpioExtenderBoard:
 
     def read_inputs(self) -> int:
         data_in = self.bus.read_byte(self.i2c_address)
-        Pcf8574GpioExtenderBoard.logger.info(f"Data read for address: {self.i2c_address} value: {data_in}")
+        Pcf8574GpioExtenderBoard.logger.debug(f"Data read for address: {self.i2c_address} value: {data_in}")
         return data_in  
 
     def update_outputs(self, value: int):

@@ -3,11 +3,10 @@
 <!-- Note: variable names from get_template_vars must be prefixed by plugin_chromatofore_ -->
 
 <div>
-    <h4>Control the Chromatofore Filament Exchanger</h4>
-    <div>Version - {{ plugin_chromatofore_version }} </div>
-</div>
+<h1>Control the Chromatofore Filament Exchanger</h1>
+<div>Version - {{ plugin_chromatofore_version }} </div>
 
-<h5>Earwig Filament Actuators</h5>
+<h2>Earwig Filament Actuators</h2>>
 <div>The actuators can load and unload filament from the 3d printer.  
     This requires the extruder to be disenaged.  
     Unloading filament requires the hot end to be at temperature.
@@ -16,6 +15,7 @@
 <div class="actuator-actions-table">
 
     <div data-bind="foreach: actuators">
+        <h3 class="small"><span data-bind="text: id"></span></h3>
 
         <div class="actuator-actions-grid">
             <div class="actuator-actions-sep1"></div> 
@@ -60,6 +60,7 @@
                     <option value="8">8 steps</option>
                     <option value="9">9 steps</option>
                     <option value="10">10 steps</option>
+                    <option value="20">20 steps</option>                    
                 </select>
             </div>
             <div class="retract-speed">
@@ -74,7 +75,21 @@
             <!-- Advance row-->
             <div class="advance-header">Advance</div>
             <div class="advance-load">
-                <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {}); }">Load</button>
+                <!-- <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {speed: {qualitive: selectedSpeedToAdvance()}}); }">Load</button>-->
+                
+
+                
+                <button data-bind="click: function() { 
+                    $parent.loadFilament(
+                        hashCode(), 
+                        {
+                            speed: {
+                                qualitive: selectedSpeedToAdvance()
+                            }
+                        }
+                    ); 
+                }">Load</button>
+                
             </div>
             <div class="advance-step">
                 <button data-bind="click: function() { 
@@ -109,6 +124,8 @@
                     <option value="8">8 steps</option>
                     <option value="9">9 steps</option>
                     <option value="10">10 steps</option>
+                    <option value="10">10 steps</option>
+                    <option value="20">20 steps</option>                        
                 </select>
             </div>
             <div class="advance-speed">
@@ -126,8 +143,31 @@
 </div>
 
  
+<div class="modal fade" id="filamentMoveModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Long Running Task</h5>
+            </div>
+            <div class="modal-body">
+                
+                <div class="progress">
+                    <div class="bar" data-bind="style: { width: filamentMoveModal.progressPercentage() + '%' }"></div>
+                </div>
+                <div>   
+                    Parens: <span data-bind="text: filamentMoveModal.progressPercentage()"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bind="click: filamentMoveModal.cancelTask">Cancel Task</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-selectedScanRefreshRateInSeconds:
-<div data-bind="text: selectedScanRefreshRateInSeconds"></div>
+</div>
+
+
+
     
 

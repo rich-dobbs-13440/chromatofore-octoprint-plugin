@@ -3,6 +3,62 @@
 $(function() {
 
 
+
+    class FilamentMoveModalDialog {
+        constructor() {
+            this.progressPercentage = ko.observable(0);
+            this.actuatorHashCode = undefined;
+
+            // Binding methods to the instance
+            this.showModal = this.showModal.bind(this);
+            this.hideModal = this.hideModal.bind(this);
+            this.cancelTask = this.cancelTask.bind(this);   
+            this.updateStatus = this.updateStatus.bind(this);            
+        }
+
+        showModal(actuatorHashCode) {
+            console.log("FilamentMoveModalDialog.showModal called");
+            this.progressPercentage(0);
+            this.actuatorHashCode = actuatorHashCode;
+            $('#filamentMoveModal').modal('show');
+        }
+
+        hideModal() {
+            console.log("FilamentMoveModalDialog.hideModal called");
+            $('#filamentMoveModal').modal('hide');
+        }
+
+        cancelTask() {
+            console.log("FilamentMoveModalDialog.cancelTask called");
+            this.hideModal();
+            actuator_command('cancel_filament_move', this.actuatorHashCode, {});
+
+        }
+
+        updateStatus(data) {
+            console.log("FilamentMoveModalDialog.updateStatus called with", data);
+
+            // "step": self.step_index,
+            // "nstep": self.nstep,
+            // "filament_sensed": self.filament_sensor.is_filament_sensed(),
+            // "pusher_position": self.pusher.position,
+            // "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered()  
+
+            const nsteps = "nsteps" in data ? data.nsteps : 1;
+            const step = "step" in data ? data.step : 1; 
+            const percentageProgress = (step + 1)*100/nsteps
+            console.log("percentageProgress: ", percentageProgress);
+            this.progressPercentage(percentageProgress); 
+            const completed = "completed" in data ? data.completed : false;
+            if (completed) {
+                this.hideModal()
+            }
+        }
+
+        // other methods...
+    }
+
+
     function ChromatoforeViewModel(parameters) {
         console.log("In ChromatoforeViewModel");
 
@@ -20,6 +76,9 @@ $(function() {
         console.log(parameters);
 
         self.settingsViewModel = parameters[0];
+
+        self.isfilamentMoveRunning = ko.observable(false);
+        self.filamentMoveModal = new FilamentMoveModalDialog();
 
         
         self.removeActuator = function(actuator) {
@@ -98,6 +157,22 @@ $(function() {
                 }, reloadMillis);  
             }
         };
+
+        self.loadFilament = function(actuatorHashCode, options) {
+            actuator_command('load_filament', actuatorHashCode, options);
+            // Disable controls as appropriate
+            self.isfilamentMoveRunning(true);
+            self.filamentMoveModal.showModal(actuatorHashCode);
+        }
+
+        self.onDataUpdaterPluginMessage = function(plugin, data) {
+            if (plugin !== "chromatofore") {
+                return;
+            }
+            if (data.message_type == "status_update") {
+                self.filamentMoveModal.updateStatus(data);  
+            }
+        }     
     }
 
     // Register the ViewModel

@@ -89,8 +89,9 @@ class ChromatoforePlugin(
             "set_servo_angle": ["board", "channel", "angle"],
             "load_filament":["actuator"],
             "unload_filament":["actuator"],
-            "advance_filament":["actuator"], # "stop_at" and "speed" are optional
-            "retract_filament":["actuator"], # "stop_at" and "speed" are optional
+            "advance_filament":["actuator"], 
+            "retract_filament":["actuator"], 
+            "cancel_filament_move":["actuator"]
         }
     
     # Well also define the optional parameters for each command
@@ -104,7 +105,8 @@ class ChromatoforePlugin(
             "load_filament": ["speed"],
             "unload_filament": ["speed"],
             "advance_filament": ["stop_at", "speed"],
-            "retract_filament": ["stop_at", "speed"]
+            "retract_filament": ["stop_at", "speed"],
+            "cancel_filament_move":[]
         } 
 
     def get_parameter_types(self):
@@ -128,7 +130,17 @@ class ChromatoforePlugin(
     
     def get_allowed_get_commands(self):
         """Return a list of commands that are allowed as GET requests."""
-        return ["check_if_on_bus", "read_filament_sensor", "read_limit_switch"]    
+        return ["check_if_on_bus", "read_filament_sensor", "read_limit_switch"]  
+
+    def status_callback(self, status_dict):
+        """
+        Callback method to handle task status updates
+        """
+        self._logger.info("In status_callback")
+        # Use the OctoPrint event system here to push status updates to front end
+        status_dict["message_type"] = "status_update"
+        self._logger.info(f"In status_callback status_dict: {status_dict}")
+        self._plugin_manager.send_plugin_message(self._identifier, status_dict)  
     
     def handle_commands(self, command, extracted_data):
         # Now handle the specific command actions
@@ -171,8 +183,8 @@ class ChromatoforePlugin(
             
             return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
                
-        elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament"]:
-            error_message = self.actuators.handle_command(command, extracted_data.get("actuator"), extracted_data.get("stop_at"), extracted_data.get("speed"))
+        elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament", "cancel_filament_move"]:
+            error_message = self.actuators.handle_command(command, extracted_data.get("actuator"), extracted_data.get("stop_at"), extracted_data.get("speed"), status_callback=self.status_callback)
             if error_message is None:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, actuator=extracted_data.get("actuator"))
             else:
