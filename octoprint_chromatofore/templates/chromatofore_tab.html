@@ -81,10 +81,7 @@
             <!-- Advance row-->
             <div class="advance-header">Advance</div>
             <div class="advance-load">
-                <!-- <button data-bind="click: function() { actuator_command('load_filament', hashCode(), {speed: {qualitive: selectedSpeedToAdvance()}}); }">Load</button>-->
-                
-
-                
+                               
                 <button data-bind="click: function() { 
                     $parent.loadFilament(
                         hashCode(), 
@@ -95,8 +92,24 @@
                         }
                     ); 
                 }">Load</button>
-                
+            </div>  
+            <!-- 
+            <div class="advance-load">                
+                <button data-bind="
+                    attr: { id: 'loadButton-' + hashCode() }, 
+                    click: function() { 
+                        $parent.loadFilament(
+                                hashCode(), 
+                                {
+                                    speed: {
+                                        qualitive: selectedSpeedToAdvance()
+                                    }
+                                }
+                            ); 
+                    }">Load</button>
             </div>
+            -->
+            
             <div class="advance-step">
                 <button data-bind="click: function() { 
                     actuator_command(
@@ -181,15 +194,12 @@
                     <div>
                         <span class="fnsr-label">Servo Moves:</span><span data-bind="text: filamentMoveModal.servo_move_count"></span>
                     </div>
+                    
 
-
-                    <!-- Logical Values (LEDs) -->
                     <div class="filament-sensor">
-                        <span class="led" data-bind="css: filamentMoveModal.filament_sensed ? 'led-lit' : 'led-unlit'"></span> Filament Sensed
-                    </div>
-                    <div class="pusher-limit-switch">
-                        <span class="led" data-bind="css: filamentMoveModal.pusher_limit_switch_is_triggered() ? 'led-lit' : 'led-unlit'"></span> Pusher Limit Switch Triggered
-                    </div>                      
+                        <span class="fnsr-label">Filament Sensed</span>
+                        <span class="led" data-bind="css: filamentMoveModal.filament_sensed() ? 'led-lit' : 'led-unlit'"></span> 
+                    </div>                 
                 </div>                              
             </div>
             <div class="modal-footer">

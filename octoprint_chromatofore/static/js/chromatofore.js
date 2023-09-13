@@ -26,12 +26,34 @@ $(function() {
             this.actuatorHashCode = undefined;
         }
 
+        // showModal(actuatorHashCode) {
+        //     console.log("FilamentMoveModalDialog.showModal called");
+        //     this.progressPercentage(0);
+        //     this.actuatorHashCode = actuatorHashCode;
+        //     $('#filamentMoveModal').modal('show');
+        // }
+
         showModal(actuatorHashCode) {
             console.log("FilamentMoveModalDialog.showModal called");
-            this.progressPercentage(0);
+            this.updateStatus({}); // Show default values prior to receiving any update.  
             this.actuatorHashCode = actuatorHashCode;
-            $('#filamentMoveModal').modal('show');
+            const locationElement = $(`#loadButton-${actuatorHashCode}`);
+            
+            if (locationElement.length) {
+                let offset = locationElement.offset();
+                $('#filamentMoveModal').css({
+                    'top': offset.top,
+                    'left': offset.left
+                });
+            }
+                        
+            $('#filamentMoveModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            }).modal('show');               
         }
+        
+        
 
         hideModal() {
             console.log("FilamentMoveModalDialog.hideModal called");
@@ -49,7 +71,7 @@ $(function() {
             console.log("FilamentMoveModalDialog.updateStatus called with", data);
     
             const {
-                step = 1,
+                step = -1,
                 nsteps = 1,
                 filament_sensed = false,
                 pusher_position = 0,
@@ -62,7 +84,7 @@ $(function() {
             console.log("percentageProgress: ", percentageProgress);
             
             this.progressPercentage(percentageProgress);
-            this.step(step);
+            this.step(step+1);  // Convert from zero based index to one based for display to user.
             this.nsteps(nsteps);
             this.pusher_position(pusher_position);
             this.rate_in_mm_per_sec(rate_in_mm_per_sec);
@@ -74,7 +96,6 @@ $(function() {
                 this.hideModal()
             }
         }        
-
     }
 
 
@@ -181,7 +202,7 @@ $(function() {
             actuator_command('load_filament', actuatorHashCode, options);
             // Disable controls as appropriate
             self.isfilamentMoveRunning(true);
-            self.filamentMoveModal.showModal(actuatorHashCode);
+            self.filamentMoveModal.showModal(actuatorHashCode);         
         }
 
         self.onDataUpdaterPluginMessage = function(plugin, data) {

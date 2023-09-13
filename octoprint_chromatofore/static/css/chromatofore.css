@@ -285,7 +285,21 @@ div.retract-nsteps,
     width: 110px;
 }
 
-/* Styling for the filament load-unload */
+/* Styling for the filament load-unload dialog */
+
+#tab_plugin_chromatofore .modal-backdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+}
+
+#tab_plugin_chromatofore .modal-backdrop.in {
+    opacity: 0.5;
+}
+
 
 .filament-move-status-report span.fnsr-label {
     display: inline-block;
@@ -317,4 +331,6 @@ div.retract-nsteps,
 .pusher-limit-switch  .led-unlit {
     background-color: gray;
 }
+
+
 
