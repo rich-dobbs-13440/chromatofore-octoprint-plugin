@@ -6,14 +6,24 @@ $(function() {
 
     class FilamentMoveModalDialog {
         constructor() {
+            // Observables
             this.progressPercentage = ko.observable(0);
-            this.actuatorHashCode = undefined;
+            this.step = ko.observable(0);
+            this.nsteps = ko.observable(1);
+            this.pusher_position = ko.observable(0);
+            this.rate_in_mm_per_sec = ko.observable(0);
+            this.servo_move_count = ko.observable(0);
+            this.filament_sensed = ko.observable(false);
+            this.pusher_limit_switch_is_triggered = ko.observable(false);            
 
             // Binding methods to the instance
             this.showModal = this.showModal.bind(this);
             this.hideModal = this.hideModal.bind(this);
             this.cancelTask = this.cancelTask.bind(this);   
-            this.updateStatus = this.updateStatus.bind(this);            
+            this.updateStatus = this.updateStatus.bind(this);   
+            
+            // Other initialization
+            this.actuatorHashCode = undefined;
         }
 
         showModal(actuatorHashCode) {
@@ -37,25 +47,34 @@ $(function() {
 
         updateStatus(data) {
             console.log("FilamentMoveModalDialog.updateStatus called with", data);
-
-            // "step": self.step_index,
-            // "nstep": self.nstep,
-            // "filament_sensed": self.filament_sensor.is_filament_sensed(),
-            // "pusher_position": self.pusher.position,
-            // "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered()  
-
-            const nsteps = "nsteps" in data ? data.nsteps : 1;
-            const step = "step" in data ? data.step : 1; 
-            const percentageProgress = (step + 1)*100/nsteps
+    
+            const {
+                step = 1,
+                nsteps = 1,
+                filament_sensed = false,
+                pusher_position = 0,
+                pusher_limit_switch_is_triggered = false,
+                rate_in_mm_per_sec = 0,
+                servo_move_count = 0
+            } = data;
+    
+            const percentageProgress = (step + 1)*100/nsteps;
             console.log("percentageProgress: ", percentageProgress);
-            this.progressPercentage(percentageProgress); 
-            const completed = "completed" in data ? data.completed : false;
-            if (completed) {
+            
+            this.progressPercentage(percentageProgress);
+            this.step(step);
+            this.nsteps(nsteps);
+            this.pusher_position(pusher_position);
+            this.rate_in_mm_per_sec(rate_in_mm_per_sec);
+            this.servo_move_count(servo_move_count);
+            this.filament_sensed(filament_sensed);
+            this.pusher_limit_switch_is_triggered(pusher_limit_switch_is_triggered);
+    
+            if (data.completed) {
                 this.hideModal()
             }
-        }
+        }        
 
-        // other methods...
     }
 
 

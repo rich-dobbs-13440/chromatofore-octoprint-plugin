@@ -54,7 +54,7 @@ class Actuator:
         # TODO: add next three to persisted settings data.
         self.distance_to_filament_sensor_mm = data.get("distance_to_filament_sensor_mm", 280)
         self.step_length_in_mm = data.get("step_length_in_mm", 18.0)
-        self.time_step_seconds = data.get("time_step_seconds", 0.05)
+        self.time_step_seconds = data.get("time_step_seconds", 0.02)
 
         self._task_thread = None
         self._stop_event = threading.Event()    
@@ -62,16 +62,20 @@ class Actuator:
         self.nsteps = None
 
         slow_step_time = 4
-        moderate_step_time = 1
+        moderate_step_time = 1 
         brisk_step_time = 0.5
-        quick_step_time = 0.25
+        quick_step_time = 0.1
 
+
+        _logger.info(f"self.step_length_in_mm: {self.step_length_in_mm }")
         self.qualitative_speed_to_mm_per_second = {
             'slow': self.step_length_in_mm/slow_step_time, 
             'moderate': self.step_length_in_mm/moderate_step_time,
             'brisk': self.step_length_in_mm/brisk_step_time,
             'quick': self.step_length_in_mm/quick_step_time,
         }
+
+        _logger.info(f"self.qualitative_speed_to_mm_per_second: {self.qualitative_speed_to_mm_per_second }")
 
 
 
@@ -126,6 +130,7 @@ class Actuator:
         }        
         # This is a long running task, so we'll run it in a thread.
         def task_runner(): 
+            self._stop_event.clear()
             # Advance until number of steps reached or filament is sensed
             self.advance_filament(stop_at=stop_at, speed=speed, status_callback=status_callback) 
 
@@ -231,9 +236,11 @@ class Actuator:
 
         # Advance the filament at the desired rate
         _logger.info(f"Advance the filament one step from {start_position} to {end_position} at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
+        servo_move_count = 0
         for position in self.next_position(rate_in_mm_per_sec, start_position, end_position):
             _logger.debug(f"position: {position}")
             self.pusher.position = position
+            servo_move_count += 1
             sleep(self.time_step_seconds)
             if self.pusher_limit_switch.is_triggered():
                 _logger.warning("Limit switch triggered! Stopping filament advance.")
@@ -248,9 +255,7 @@ class Actuator:
         sleep(CLAMP_DELAY_SECONDS)
 
         # Rest all of the servos, so that they don't chatter and strain. 
-        self.pusher.at_rest = True
-        self.moving_clamp.at_rest = True
-        self.fixed_clamp.at_rest = True
+
         _logger.info(f"status_callback: {status_callback}")
         if status_callback is not None:
             status_callback({
@@ -258,8 +263,14 @@ class Actuator:
                 "nsteps": self.nsteps,
                 "filament_sensed": self.filament_sensor.is_filament_sensed(),
                 "pusher_position": self.pusher.position,
-                "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered()  
+                "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered(),
+                "rate_in_mm_per_sec": rate_in_mm_per_sec,
+                "servo_move_count": servo_move_count,
             })
+
+        self.pusher.at_rest = True
+        self.moving_clamp.at_rest = True
+        self.fixed_clamp.at_rest = True            
          
 
     def retract_filament(self, status_callback: Callable[[Dict], None], stop_at: Optional[Dict] = None, speed: Optional[Dict] = None) -> None:
@@ -402,7 +413,7 @@ class Actuators:
         return "\n      ".join(f"'{actuator.hash_code}'" for actuator in self.items)
 
     def handle_command(self, command, hash_code, stop_at=None, speed=None, status_callback=None):
-        _logger.info(f"In handle_command with command: {command}  hash_code: {hash_code} stop_at: {stop_at}, speed: {speed}")
+        _logger.info(f"In Actuators.handle_command with command: {command}  hash_code: {hash_code} stop_at: {stop_at}, speed: {speed} status_callback: {status_callback}")
         # Searching for the actuator
         target_actuator = None
         for actuator in self.items:
@@ -420,9 +431,9 @@ class Actuators:
             return error_msg
 
         if command == "load_filament":
-            target_actuator.load_filament(status_callback=status_callback)
+            target_actuator.load_filament(speed=speed, status_callback=status_callback)
         elif command == "unload_filament":
-            target_actuator.unload_filament(status_callback=status_callback)
+            target_actuator.unload_filament(speed=speed, status_callback=status_callback)
         elif command == "advance_filament":
             _logger.info(f"Calling advance_filament with stop_at: {stop_at}, speed: {speed}")
             target_actuator.advance_filament(stop_at=stop_at, speed=speed, status_callback=status_callback)

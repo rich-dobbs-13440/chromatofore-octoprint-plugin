@@ -285,3 +285,36 @@ div.retract-nsteps,
     width: 110px;
 }
 
+/* Styling for the filament load-unload */
+
+.filament-move-status-report span.fnsr-label {
+    display: inline-block;
+    width: 14em;
+}
+
+.led {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.filament-sensor .led-lit  {
+    background-color: yellow;
+}
+
+.filament-sensor .led-unlit  {
+    background-color: gray;
+}
+
+.pusher-limit-switch.led-lit,
+.pusher-limit-switch .led-lit{
+    background-color: red;
+}
+
+.pusher-limit-switch.led-unlit,
+.pusher-limit-switch  .led-unlit {
+    background-color: gray;
+}
+

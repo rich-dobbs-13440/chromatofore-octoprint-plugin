@@ -184,7 +184,12 @@ class ChromatoforePlugin(
             return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
                
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament", "cancel_filament_move"]:
-            error_message = self.actuators.handle_command(command, extracted_data.get("actuator"), extracted_data.get("stop_at"), extracted_data.get("speed"), status_callback=self.status_callback)
+            error_message = self.actuators.handle_command(
+                command=command,
+                hash_code=extracted_data.get("actuator"),
+                stop_at=extracted_data.get("stop_at"),
+                speed=extracted_data.get("speed"),
+                status_callback=self.status_callback)
             if error_message is None:
                 return jsonify_no_cache(HTTPStatus.OK, success=True, actuator=extracted_data.get("actuator"))
             else:

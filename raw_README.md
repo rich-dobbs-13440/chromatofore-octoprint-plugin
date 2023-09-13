@@ -196,7 +196,7 @@ approaches as used with the filament sensor.
 - Enhancement: Wizard to guide user through initial configuration, such as how to print out 3d parts, assemble, 
                and get an initial settings for the number of actuators that they are using.  
 - Enhancement: Create a log specific to the Chromatofore plugin, to assist in troubleshooting.
-- Enhancement:  Include display of notes in board selection dropdowns 
+- Enhancement: Include display of notes in board selection dropdowns 
 - Investigation: Installation on a clean machine, especially how to handle access to I2c, and I2c bus speed.
 - Technical Debt: Use ES6 classes and mark variables as public or private.
 

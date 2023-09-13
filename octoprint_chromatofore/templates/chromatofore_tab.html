@@ -27,7 +27,13 @@
             <!-- Retract row-->
             <div class="retract-header">Retract</div>
             <div class="retract-unload">
-                <button data-bind="click: function() { actuator_command('unload_filament', hashCode(), {}); }">Unload</button>
+                <button data-bind="click: function() { 
+                    actuator_command(
+                        'unload_filament', 
+                        hashCode(), 
+                        {
+                            speed: {qualitive: selectedSpeedToRetract()} 
+                        }); }">Unload</button>
             </div>
             <div class="retract-step">
                 <button data-bind="click: function() { 
@@ -154,9 +160,37 @@
                 <div class="progress">
                     <div class="bar" data-bind="style: { width: filamentMoveModal.progressPercentage() + '%' }"></div>
                 </div>
-                <div>   
-                    Parens: <span data-bind="text: filamentMoveModal.progressPercentage()"></span>
-                </div>
+
+                <div class="filament-move-status-report">
+                    <div>
+                        <span class="fnsr-label">Step:</span><span data-bind="text: filamentMoveModal.step()"></span> of 
+                        <span data-bind="text: filamentMoveModal.nsteps()"></span>
+                    </div>
+                    <div>
+                        <span class="fnsr-label">Pusher Position:</span>
+                        <span data-bind="text: filamentMoveModal.pusher_position()"></span>
+                        <span>Limit Switch:</span>
+                        <span class="pusher-limit-switch led" data-bind="css: filamentMoveModal.pusher_limit_switch_is_triggered() ? 'led-lit' : 'led-unlit'"></span>
+                    </div>
+                    <div>
+                        <span class="fnsr-label">Pusher Position:</span> <span data-bind="text: filamentMoveModal.pusher_position"></span>
+                    </div>                    
+                    <div>
+                        <span class="fnsr-label">Rate (mm/sec):</span> <span data-bind="text: filamentMoveModal.rate_in_mm_per_sec"></span>
+                    </div>
+                    <div>
+                        <span class="fnsr-label">Servo Moves:</span><span data-bind="text: filamentMoveModal.servo_move_count"></span>
+                    </div>
+
+
+                    <!-- Logical Values (LEDs) -->
+                    <div class="filament-sensor">
+                        <span class="led" data-bind="css: filamentMoveModal.filament_sensed ? 'led-lit' : 'led-unlit'"></span> Filament Sensed
+                    </div>
+                    <div class="pusher-limit-switch">
+                        <span class="led" data-bind="css: filamentMoveModal.pusher_limit_switch_is_triggered() ? 'led-lit' : 'led-unlit'"></span> Pusher Limit Switch Triggered
+                    </div>                      
+                </div>                              
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-bind="click: filamentMoveModal.cancelTask">Cancel Task</button>
