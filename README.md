@@ -76,7 +76,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Development History
 
-The Chromatofore plugin is currently at **Current Version: 0.6.59**. 
+The Chromatofore plugin is currently at **Current Version: 0.6.91**. 
 
 ## Current Sprint
 
@@ -148,6 +148,10 @@ approaches as used with the filament sensor.
 
 *This section documents changes for Chromatofore versions.*
 
+- **Version 0.6.59 (9/10/2023)**:
+     Added: Can trigger loading filament, with the actuator moving the filament until the filament sensor is triggered.
+- **Version 0.6.0 (9/10/2023)**:
+   - Completion: Version 0.6 features
 - **Version 0.5.120 (9/4/2023)**:
    - Added: Server side objects that correspond to the actuator list. Just configuration information. No actions yet.
 - **Version 0.5.45 (9/4/2023)**:
@@ -192,7 +196,7 @@ approaches as used with the filament sensor.
 - Enhancement: Wizard to guide user through initial configuration, such as how to print out 3d parts, assemble, 
                and get an initial settings for the number of actuators that they are using.  
 - Enhancement: Create a log specific to the Chromatofore plugin, to assist in troubleshooting.
-- Enhancement:  Include display of notes in board selection dropdowns 
+- Enhancement: Include display of notes in board selection dropdowns 
 - Investigation: Installation on a clean machine, especially how to handle access to I2c, and I2c bus speed.
 - Technical Debt: Use ES6 classes and mark variables as public or private.
 
