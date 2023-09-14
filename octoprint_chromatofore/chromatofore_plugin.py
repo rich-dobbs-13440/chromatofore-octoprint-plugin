@@ -91,7 +91,8 @@ class ChromatoforePlugin(
             "unload_filament":["actuator"],
             "advance_filament":["actuator"], 
             "retract_filament":["actuator"], 
-            "cancel_filament_move":["actuator"]
+            "cancel_filament_move":["actuator"],
+            "check_if_task_is_running": [],            
         }
     
     # Well also define the optional parameters for each command
@@ -106,7 +107,7 @@ class ChromatoforePlugin(
             "unload_filament": ["speed"],
             "advance_filament": ["stop_at", "speed"],
             "retract_filament": ["stop_at", "speed"],
-            "cancel_filament_move":[]
+            "cancel_filament_move":[],
         } 
 
     def get_parameter_types(self):
@@ -182,6 +183,10 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.INTERNAL_SERVER_ERROR, success=False, reason=f"{error_msg}", board=extracted_data.get("board"), channel=extracted_data.get("channel"))
             
             return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), pin_state=pin_state)
+        
+        elif command == "check_if_task_is_running":
+            return jsonify_no_cache(HTTPStatus.OK, success=True, task_is_running = self.actuators.task_is_running())
+
                
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament", "cancel_filament_move"]:
             error_message = self.actuators.handle_command(

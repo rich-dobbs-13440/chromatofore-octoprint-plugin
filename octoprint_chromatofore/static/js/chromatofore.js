@@ -36,7 +36,10 @@ $(function() {
         showModal(actuatorHashCode) {
             console.log("FilamentMoveModalDialog.showModal called");
             this.updateStatus({}); // Show default values prior to receiving any update.  
-            this.actuatorHashCode = actuatorHashCode;
+            if (typeof actuatorHashCode !== 'undefined') {
+                // actuatorHashCode was provided
+                this.actuatorHashCode = actuatorHashCode;
+            }
             const locationElement = $(`#loadButton-${actuatorHashCode}`);
             
             if (locationElement.length) {
@@ -164,6 +167,7 @@ $(function() {
         
         self.onAfterBinding = function() {
             initializeI2cBoardBindings();
+            self.checkTaskRunning();
         }
         
         self.onSettingsBeforeSave = function() {
@@ -212,7 +216,42 @@ $(function() {
             if (data.message_type == "status_update") {
                 self.filamentMoveModal.updateStatus(data);  
             }
-        }     
+        }    
+        
+
+        self.checkTaskRunning = function() {
+            OctoPrint.simpleApiCommand("chromatofore", "check_if_task_is_running")
+            .done(function(response) {
+                if (response.task_is_running) {
+                    console.log("Task is running. Showing progress.");
+                    self.filamentMoveModal.showModal();
+                } else {
+                    console.log("No task running.");
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Failed to check task status. Status:", textStatus, "Error:", errorThrown, "Response:", jqXHR.responseText);
+            });
+        }
+
+        self.activateTab = function() {
+            self.checkTaskRunning();
+        }
+
+        self.onTabChange = function(next, current) {
+            if (next  == "#tab_plugin_chromatofore") {
+                console.log("Tab will be shown now.");   
+            }
+
+        }
+        
+        self.onAfterTabChange = function(current, previous) {
+            if (current  == "#tab_plugin_chromatofore") {
+                console.log("Tab is selected. Activate it!");   
+                self.checkTaskRunning()
+            }
+        }       
+        
     }
 
     // Register the ViewModel
@@ -221,8 +260,6 @@ $(function() {
         dependencies: ["settingsViewModel"],
         elements: ["#settings_plugin_chromatofore", "#tab_plugin_chromatofore"]
     }); 
- 
-
 
 });
 

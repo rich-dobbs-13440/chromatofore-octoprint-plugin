@@ -1,4 +1,5 @@
 from typing import Optional
+from time import sleep
 
 from smbus2 import SMBus
 from .pca9685_servo_driver_board import Pca9685ServoDriverBoard
@@ -84,8 +85,16 @@ class Servo:
         self.role = data.get("role")
         self.is_action_reversed = data.get("is_action_reversed", False)
         self._current_angle = (self.max_angle + self.min_angle) / 2
-        self._at_rest = False
         self.at_rest = True
+        self.sweep_time_step = 0.05
+
+
+    def calc_angle_from_position(self, position: float) -> int:
+        if self.is_action_reversed:
+            angle = self.current_angle = self.max_angle - position * (self.max_angle - self.min_angle)
+        else:
+             angle = self.current_angle = self.min_angle + position * (self.max_angle - self.min_angle)
+        return int(angle)
 
     @property
     def position(self) -> float:
@@ -103,15 +112,7 @@ class Servo:
         """Set the angle based on the given position."""
         if not (0 <= value <= 1):
             raise ValueError("Position must be between 0 and 1.")
-        
-        # Calculate angle based on position
-        if self.is_action_reversed:
-            self.current_angle = self.max_angle - value * (self.max_angle - self.min_angle)
-        else:
-            self.current_angle = self.min_angle + value * (self.max_angle - self.min_angle)
-
-        # The servo is not at rest because its now holding an angle.
-        self._at_rest = False            
+        self.current_angle = self.calc_angle_from_position(value)           
 
     @property
     def current_angle(self) -> float:
@@ -131,6 +132,7 @@ class Servo:
         error_msg = Pca9685ServoDriverBoard.get_board(self.board).set_servo_angle(self.channel, int(self._current_angle))
         if error_msg:
             raise ServoRuntimeError(error_msg)  
+        # The servo is not at rest because its now holding an angle.
         self._at_rest = False   
 
     @property
@@ -145,8 +147,25 @@ class Servo:
             # Servo.rest_servo(self.board, self.channel)
             Pca9685ServoDriverBoard.get_board(self.board).rest_servo(self.channel)
         else:
-            self.current_angle(self._current_angle)
-        self._at_rest = state                 
+            self.current_angle = self._current_angle
+        self._at_rest = state   
+
+    def sweep_to_position(self, target_position, sweep_rate_degrees_per_second):
+        target_angle = self.calc_angle_from_position(target_position)
+        if self._current_angle is None:
+            start_angle = (self.max_angle + self.min_angle) / 2
+        else:
+            start_angle = self._current_angle
+        delta_angle_per_step = sweep_rate_degrees_per_second * self.sweep_time_step
+        steps = min(int(abs(target_angle - start_angle)/delta_angle_per_step), 0)
+        direction = 1 if target_angle > start_angle else -1
+        angle = start_angle
+        for _ in range(steps):
+            angle  += delta_angle_per_step * direction
+            self.current_angle = angle
+            sleep(self.sweep_time_step)
+        self.current_angle = target_angle
+                          
 
     def __str__(self):
         return f"Servo(Role: {self.role}, Board: 0x{self.board:02X}, Channel: {self.channel}, " \
@@ -156,6 +175,7 @@ class Servo:
         return f"Servo(data={{'board': 0x{self.board:02X}, 'channel': {self.channel}, " \
                f"'max_angle': {self.max_angle}, 'min_angle': {self.min_angle}, 'role': {repr(self.role)}}})"
     
+
     def to_data(self):
         return {
             'board': self.board,

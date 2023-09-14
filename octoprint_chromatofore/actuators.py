@@ -28,8 +28,9 @@ OPEN = 0
 CLOSED = 1
 BACK = 1
 FRONT = 0
-CLAMP_DELAY_SECONDS = 0.9
+CLAMP_DELAY_SECONDS = 0.5
 PUSHER_DELAY_SECONDS = 1.5
+PUSHER_SWEEP_DEGREES_PER_SECOND = 30 / 0.3
 
 class ActuatorRuntimeError(RuntimeError):
     """Exception raised for runtime errors in the Servo class."""
@@ -110,7 +111,9 @@ class Actuator:
             'filament_sensor': self.filament_sensor.to_data(),
             'hash_code': self.hash_code
         }
-
+    
+    def task_is_running(self) -> bool:
+        return self._task_thread is not None
 
     def load_filament(self, status_callback: Callable[[Dict], None], speed: Optional[Dict] = None) -> None:
         """
@@ -225,8 +228,10 @@ class Actuator:
         sleep(CLAMP_DELAY_SECONDS)
         
         # Retract the pusher
-        self.pusher.position = start_position
-        sleep(PUSHER_DELAY_SECONDS)
+        self.pusher.at_rest = False
+        self.pusher.sweep_to_position(start_position, PUSHER_SWEEP_DEGREES_PER_SECOND)
+        # self.pusher.position = start_position
+        # sleep(PUSHER_DELAY_SECONDS)
         
         # Lock the filament so that the pusher advance filament
         self.fixed_clamp.position = OPEN
@@ -411,9 +416,17 @@ class Actuators:
     
     def hash_codes_str(self):
         return "\n      ".join(f"'{actuator.hash_code}'" for actuator in self.items)
+    
+    def task_is_running(self):
+        for actuator in self.items:
+            if actuator.task_is_running():
+                return True
+        return False
+
 
     def handle_command(self, command, hash_code, stop_at=None, speed=None, status_callback=None):
-        _logger.info(f"In Actuators.handle_command with command: {command}  hash_code: {hash_code} stop_at: {stop_at}, speed: {speed} status_callback: {status_callback}")
+        _logger.info(f"In Actuators.handle_command with command: {command}  hash_code: {hash_code} stop_at: {stop_at}, speed: {speed} status_callback: {status_callback}")            
+
         # Searching for the actuator
         target_actuator = None
         for actuator in self.items:
