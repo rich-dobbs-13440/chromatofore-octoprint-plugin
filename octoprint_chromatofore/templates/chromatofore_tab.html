@@ -6,6 +6,12 @@
 <h1>Control the Chromatofore Filament Exchanger</h1>
 <div>Version - {{ plugin_chromatofore_version }} </div>
 
+
+
+<a href="#" data-bind="click: goToChromatoforeSettings">Go to Settings</a>
+
+
+
 <h2>Earwig Filament Actuators</h2>
 <div>The actuators can load and unload filament from the 3d printer.  
     This requires the extruder to be disenaged.  
@@ -93,23 +99,6 @@
                     ); 
                 }">Load</button>
             </div>  
-            <!-- 
-            <div class="advance-load">                
-                <button data-bind="
-                    attr: { id: 'loadButton-' + hashCode() }, 
-                    click: function() { 
-                        $parent.loadFilament(
-                                hashCode(), 
-                                {
-                                    speed: {
-                                        qualitive: selectedSpeedToAdvance()
-                                    }
-                                }
-                            ); 
-                    }">Load</button>
-            </div>
-            -->
-            
             <div class="advance-step">
                 <button data-bind="click: function() { 
                     actuator_command(

@@ -250,9 +250,16 @@ $(function() {
                 console.log("Tab is selected. Activate it!");   
                 self.checkTaskRunning()
             }
-        }       
+        } 
+        
+        self.goToChromatoforeSettings = function() {
+            console.log("self.settingsViewModel:", self.settingsViewModel);
+            //self.settingsViewModel.settingsDialog.
+            //self.settingsViewModel.activeTab('plugin_chromatofore');
+        };
         
     }
+    
 
     // Register the ViewModel
     OCTOPRINT_VIEWMODELS.push({ 

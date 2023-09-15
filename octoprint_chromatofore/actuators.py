@@ -28,7 +28,7 @@ OPEN = 0
 CLOSED = 1
 BACK = 1
 FRONT = 0
-CLAMP_DELAY_SECONDS = 0.5
+CLAMP_DELAY_SECONDS = 1
 PUSHER_DELAY_SECONDS = 1.5
 PUSHER_SWEEP_DEGREES_PER_SECOND = 30 / 0.3
 
@@ -229,9 +229,11 @@ class Actuator:
         
         # Retract the pusher
         self.pusher.at_rest = False
+        _logger.info("Start of retraction sweep")
         self.pusher.sweep_to_position(start_position, PUSHER_SWEEP_DEGREES_PER_SECOND)
+        _logger.info("End of retraction sweep")
         # self.pusher.position = start_position
-        # sleep(PUSHER_DELAY_SECONDS)
+        sleep(PUSHER_DELAY_SECONDS)
         
         # Lock the filament so that the pusher advance filament
         self.fixed_clamp.position = OPEN
@@ -240,7 +242,8 @@ class Actuator:
         sleep(CLAMP_DELAY_SECONDS)
 
         # Advance the filament at the desired rate
-        _logger.info(f"Advance the filament one step from {start_position} to {end_position} at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
+        _logger.info(f"Advance the filament one step from {start_position} to {end_position} "
+                     f"at the desired rate: {rate_in_mm_per_sec} mm/sec, from speed: {speed}")
         servo_move_count = 0
         for position in self.next_position(rate_in_mm_per_sec, start_position, end_position):
             _logger.debug(f"position: {position}")
