@@ -76,17 +76,27 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Development History
 
-The Chromatofore plugin is currently at **Current Version: 0.6.108**. 
+The Chromatofore plugin is currently at **Current Version: 0.6.116**. 
 
-## Current Sprint
+### Current Sprint - Start: 9/12/2023 End: 9/17/2023 
+
+Intent: Work on GUI and logic for loading and unloading filament.
+
+The GUI shows buttons for loading, unloading, and stepping foreback or backward.
+
+When loading and unloading filament, the user needs to be able to see progress
+as well as cancel the task.  
+
+If opening up multiple browsers, the progress dialog must be shown.  
+
+The progress dialog should be modal within the tab. 
+
+Get rid of explicit delays for servo movements, but sweep at a specified rate
+from the current location to target location.  
 
 ### Past Sprints
 
-#### Intent: Do Version 0.6 as described in the Development Roadmap.
-
-Start: 9/4/2023
-
-End:  9/11/2023
+#### Intent: Complete Version 0.6 - Start: 9/4/2023 End:  9/11/2023
 
 Currently, identification of boards is a manual process, but much of it can be automated 
 by scanning the I2C bus, and directly display whether the board is detected, rather than
@@ -100,7 +110,7 @@ as needed to load filament into and out of the filament exchanger and the printe
 
 These need to be connected by expanding the SimpleApiCommands that are implemented.
 
-Next, start on implementing the logic for moving filament for loading and unloader.
+Next, start on implementing the logic for moving filament for loading and unloading.
 
 Version 0.6.0 release was achieved, and Version 0.7 features were started.
 
@@ -147,7 +157,8 @@ approaches as used with the filament sensor.
 -->
 
 *This section documents changes for Chromatofore versions.*
-
+- **Version 0.6.107(9/14/2023)**:
+     Added: Progress dialog, allowing canceling of loading task.
 - **Version 0.6.59 (9/10/2023)**:
      Added: Can trigger loading filament, with the actuator moving the filament until the filament sensor is triggered.
 - **Version 0.6.0 (9/10/2023)**:
