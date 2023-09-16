@@ -8,8 +8,9 @@ $(function() {
         constructor() {
             // Observables
             this.progressPercentage = ko.observable(0);
+            this.title =  ko.observable("--title-placeholder--");
             this.step = ko.observable(0);
-            this.nsteps = ko.observable(1);
+            this.nsteps = ko.observable("???");
             this.pusher_position = ko.observable(0);
             this.rate_in_mm_per_sec = ko.observable(0);
             this.servo_move_count = ko.observable(0);
@@ -25,13 +26,6 @@ $(function() {
             // Other initialization
             this.actuatorHashCode = undefined;
         }
-
-        // showModal(actuatorHashCode) {
-        //     console.log("FilamentMoveModalDialog.showModal called");
-        //     this.progressPercentage(0);
-        //     this.actuatorHashCode = actuatorHashCode;
-        //     $('#filamentMoveModal').modal('show');
-        // }
 
         showModal(actuatorHashCode) {
             console.log("FilamentMoveModalDialog.showModal called");
@@ -49,18 +43,28 @@ $(function() {
                     'left': offset.left
                 });
             }
+
+
+            // Bind event listener for backdrop clicks
+            this.backdropClickListener = function(e) {
+                if (e.target !== e.currentTarget) return;
+                // This is a click on the backdrop. You can decide whether to close the modal or not.
+                // For example, you might want to call this.hideModal() if you want a click outside the modal to close it.
+            };
+
+            document.querySelector('#filamentMoveModal').addEventListener('click', this.backdropClickListener);
                         
-            $('#filamentMoveModal').modal({
-                backdrop: 'static',
-                keyboard: false
-            }).modal('show');               
+            $('#filamentMoveModal').show();              
         }
         
         
 
         hideModal() {
             console.log("FilamentMoveModalDialog.hideModal called");
-            $('#filamentMoveModal').modal('hide');
+            // Unbind event listener for backdrop clicks
+            document.querySelector('#filamentMoveModal').removeEventListener('click', this.backdropClickListener);
+            this.backdropClickListener = null;            
+            $('#filamentMoveModal').hide();
         }
 
         cancelTask() {
@@ -74,6 +78,8 @@ $(function() {
             console.log("FilamentMoveModalDialog.updateStatus called with", data);
     
             const {
+                thread_task = "Unknown",
+                nickname = "Unknown",
                 step = -1,
                 nsteps = 1,
                 filament_sensed = false,
@@ -87,6 +93,7 @@ $(function() {
             console.log("percentageProgress: ", percentageProgress);
             
             this.progressPercentage(percentageProgress);
+            this.title(`${thread_task} for Actuator: ${nickname}`); 
             this.step(step+1);  // Convert from zero based index to one based for display to user.
             this.nsteps(nsteps);
             this.pusher_position(pusher_position);

@@ -287,6 +287,7 @@ div.retract-nsteps,
 
 /* Styling for the filament load-unload dialog */
 
+/* Styling used by Bootstrap modal()
 #tab_plugin_chromatofore .modal-backdrop {
     position: absolute;
     top: 0;
@@ -299,6 +300,8 @@ div.retract-nsteps,
 #tab_plugin_chromatofore .modal-backdrop.in {
     opacity: 0.5;
 }
+
+*/
 
 
 .filament-move-status-report span.fnsr-label {
@@ -331,6 +334,36 @@ div.retract-nsteps,
 .pusher-limit-switch  .led-unlit {
     background-color: gray;
 }
+
+
+#tab_plugin_chromatofore {
+    position: relative;  /* Ensure this is relative for modal absolute positioning */
+}
+
+.modal-container {
+    display: none; /*flex;*/ /* none Initially hidden */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.1); /* Semi-transparent backdrop */
+    z-index: 1000; /* Make sure it's above other content in the tab */
+}
+
+.modal-content {
+    max-height: 80vh; /* 80% of the viewport height */
+    overflow-y: auto; /* add a scrollbar if content overflows */
+
+    position: absolute;
+    /* top: 10%;
+    left: 10%; */
+    /* right: 10%;
+    bottom: 10%; */
+    background: #fff;
+    /* Add additional styling as needed */
+}
+
 
 
 

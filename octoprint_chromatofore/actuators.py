@@ -57,6 +57,7 @@ class Actuator:
         self.step_length_in_mm = data.get("step_length_in_mm", 18.0)
         self.time_step_seconds = data.get("time_step_seconds", 0.02)
 
+        self.thread_task = None
         self._task_thread = None
         self._stop_event = threading.Event()    
         self.step_index = None
@@ -120,6 +121,7 @@ class Actuator:
         Method for loading filament into the actuator.
         """
         _logger.info(f"Loading filament for actuator with hash {self.hash_code}")
+        self.thread_task = "Load Filament"
 
         if self._task_thread is not None:
             _logger.error(f"Can't load filament.  Task already running.")
@@ -147,6 +149,8 @@ class Actuator:
             if status_callback is not None:
                 _logger.info(f"Making status_callback with completed status")
                 status_callback({
+                    "thread_task": self.thread_task,
+                    "nickname": self.id, 
                     "completed": "true",
                     "step": self.step_index,
                     "nsteps": self.nsteps,
@@ -155,6 +159,8 @@ class Actuator:
                     "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered()  
             })                
             self._task_thread = None
+            self.thread_task = None
+
 
 
         self._task_thread = threading.Thread(target=task_runner)
@@ -183,14 +189,33 @@ class Actuator:
         _logger.info(f"Advancing filament for actuator with hash {self.hash_code}, stopping at {stop_at} with speed {speed}")
         self.task_advance_filament(stop_at=stop_at, speed=speed, status_callback=status_callback)
 
+
+    def share_status(self, status_callback, speed, servo_move_count=None):
+        if status_callback is not None:
+            rate_in_mm_per_sec = self.rate_from_speed(speed) 
+            status = {
+                "thread_task": self.thread_task,
+                "nickname": self.id,
+                "step": self.step_index,
+                "nsteps": self.nsteps,
+                "filament_sensed": self.filament_sensor.is_filament_sensed(),
+                "pusher_position": self.pusher.position,
+                "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered(),
+                "rate_in_mm_per_sec": rate_in_mm_per_sec,
+                "servo_move_count": servo_move_count,
+            }
+            _logger.info(f"Task status_callback status: {status}")
+            status_callback(status)  
+            _logger.info(f"In share_status, callback returned.")  
+
     def task_advance_filament(
             self, 
             status_callback: Callable[[Dict], None], 
             stop_at: Optional[Dict] = None, 
             speed: Optional[Dict] = None) -> None:
+        
         # Default to one step if "step" is not provided in stop_at
         nsteps = 1
-        
         if stop_at and "step" in stop_at:
             try:
                 nsteps = int(stop_at["step"])
@@ -199,7 +224,11 @@ class Actuator:
                 return
             
         self.nsteps = nsteps
-        
+        self.step_index = 0
+        # At start of task, want to inform progress dialog of number of steps and condition of sensors
+        self.share_status(status_callback, speed)
+        _logger.info(f"In task_advance_filament, initial status shared.")
+
         do_stop_at_filament_sensor = stop_at is not None and stop_at.get("filament_sensed", False) 
         for self.step_index in range(self.nsteps):
             self.task_advance_filament_one_step(stop_at=stop_at, speed=speed, status_callback=status_callback) 
@@ -234,6 +263,12 @@ class Actuator:
         _logger.info("End of retraction sweep")
         # self.pusher.position = start_position
         sleep(PUSHER_DELAY_SECONDS)
+        if self._stop_event.is_set():
+            _logger.info(f"In task_advance_filament_one_step, task canceled by stop event.")
+            self.fixed_clamp.position = OPEN
+            self.moving_clamp.position = OPEN  
+            self.pusher.at_rest = True        
+            return;             
         
         # Lock the filament so that the pusher advance filament
         self.fixed_clamp.position = OPEN
@@ -262,20 +297,10 @@ class Actuator:
         self.moving_clamp.position = OPEN  
         sleep(CLAMP_DELAY_SECONDS)
 
+        # Need to share status before resting servos:
+        self.share_status(status_callback, speed, servo_move_count=servo_move_count)
+
         # Rest all of the servos, so that they don't chatter and strain. 
-
-        _logger.info(f"status_callback: {status_callback}")
-        if status_callback is not None:
-            status_callback({
-                "step": self.step_index,
-                "nsteps": self.nsteps,
-                "filament_sensed": self.filament_sensor.is_filament_sensed(),
-                "pusher_position": self.pusher.position,
-                "pusher_limit_switch_is_triggered":  self.pusher_limit_switch.is_triggered(),
-                "rate_in_mm_per_sec": rate_in_mm_per_sec,
-                "servo_move_count": servo_move_count,
-            })
-
         self.pusher.at_rest = True
         self.moving_clamp.at_rest = True
         self.fixed_clamp.at_rest = True            
