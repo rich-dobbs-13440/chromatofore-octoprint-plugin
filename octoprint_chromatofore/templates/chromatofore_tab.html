@@ -8,7 +8,15 @@
 
 
 
-<a href="#" data-bind="click: goToChromatoforeSettings">Go to Settings</a>
+<a href="#settings_dialog" data-bind="click: function() { $root.settingsViewModel.show(); }">Go to Settings</a>
+
+<a href="#settings_dialog" data-bind="click: function() { 
+    settingsViewModel.show(); 
+    setTimeout(function() {
+        $('#settings_plugin_chromatofore_link a').tab('show'); 
+    }, 100); 
+}">Go to Chromatofore Settings</a>
+
 
 
 
@@ -23,7 +31,7 @@
     <div data-bind="foreach: actuators">
         <h3 class="small"><span data-bind="text: id"></span></h3>
 
-        <div class="actuator-actions-grid">
+        <div class="actuator-actions-grid" data-bind="attr: { id: 'actuator-' + hashCode() }">
             <div class="actuator-actions-sep1"></div> 
             <div class="actuator-actions-sep2"></div> 
             <!-- Header row-->
@@ -86,8 +94,7 @@
             
             <!-- Advance row-->
             <div class="advance-header">Advance</div>
-            <div class="advance-load">
-                               
+            <div class="advance-load">                
                 <button data-bind="click: function() { 
                     $parent.loadFilament(
                         hashCode(), 

@@ -287,23 +287,6 @@ div.retract-nsteps,
 
 /* Styling for the filament load-unload dialog */
 
-/* Styling used by Bootstrap modal()
-#tab_plugin_chromatofore .modal-backdrop {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: #000;
-}
-
-#tab_plugin_chromatofore .modal-backdrop.in {
-    opacity: 0.5;
-}
-
-*/
-
-
 .filament-move-status-report span.fnsr-label {
     display: inline-block;
     width: 14em;
@@ -341,28 +324,58 @@ div.retract-nsteps,
 }
 
 .modal-container {
-    display: none; /*flex;*/ /* none Initially hidden */
+    display: none; 
+    position: absolute; /* or fixed if you want it viewport-wide */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.2); /* Semi-transparent backdrop */
+    z-index: 1000; /* Make sure it's above other content */
+}
+
+
+
+.modal-content {
+
+    position: absolute;
+    background: #fff;    
+
+    background-color: #ffffff;
+    border: 1px solid #999999;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    background-clip: padding-box;
+    outline: none;    
+    max-height: 80vh; /* 80% of the viewport height */
+    overflow-y: auto; /* add a scrollbar if content overflows */
+
+
+}
+
+
+/* Styling used by Bootstrap modal()
+#tab_plugin_chromatofore .modal-backdrop {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0,0,0,0.1); /* Semi-transparent backdrop */
-    z-index: 1000; /* Make sure it's above other content in the tab */
+    background-color: #000;
 }
 
-.modal-content {
-    max-height: 80vh; /* 80% of the viewport height */
-    overflow-y: auto; /* add a scrollbar if content overflows */
-
-    position: absolute;
-    /* top: 10%;
-    left: 10%; */
-    /* right: 10%;
-    bottom: 10%; */
-    background: #fff;
-    /* Add additional styling as needed */
+#tab_plugin_chromatofore .modal-backdrop.in {
+    opacity: 0.5;
 }
+
+*/
 
 
 

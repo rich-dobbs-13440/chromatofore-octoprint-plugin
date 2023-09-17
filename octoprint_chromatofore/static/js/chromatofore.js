@@ -25,36 +25,37 @@ $(function() {
             
             // Other initialization
             this.actuatorHashCode = undefined;
+            this.updateStatus({}); // Show default values prior to receiving any update.  
         }
 
         showModal(actuatorHashCode) {
             console.log("FilamentMoveModalDialog.showModal called");
-            this.updateStatus({}); // Show default values prior to receiving any update.  
             if (typeof actuatorHashCode !== 'undefined') {
                 // actuatorHashCode was provided
                 this.actuatorHashCode = actuatorHashCode;
             }
-            const locationElement = $(`#loadButton-${actuatorHashCode}`);
-            
-            if (locationElement.length) {
-                let offset = locationElement.offset();
-                $('#filamentMoveModal').css({
-                    'top': offset.top,
-                    'left': offset.left
-                });
-            }
-
 
             // Bind event listener for backdrop clicks
             this.backdropClickListener = function(e) {
                 if (e.target !== e.currentTarget) return;
-                // This is a click on the backdrop. You can decide whether to close the modal or not.
-                // For example, you might want to call this.hideModal() if you want a click outside the modal to close it.
             };
 
             document.querySelector('#filamentMoveModal').addEventListener('click', this.backdropClickListener);
                         
-            $('#filamentMoveModal').show();              
+            $('#filamentMoveModal').show();  
+
+            const modalContentElement = $('#filamentMoveModal .modal-content');
+            const id = `#actuator-${actuatorHashCode}`;
+            const locationElement = $(id);
+            if (locationElement.length) {             
+                let position = locationElement.position();
+                console.log("`${id}` found: position:", "top:", position.top, "left:", position.left);
+                
+                modalContentElement.css({
+                    'top': position.top,
+                    'left': position.left + 20
+                });
+            }         
         }
         
         
