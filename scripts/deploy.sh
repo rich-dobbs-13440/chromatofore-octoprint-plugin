@@ -38,6 +38,8 @@ new_version="$major.$minor.$new_patch"
 # Update version.txt with new version
 echo "$new_version" > $version_file
 
+cp "$base_dir/raw_README.md" "$base_dir/README.md"
+sed -i "s/{{CURRENT_VERSION}}/$new_version/g" "$base_dir/README.md"
 
 # Sync the plugin files to the remote Raspberry Pi
 rsync --exclude '.git/' --exclude '.github/' --exclude 'venv/' --exclude 'scripts/' -avz $base_dir/ $ssh_user:$remote_dir/

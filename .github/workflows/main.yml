@@ -1,32 +1,14 @@
-name: Overall CI/CD for the repository
+name: Placeholder CI/CD for the repository
 
 on:
   push:
     paths:
-    - 'version.txt'
+    - 'version.txt' # You can keep or remove this, depending on whether you expect to use it in the future
 
 jobs:
-  update-readme:
+  placeholder-job:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}      
-
-    - name: Update README.md
-      run: |
-        cp raw_README.md README.md
-        VERSION=$(cat version.txt)
-        sed -i "s/{{CURRENT_VERSION}}/$VERSION/g" README.md
-        # Displaying the content of README.md for verification
-        cat README.md
-
-    - name: Commit and push if it changed
-      run: |
-        git diff
-        git config --global user.email "action@github.com"
-        git config --global user.name "GitHub Action"
-        git commit -am "Update README with new version" || exit 0
-        git push
+    - name: Echo Placeholder
+      run: echo "This is a placeholder job for future CI/CD tasks"
 
