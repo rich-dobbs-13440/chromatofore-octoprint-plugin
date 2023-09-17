@@ -76,7 +76,7 @@ On the settings page, users can specify the assembled configuration of the filam
 
 ## Development History
 
-The Chromatofore plugin is currently at **Current Version: 0.6.134**. 
+The Chromatofore plugin is currently at **Current Version: 0.6.151**. 
 
 ### Current Sprint - Start: 9/12/2023 End: 9/17/2023 
 
