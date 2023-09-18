@@ -69,6 +69,11 @@ function Actuator(data, refreshRateInSeconds) {
     self.pusher_limit_switch = new LimitSwitch("Pusher Limit Switch", data.pusher_limit_switch, self.refreshRate);
     self.filament_sensor = new LimitSwitch("Filament Sensor", data.filament_sensor, self.refreshRate);
 
+    // Filament properties
+    self.filamentName = ko.observable("");  // initializes with an empty string, which should show the placeholder
+    self.filamentColor = ko.observable("#FF8080");  
+    
+
     // Observable to track visibility of details
     self._detailsVisible = ko.observable(true);  // Use an "underscore" prefix to denote private observables
 

@@ -12,6 +12,7 @@ from .filament_sensors import FilamentSensors
 from .pca9685_servo_driver_board import Pca9685ServoDriverBoard
 from .pcf8574_gpio_extender_board import Pcf8574GpioExtenderBoard
 from .servo import Servo, ServoRuntimeError, default_servo_driver_boards
+from .filaments import Filaments, Filament
 
 
 def jsonify_no_cache(status, **kwargs):
@@ -35,6 +36,7 @@ class ChromatoforePlugin(
 
     def __init__(self):
         self.filament_sensors = FilamentSensors(i2c_address=0x21)
+        self.filaments = Filaments()
         
     # StartupPlugin mixin         
 
@@ -92,7 +94,9 @@ class ChromatoforePlugin(
             "advance_filament":["actuator"], 
             "retract_filament":["actuator"], 
             "cancel_filament_move":["actuator"],
-            "check_if_task_is_running": [],            
+            "check_if_task_is_running": [], 
+            "fetch_filaments": []
+           
         }
     
     # Well also define the optional parameters for each command
@@ -133,15 +137,7 @@ class ChromatoforePlugin(
         """Return a list of commands that are allowed as GET requests."""
         return ["check_if_on_bus", "read_filament_sensor", "read_limit_switch"]  
 
-    def status_callback(self, status_dict):
-        """
-        Callback method to handle task status updates
-        """
-        self._logger.info("In status_callback")
-        # Use the OctoPrint event system here to push status updates to front end
-        status_dict["message_type"] = "status_update"
-        self._logger.info(f"In status_callback status_dict: {status_dict}")
-        self._plugin_manager.send_plugin_message(self._identifier, status_dict)  
+
     
     def handle_commands(self, command, extracted_data):
         # Now handle the specific command actions
@@ -199,6 +195,10 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=True, actuator=extracted_data.get("actuator"))
             else:
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, actuator=extracted_data.get("actuator"))
+            
+        elif command == "fetch_filaments":
+            return jsonify_no_cache(HTTPStatus.OK, filaments=self.filaments.to_dict())
+
 
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
@@ -269,7 +269,15 @@ class ChromatoforePlugin(
 
         return self.on_api_command(command, data)
 
-    
+    def status_callback(self, status_dict):
+        """
+        Callback method to handle task status updates
+        """
+        self._logger.info("In status_callback")
+        # Use the OctoPrint event system here to push status updates to front end
+        status_dict["message_type"] = "status_update"
+        self._logger.info(f"In status_callback status_dict: {status_dict}")
+        self._plugin_manager.send_plugin_message(self._identifier, status_dict)  
 
     ##~~ SettingsPlugin mixin
 

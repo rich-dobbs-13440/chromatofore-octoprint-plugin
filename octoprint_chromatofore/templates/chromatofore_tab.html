@@ -26,7 +26,14 @@
     <div data-bind="foreach: actuators">
         <h3 class="small"><span data-bind="text: id"></span></h3>
 
+        <!-- Filament Information -->
+        <div class="filament-info">
+            Filament Name: <input type="text" data-bind="value: filamentName" placeholder="Enter filament name">
+            Color:  <input type="color" class="color-input" data-bind="value: filamentColor" value="">
+        </div>
+
         <div class="actuator-actions-grid" data-bind="attr: { id: 'actuator-' + hashCode() }">
+            
             <div class="actuator-actions-sep1"></div> 
             <div class="actuator-actions-sep2"></div> 
             <!-- Header row-->

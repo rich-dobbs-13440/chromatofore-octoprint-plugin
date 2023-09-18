@@ -356,26 +356,26 @@ div.retract-nsteps,
     outline: none;    
     max-height: 80vh; /* 80% of the viewport height */
     overflow-y: auto; /* add a scrollbar if content overflows */
-
-
 }
 
+/* Styling for specifying the filament and its characteristics, */
 
-/* Styling used by Bootstrap modal()
-#tab_plugin_chromatofore .modal-backdrop {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: #000;
+input[type="color"].color-input {
+    width: 30px;      /* Adjust based on your design requirements */
+    height: 30px;
+    padding: 0px;
+    border: 1px solid #ccc;  /* Optional, to give a slight border */
 }
 
-#tab_plugin_chromatofore .modal-backdrop.in {
-    opacity: 0.5;
+/* For Webkit browsers like Chrome and Safari */
+input[type=color]::-webkit-color-swatch-wrapper {
+    padding: 5px;
 }
 
-*/
+input[type=color]::-webkit-color-swatch {
+    border: none;
+}
+
 
 
 
