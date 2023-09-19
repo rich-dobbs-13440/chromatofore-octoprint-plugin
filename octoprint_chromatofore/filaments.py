@@ -40,6 +40,7 @@ class Filaments:
     def __init__(self):
         self.filaments = {}
         initial_catalog_dict = json.loads(self.initial_catalog_json)
+        self.load_from_dict(initial_catalog_dict)
 
     def add_filament(self, filament):
         self.filaments[filament.databaseId] = filament
@@ -53,19 +54,7 @@ class Filaments:
             self.add_filament(filament)
 
     def to_dict(self):
-        return {
-            "databaseId": self.databaseId,
-            "displayName": self.displayName,
-            "vendor": self.vendor,
-            "material": self.material,
-            "colorName": self.colorName,
-            "color": self.color
-        }
-
-    
-
-    
-
+        return {db_id: filament.to_dict() for db_id, filament in self.filaments.items()}
 
 
 

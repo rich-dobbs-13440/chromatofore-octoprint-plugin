@@ -197,9 +197,9 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, actuator=extracted_data.get("actuator"))
             
         elif command == "fetch_filaments":
-            return jsonify_no_cache(HTTPStatus.OK, filaments=self.filaments.to_dict())
-
-
+            filaments_as_dict = self.filaments.to_dict()
+            self._logger.info(f"filaments_as_dict: {filaments_as_dict}")
+            return jsonify_no_cache(HTTPStatus.OK, success=True, filaments=filaments_as_dict)
         else:
             return jsonify_no_cache(HTTPStatus.BAD_REQUEST, success=False, reason="unknown command", command=command)
 
@@ -318,6 +318,7 @@ class ChromatoforePlugin(
                 "js/bitsCheckboxesCustomBinding.js",
                 "js/limitSwitch.js", 
                 "js/servo.js", 
+                "js/filaments.js",
                 "js/actuator.js", 
                 "js/i2cBoard.js",
                 "js/chromatofore.js"

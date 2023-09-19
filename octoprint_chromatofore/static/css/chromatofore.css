@@ -377,6 +377,21 @@ input[type=color]::-webkit-color-swatch {
 }
 
 
+.colored-filament {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border: 1px solid #aaa;
+}
+
+.colored-filament-text {
+    margin-left: 5px; /* to add some space between the color box and the text */
+}
+select.select-filament-dropdown {
+    width: 500px;
+}
+
 
 
 

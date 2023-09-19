@@ -21,16 +21,139 @@
     Unloading filament requires the hot end to be at temperature.
 </div>
 
+<h2>Earwig Filament Actuators</h2>
+<div>The actuators can load and unload filament from the 3d printer.  
+    This requires the extruder to be disenaged.  
+    Unloading filament requires the hot end to be at temperature.
+</div>
+
+<!-- Load the newer version of jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+
+<script>
+    var jQueryNew = jQuery.noConflict(true);
+
+    function initializeFilamentDropdown(selector, data) {
+        // Use the passed-in selector instead of the hardcoded one
+
+        jQueryNew(selector).select2({
+            data: data,
+            templateSelection: function(item) {
+                if (!item.id) return item.text;
+                var $span = jQueryNew('<span></span>');
+                if (item.color) {
+                    $span.append(jQueryNew('<span class="colored-filament"></span>').css('background-color', item.color));
+                }
+                $span.append(jQueryNew('<span class="colored-filament-text"></span>').text(item.text));
+                return $span;
+            },
+            templateResult: function (data) {
+                if (!data.color) {
+                    return data.text;
+                }
+                var $span = jQueryNew('<span></span>');
+                $span.append(jQueryNew('<span class="colored-filament"></span>').css('background-color', data.color));
+                $span.append(jQueryNew('<span class="colored-filament-text"></span>').text(data.text));
+                return $span;
+            }
+        });
+    }
+
+
+    (function($) {
+        $(document).ready(function() {
+            var data = [
+                {id: 1, text: "Sunlu PLA Black", color: "#000000"},
+                {id: 2, text: "Sunlu PLA Shiny Gold", color: "#D4AF37"},
+                {id: 3, text: "Sunlu PLA Shiny Copper", color: "#B87333"},
+                {id: 4, text: "Cut-Rate PLA Red", color: "#FF0000"},
+                {id: 5, text: "Sunlu PLA White", color: "#FFFFFF"}
+            ];
+
+            $("#select-filament").select2({
+                data: data,
+                templateSelection: function(item) {
+                    if (!item.id) return item.text;
+                    var $span = $('<span></span>');
+                    if (item.color) {
+                        $span.append($('<span class="colored-filament"></span>').css('background-color', item.color));
+                    }
+                    $span.append($('<span class="colored-filament-text"></span>').text(item.text));
+                    return $span;
+                },
+                templateResult: function (data) {
+                    if (!data.color) {
+                        return data.text;
+                    }
+                    var $span = $('<span></span>');
+                    $span.append($('<span class="colored-filament"></span>').css('background-color', data.color));
+                    $span.append($('<span class="colored-filament-text"></span>').text(data.text));
+                    return $span;
+                }
+            });
+        });
+
+    })(jQueryNew);
+</script>
+
+<!-- Add the CSS for Select2 directly into the snippet for easier embedding -->
+<style>
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css');
+</style>
+
+<!-- Add the HTML markup for the Select2 dropdown -->
+<select id="select-filament" style="width: 300px;"></select>
+
+
+<select id="select-filament-2" style="width: 300px;"></select>
+
+<select class="select-filament-class" style="width: 300px;"></select>
+<select class="select-filament-class" style="width: 500px;"></select>
+
+
 <div class="actuator-actions-table">
 
     <div data-bind="foreach: actuators">
+
+        <!-- Color Sample Heading -->
+        <!-- <h3 class="color-sample-heading" 
+            data-bind="style: { backgroundColor: selectedFilament().color }, text: selectedFilament().displayName">
+        </h3> -->
+    
+        <!-- Filament Selection Dropdown -->
+        <h3>
+                      
+
+            <div class="filament-info">
+                <select 
+                    class="select-filament-dropdown" 
+                    data-bind="value: selectedFilament">
+                </select>
+            </div>
+            <div class="filament-info">  
+                <select data-bind="value: selectedFilament">
+                    <option value="empty">Empty</option>
+                    <option value="new">New...</option>
+                    <!-- ko foreach: $parent.filaments.sortedByDisplayName() -->
+                    <option data-bind="value: databaseId, text: displayName">
+                        <!-- <span style="display: inline-block; width: 20px; height: 20px;" data-bind="style: { backgroundColor: color }"></span>
+                        <span data-bind="text: displayName"></span> -->
+                    </option>
+                    <!-- /ko -->
+                </select>            
+            </div>
+        </h3>
+
+
+
         <h3 class="small"><span data-bind="text: id"></span></h3>
 
         <!-- Filament Information -->
-        <div class="filament-info">
+        <!-- <div class="filament-info">
             Filament Name: <input type="text" data-bind="value: filamentName" placeholder="Enter filament name">
             Color:  <input type="color" class="color-input" data-bind="value: filamentColor" value="">
-        </div>
+        </div> -->
 
         <div class="actuator-actions-grid" data-bind="attr: { id: 'actuator-' + hashCode() }">
             

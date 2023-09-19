@@ -72,6 +72,16 @@ function Actuator(data, refreshRateInSeconds) {
     // Filament properties
     self.filamentName = ko.observable("");  // initializes with an empty string, which should show the placeholder
     self.filamentColor = ko.observable("#FF8080");  
+
+    this.selectedFilamentId = ko.observable(1);  // Initialized to a default or previously stored value.
+
+    this.selectedFilament = ko.computed(function() {
+        const filaments = new Filaments();
+        // const filament = filaments.getFilamentById(this.selectedFilamentId());
+        // console.log(`For Actuator.selectedFilament  ${this.selectedFilamentId()} filament: {$filament}`)
+        // return filament
+        return {color: '#000000', colorName: 'Black', databaseId: 1, displayName: 'Sunlu PLA Black', material: 'PLA', vendor: "Sunlu"};
+    }, this);
     
 
     // Observable to track visibility of details

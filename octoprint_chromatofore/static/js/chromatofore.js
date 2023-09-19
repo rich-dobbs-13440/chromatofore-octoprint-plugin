@@ -130,6 +130,10 @@ $(function() {
 
         self.isfilamentMoveRunning = ko.observable(false);
         self.filamentMoveModal = new FilamentMoveModalDialog();
+        self.filaments = new Filaments();
+        self.filaments.fetch();
+        
+
 
         
         self.removeActuator = function(actuator) {
@@ -153,6 +157,9 @@ $(function() {
             console.log("Inside onBeforeBinding");
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
 
+            console.log("self.filaments.sortedByDisplayName()", self.filaments.sortedByDisplayName());
+
+
             // For Actuators
             var actuatorData = ko.toJS(self.pluginSettings.actuators);
             self.actuators = ko.observableArray(actuatorData.map(function(data) {
@@ -170,12 +177,30 @@ $(function() {
             var servoBoardData = ko.toJS(self.pluginSettings.servo_driver_boards);
             self.servoBoards = new I2cBoards(servoBoardData, 0x40, 64, self.selectedScanRefreshRateInSeconds);
             console.log("self.servoBoards.toData()", self.servoBoards.toData());
-            console.log("Servo Boards: items", ko.toJS(self.servoBoards.boards));         
+            console.log("Servo Boards: items", ko.toJS(self.servoBoards.boards));     
+            
+            
         }; 
         
         self.onAfterBinding = function() {
             initializeI2cBoardBindings();
             self.checkTaskRunning();
+
+            var data = [
+                {id: "--empty--", text: "Empty", color: "#444444"},
+                {id: 1, text: "Sunlu PLA Black", color: "#000000"},
+                {id: 2, text: "Sunlu PLA Shiny Gold", color: "#D4AF37"},
+                {id: 3, text: "Sunlu PLA Shiny Copper", color: "#B87333"},
+                {id: 4, text: "Cut-Rate PLA Red", color: "#FF0000"},
+                {id: 5, text: "Sunlu PLA White", color: "#FFFFFF"}
+            ];
+
+            initializeFilamentDropdown("#select-filament-2", data);
+            initializeFilamentDropdown(".select-filament-class", data);
+            initializeFilamentDropdown(".select-filament-dropdown", data);
+            
+
+
         }
         
         self.onSettingsBeforeSave = function() {
