@@ -102,58 +102,21 @@
     @import url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css');
 </style>
 
-<!-- Add the HTML markup for the Select2 dropdown -->
-<select id="select-filament" style="width: 300px;"></select>
-
-
-<select id="select-filament-2" style="width: 300px;"></select>
-
-<select class="select-filament-class" style="width: 300px;"></select>
-<select class="select-filament-class" style="width: 500px;"></select>
-
 
 <div class="actuator-actions-table">
 
     <div data-bind="foreach: actuators">
-
-        <!-- Color Sample Heading -->
-        <!-- <h3 class="color-sample-heading" 
-            data-bind="style: { backgroundColor: selectedFilament().color }, text: selectedFilament().displayName">
-        </h3> -->
     
         <!-- Filament Selection Dropdown -->
         <h3>
-                      
-
             <div class="filament-info">
                 <select 
                     class="select-filament-dropdown" 
                     data-bind="value: selectedFilament">
                 </select>
             </div>
-            <div class="filament-info">  
-                <select data-bind="value: selectedFilament">
-                    <option value="empty">Empty</option>
-                    <option value="new">New...</option>
-                    <!-- ko foreach: $parent.filaments.sortedByDisplayName() -->
-                    <option data-bind="value: databaseId, text: displayName">
-                        <!-- <span style="display: inline-block; width: 20px; height: 20px;" data-bind="style: { backgroundColor: color }"></span>
-                        <span data-bind="text: displayName"></span> -->
-                    </option>
-                    <!-- /ko -->
-                </select>            
-            </div>
         </h3>
 
-
-
-        <h3 class="small"><span data-bind="text: id"></span></h3>
-
-        <!-- Filament Information -->
-        <!-- <div class="filament-info">
-            Filament Name: <input type="text" data-bind="value: filamentName" placeholder="Enter filament name">
-            Color:  <input type="color" class="color-input" data-bind="value: filamentColor" value="">
-        </div> -->
 
         <div class="actuator-actions-grid" data-bind="attr: { id: 'actuator-' + hashCode() }">
             

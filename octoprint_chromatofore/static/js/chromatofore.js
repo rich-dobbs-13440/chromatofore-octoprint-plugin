@@ -121,8 +121,16 @@ $(function() {
             { text: "Every 5 Seconds", value: 5 },
             { text: "Every 10 Seconds", value: 10 },
         ];
+        self.scanRefreshRates = [
+            { text: "Never", value: 100000 },
+            { text: "Every 30 Seconds", value: 30 },
+            { text: "Every Minute", value: 60 },
+            { text: "Every 5 Minutes", value: 5*60 },
+            { text: "Every 10 Minutes", value: 10*60 },
+        ];
+
         self.selectedRefreshRateInSeconds = ko.observable(1); // Default to "each second".               
-        self.selectedScanRefreshRateInSeconds = ko.observable(30); // Default to "every 30 seconds.    
+        self.selectedScanRefreshRateInSeconds = ko.observable(30); // Default to Never  
         
         console.log(parameters);
 
@@ -134,6 +142,23 @@ $(function() {
         self.filaments.fetch();
         
 
+        self.scanForInUseI2cAddresses = function() {
+            console.log("Got to scanForInUseI2cAddresses");
+            var inUseAddresses = new Set();
+            ko.utils.arrayForEach(self.actuators(), function(actuator) {
+                var addressesForActuator = actuator.getInUseI2cAddresses();
+                addressesForActuator.forEach(function(address) {
+                    inUseAddresses.add(address);
+                });
+            });  
+            
+            // Now inUseAddresses contains all unique addresses from all actuators
+            console.log("Combined Addresses: ", Array.from(inUseAddresses));
+            //self.servoBoards.inUseAddresses = inUseAddresses;
+            self.gpioBoards.UpdateInUseAddresses(inUseAddresses);
+            self.servoBoards.UpdateInUseAddresses(inUseAddresses);
+            
+        }        
 
         
         self.removeActuator = function(actuator) {
@@ -143,7 +168,7 @@ $(function() {
 
         self.addActuator = function() {
             let lastActuator = self.actuators()[self.actuators().length - 1];
-            let data = lastActuator ? lastActuator.getDataToBuildNextAcuator() : Actuator.defaultData;
+            let data = lastActuator ? lastActuator.getDataToBuildNextActuator() : Actuator.defaultData;
             var actuator = new Actuator(data, self.selectedRefreshRateInSeconds);
             actuator.detailsVisible(true);
             self.actuators.push(actuator);
@@ -180,7 +205,9 @@ $(function() {
             console.log("Servo Boards: items", ko.toJS(self.servoBoards.boards));     
             
             
-        }; 
+        };
+        
+
         
         self.onAfterBinding = function() {
             initializeI2cBoardBindings();
@@ -199,7 +226,7 @@ $(function() {
             initializeFilamentDropdown(".select-filament-class", data);
             initializeFilamentDropdown(".select-filament-dropdown", data);
             
-
+            self.scanForInUseI2cAddresses();
 
         }
         

@@ -102,6 +102,20 @@ function Actuator(data, refreshRateInSeconds) {
         self.detailsVisible(!self.detailsVisible());
     };
 
+    self.getInUseI2cAddresses = function() {
+        
+        var addresses = new Set();
+        addresses.add(self.pusher.boardToInt());
+        addresses.add(self.fixed_clamp.boardToInt());
+        addresses.add(self.moving_clamp.boardToInt());
+        addresses.add(self.pusher_limit_switch.boardToInt());
+        addresses.add(self.filament_sensor.boardToInt());
+
+        console.log("addresses", addresses);
+        return addresses;
+        
+    }
+
 
     self.hashCode = function() {
         return simpleHash(
@@ -109,7 +123,8 @@ function Actuator(data, refreshRateInSeconds) {
             self.fixed_clamp.hashCode(),
             self.moving_clamp.hashCode(),
             self.pusher.hashCode(),
-            self.pusher_limit_switch.hashCode()
+            self.pusher_limit_switch.hashCode(),
+            self.filament_sensor.hashCode()
         );
     };
      
@@ -126,7 +141,7 @@ function Actuator(data, refreshRateInSeconds) {
         };
     };  
     
-    self.getDataToBuildNextAcuator = function() {
+    self.getDataToBuildNextActuator = function() {
         return {
             id: "new_actuator",
             pusher: {

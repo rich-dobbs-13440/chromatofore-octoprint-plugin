@@ -2,6 +2,89 @@
 
 # Developer Notes
 
+## Octopi Configuration
+
+The development configuration is hard-coded in deploy.sh.
+
+Currently, the configuration used is:
+
+remote_user="rld"
+remote_system="chromatofore.local"
+
+
+
+### Update for WiFi SSID Changes
+
+The SSID for your Wi-Fi network, along with its password, 
+is typically stored in a file named octopi-wpa-supplicant.txt 
+on the SD card used for OctoPi, the Raspberry Pi distribution 
+for controlling 3D printers. This file is where you set up your 
+Wi-Fi network details to enable your Raspberry Pi to connect 
+to your network.  
+
+### Manual Raspberry PI steps
+
+For issues related to I2C communication on a Raspberry Pi, 
+especially when working with OctoPrint or similar applications, 
+there are a few key settings and configurations that you would 
+typically need to adjust manually. These settings are usually 
+not stored on the SD card but rather configured directly on the 
+Raspberry Pi's operating system. Here are the steps you might 
+need to take:
+
+#### Enable I2C Interface:
+
+You need to enable the I2C interface on the Raspberry Pi. This is 
+usually done through the raspi-config tool.
+
+Access this tool via the command line (sudo raspi-config), 
+navigate to the interfacing options, and enable I2C.
+
+#### Adjust I2C Bus Speed:
+
+Modifying the I2C bus speed is done by editing the /boot/config.txt file.
+You can do this by running sudo nano /boot/config.txt and adding a 
+line like dtparam=i2c_arm_baudrate=50000 (replace 50000 with the desired speed in Hz).
+
+#### Change Permissions:
+
+You might have modified permissions to allow certain users 
+or groups to access the I2C devices without needing root privileges.
+This can involve adding your user (typically pi) to the i2c 
+group with sudo usermod -a -G i2c pi.
+You might also need to modify udev rules for I2C device access. 
+This involves creating or editing a file in /etc/udev/rules.d/ 
+to set the appropriate permissions for the I2C devices.
+
+
+#### Install I2C Tools:
+
+If you haven’t already, you might need to install I2C tools 
+on your Raspberry Pi with sudo apt-get install i2c-tools.
+
+#### Check for Conflicts:
+
+Ensure that no other services or configurations are conflicting 
+with the I2C settings. This might involve checking other scripts 
+or programs that start on boot.
+
+#### Reboot the Raspberry Pi:
+
+After making these changes, reboot your Raspberry Pi to ensure 
+all settings are applied correctly.
+
+#### Verify I2C Functionality:
+
+You can verify if the I2C devices are being detected correctly 
+by using the command 
+
+i2cdetect -y 1.
+
+Remember, these changes are made to the Raspberry Pi's system 
+configuration and are not part of the OctoPrint settings 
+stored on the SD card. If you migrate to a new Raspberry Pi, 
+you'll need to replicate these configurations manually.
+
 ## Development and Deployment Process
 
 ### Development in Visual Studio Code

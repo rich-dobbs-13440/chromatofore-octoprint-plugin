@@ -40,7 +40,7 @@ function I2cBoard(parent, data, jumperCount) {
     // These variable are the persistent state of the board:
     self.address = ko.observable();     
     self.note = ko.observable(defaultNote);    
-    // These variable are 
+    // These variable are not part of the persistent state:
     self.parent = parent;
     console.log(self.parent);    
     self.jumperCount = jumperCount;    
@@ -48,6 +48,10 @@ function I2cBoard(parent, data, jumperCount) {
     self.addressInput = ko.observable();
     self.isFoundOnI2cBus = ko.observable(false); 
 
+    self.isInUse = ko.observable(false); 
+    // self.isInUse = ko.computed(function() {
+    //     return self.parent.isInUse(self.address());
+    // });    
 
     self.checkIfOnBus = function() {
         checkI2cAddress(self.address(), 
@@ -129,19 +133,19 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     self.baseAddress = baseAddress;
     self.addressRange = addressRange;
     self.jumperCount = Math.round(Math.log2(self.addressRange));
-   
+    self.inUseAddresses = new Set();
 
     self.refreshRateInSeconds = refreshRateInSeconds;
     self.addressMap = {};
     self.items = ko.observableArray([]);
+
+   
 
     self.populateAddressMap = function() {
         self.items().forEach(function(board) {
             self.addressMap[board.address()] = board;
         });
     };
-
-
 
     self.childAddressHasChanged = function() {
         self.populateAddressMap();
@@ -172,7 +176,8 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             self.sort();
             console.log("Items after sort:", self.items());
         } else {
-            var msg = "Can't add board.  Unable to next available address in range for baseAddress:" +  toI2cAddress(self.baseAddress) + " range: " + toI2cAddress(self.addressRange);
+            var msg = "Can't add board.  Unable to next available address in range for baseAddress:" 
+                +  toI2cAddress(self.baseAddress) + " range: " + toI2cAddress(self.addressRange);
             console.log(msg);
             new PNotify({
                 title: 'Unable to Add Board',
@@ -183,6 +188,7 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
     }; 
 
     self.removeBoard = function(board) {
+        console.log("In removeBoard");
         delete self.addressMap[board.address()];
         self.items.remove(board);
     };
@@ -219,6 +225,16 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
         return list;
     });
 
+    self.UpdateInUseAddresses = function(inUseAddresses){
+        console.log("In UpdateInUseAddresses", inUseAddresses);
+
+        ko.utils.arrayForEach(self.items(), function(item) {
+            console.log("item.address()", item.address(), "inUseAddresses.has(item.address())", inUseAddresses.has(item.address()));
+
+            item.isInUse(inUseAddresses.has(item.address()));
+        }); 
+    }
+
  
 
 
@@ -241,7 +257,9 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             console.log("Board found for address:", toI2cAddress(address));
             board.isFoundOnI2cBus(true); 
         } else {
-            console.log("No board found for address:", toI2cAddress(address), "which is on bus.  Automatically added it:");
+            console.log(
+                "No board found for address:", toI2cAddress(address), 
+                "which is on bus.  Automatically added it:");
             self.addBoard(address);
         }        
     }
@@ -301,9 +319,11 @@ function I2cBoards(boardData, baseAddress, addressRange, refreshRateInSeconds) {
             clearInterval(self.refreshIntervalId);
             self.refreshIntervalId = null;
         }
+
+        console.log("self.refreshRateInSeconds()", self.refreshRateInSeconds());
     
         // Set up the new interval
-        if (self.refreshRateInSeconds() < 100000) {  // 100000 as the "never" value, just like in your LimitSwitch class
+        if (self.refreshRateInSeconds() < 100000) {  // 100000 is the "never" value
             self.refreshIntervalId = setInterval(function() {
                 self.conditionallyScanForBoards();
             }, self.refreshRateInSeconds() * 1000);

@@ -6,8 +6,12 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options: $root.servoBoards.augmentedAddresses(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind="options: $root.servoBoards.augmentedAddresses(board), 
+                    value: board,  
+                    optionsCaption: 'Choose...',
+                    event: { change: $root.scanForInUseI2cAddresses }">
         </select>
+
     </td> 
     <td>
         <select class="i2c-channel" data-bind="options: availableServoChannels, value: channel "></select>
@@ -66,7 +70,11 @@
     <td><div data-bind="text: role"></div></td> 
     <td>    
         <select class="i2c-address"
-            data-bind= "options:  $root.gpioBoards.augmentedAddresses(board), value: board,  optionsCaption: 'Choose...'">
+            data-bind= "options:  $root.gpioBoards.augmentedAddresses(board), 
+                    value: board,  
+                    optionsCaption: 'Choose...',
+                    event: { change: $root.scanForInUseI2cAddresses }"
+            >
         </select>
     </td> 
     <td>
@@ -91,6 +99,7 @@
                 <th>Jumpers</td>
                 <th>Address</th>
                 <th>On Bus</th>
+                <th>In Use</th>
                 <th>Note</th>
                 <th>Actions</th>
             </tr>
@@ -112,12 +121,18 @@
                     <span data-bind="text: isFoundOnI2cBus() ? '&#xf00c;' : '&#xf00d;', css: isFoundOnI2cBus() ?  'item-found': 'item-not-found'"></span>
                     </div>                    
                 </td>
+                <td>
+                    <div class="fas item-status">
+                    <span data-bind="text: isInUse() ? '&#xf00c;' : '&#xf00d;', css: isInUse() ?  'item-found': 'item-not-found'"></span>
+                    </div>                    
+                </td>                
                 <td> 
                     <input type="text" class="i2c-note" data-bind="value: note" placeholder="Purpose for which actuators?">
                 </td>
                 <td>
                     <button data-bind="click: checkIfOnBus">Validate</button>
-                    <button data-bind="click: function() { board = $data; $parent.removeBoard(board); }"">Remove</button>
+                    <button data-bind="click: function() { board = $data; $parent.removeBoard(board); }, disable: isInUse()">Remove</button>
+
                 </td>
             </tr>
         </tbody>
@@ -146,7 +161,7 @@
     }">
     </div>
 
-    <button data-bind="click: function() { gpioBoards.addBoard(); }">Add Servo Board</button>
+    <button data-bind="click: function() { gpioBoards.addBoard(); }">Add GPIO Board</button>
 
 
 
@@ -168,6 +183,12 @@
 
 
 
+    <div style="display: flex; align-items: center;">
+        <label for="scanRefreshRateSelect">Scan Refresh Rate in Seconds</label>
+        <select id="refreshRateSelect" style="margin-right: 10px; margin-left: 10px" 
+                data-bind="options: scanRefreshRates, optionsText: 'text', optionsValue: 'value', value: selectedScanRefreshRateInSeconds">
+        </select>
+        </div>
 
 
     <h5>Earwig Filament Actuators</h5>
