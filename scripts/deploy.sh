@@ -15,7 +15,7 @@ remote_user="rld"
 remote_system="chromatofore.local"
 ssh_user=$remote_user@$remote_system 
 remote_dir="~/chromatofore-octoprint-plugin"
-delete_on_failure=true
+delete_on_failure=false
 
 # Get the directory where the script is located
 script_dir=$(dirname "$0")

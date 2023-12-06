@@ -6,6 +6,7 @@ from smbus2 import SMBus
 class Pca9685ServoDriverBoard:
 
     common_bus_number = 1 # Use bus number 1 for Raspberry Pi 3 and newer
+
     instances: Dict[int, 'Pca9685ServoDriverBoard'] = {}
     logger = None
 

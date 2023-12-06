@@ -191,7 +191,27 @@
         </div>
 
 
-    <h5>Earwig Filament Actuators</h5>
+    <h5>Extruder Release</h5>
+    <div>For filament to be loaded or unloaded, the extruder release lever must be disengaged.
+        The system automates this operation.
+    </div>
+
+    <table class="actuator-components"> 
+        <thead>
+            <tr> 
+                <th>Component</th> 
+                <th>Board</th> 
+                <th>Channel</th> 
+                <th>Minimum</th> 
+                <th>Maximum</th> 
+                <th>Actions</th> 
+            </tr> 
+        </thead>
+        <tr data-bind="template: {name: 'servo-template-row-1', data: release_lever }"></tr>        
+    </table>
+
+
+    <h5>Filament Actuators</h5>
     <div>The actuators can load and unload filament from the 3d printer.  
         This requires the extruder to be disenaged.  
         Unloading filament requires the hot end to be at temperature.</div>
