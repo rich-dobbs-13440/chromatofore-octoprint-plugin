@@ -154,7 +154,6 @@ $(function() {
             
             // Now inUseAddresses contains all unique addresses from all actuators
             console.log("Combined Addresses: ", Array.from(inUseAddresses));
-            //self.servoBoards.inUseAddresses = inUseAddresses;
             self.gpioBoards.UpdateInUseAddresses(inUseAddresses);
             self.servoBoards.UpdateInUseAddresses(inUseAddresses);
             
@@ -183,6 +182,10 @@ $(function() {
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
 
             console.log("self.filaments.sortedByDisplayName()", self.filaments.sortedByDisplayName());
+
+
+            var releaseLeverData = ko.toJS(self.pluginSettings.release_lever);
+            self.releaseLever = new ReleaseLever(releaseLeverData);
 
 
             // For Actuators
@@ -314,8 +317,6 @@ $(function() {
         
         self.goToChromatoforeSettings = function() {
             console.log("self.settingsViewModel:", self.settingsViewModel);
-            //self.settingsViewModel.settingsDialog.
-            //self.settingsViewModel.activeTab('plugin_chromatofore');
         };
         
     }

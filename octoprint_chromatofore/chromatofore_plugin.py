@@ -7,6 +7,7 @@ import flask
 import octoprint.plugin
 from smbus2 import SMBus
 
+from .release_lever import ReleaseLever, default_release_lever
 from .actuators import Actuators, default_actuators
 from .filament_sensors import FilamentSensors
 from .pca9685_servo_driver_board import Pca9685ServoDriverBoard
@@ -285,6 +286,7 @@ class ChromatoforePlugin(
         return {
             "gpio_boards": [0x20, 0x21],
             "servo_driver_boards": default_servo_driver_boards,
+            "release_lever": default_release_lever,
             "actuators": default_actuators
         }
     
@@ -292,6 +294,8 @@ class ChromatoforePlugin(
         self._logger.info("In on_settings_save");
         # Figure out structure of data here:
         # self._logger.info(data);
+        release_lever_data = data.get('release_lever')
+        self.releaseLever = ReleaseLever(release_lever_data)
         actuators_data = data.get('actuators') 
         if actuators_data is None:
             self._logger.error("No actuators key found.  Just creating an empty list ")
@@ -319,7 +323,8 @@ class ChromatoforePlugin(
                 "js/limitSwitch.js", 
                 "js/servo.js", 
                 "js/filaments.js",
-                "js/actuator.js", 
+                "js/actuator.js",
+                "js/releaseLever.js",
                 "js/i2cBoard.js",
                 "js/chromatofore.js"
                 ],

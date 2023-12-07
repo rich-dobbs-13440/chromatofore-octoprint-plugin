@@ -207,7 +207,10 @@
                 <th>Actions</th> 
             </tr> 
         </thead>
-        <tr data-bind="template: {name: 'servo-template-row-1', data: release_lever }"></tr>        
+        <tbody> 
+            <tr data-bind="template: {name: 'servo-template-row-1', data: releaseLever.servo }"></tr>
+            <tr data-bind="template: {name: 'servo-template-row-2', data: releaseLever.servo }"></tr>            
+        </tbody>             
     </table>
 
 
