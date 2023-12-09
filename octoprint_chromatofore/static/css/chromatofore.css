@@ -393,5 +393,27 @@ select.select-filament-dropdown {
 }
 
 
+.toggle-button {
+    display: inline-block;
+    background-color: #ccc; /* Default background color */
+    border: 2px solid #999; /* Default border style */
+    border-radius: 2px; /* Rounded corners */
+    padding: 5px; /* Add padding for better aesthetics */
+}
+  
+.toggle-switch {
+    width: 40px;
+    height: 20px;
+    background-color: #fff; /* Button background color */
+    border-radius: 50%;
+    transition: background-color 0.2s ease; /* Smooth transition effect */
+}
+  
+  /* Define the pressed state styles */
+.toggle-button.active .toggle-switch {
+    background-color: #00ff00; /* Change the background color when pressed */
+}
+
+
 
 

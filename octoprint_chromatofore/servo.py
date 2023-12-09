@@ -55,9 +55,6 @@ class Servo:
         except ValueError as e:
             error_message = f"Value error encountered: {str(e)} extracted_data: {extracted_data}"
         return error_message
-
-        
-
         
         pwm = Adafruit_PCA9685.PCA9685(address=board, busnum=Servo.bus_number)
         pwm.set_pwm_freq(Servo.SERVO_FREQ)  # Set the PWM frequency
@@ -71,11 +68,19 @@ class Servo:
         # If everything succeeds
         return None
     
-    # @staticmethod
-    # def rest_servo(board: int, channel: int):
-    #     """Set the servo at rest."""
-    #     pwm = Adafruit_PCA9685.PCA9685(address=board, busnum=Servo.bus_number)
-    #     pwm.set_pwm(channel, 0, 0)          
+    @staticmethod
+    def rest_servo(board: int, channel: int) -> Optional[str]:
+        """Set the servo at rest."""
+        temp_servo =   Servo({
+            "board": board,
+            "channel": channel,
+            "max_angle": 180,
+            "min_angle": 0,
+            "role": "test_servo"
+        })
+        error_message = None  
+        temp_servo.at_rest = True
+        return error_message       
 
     def __init__(self, data):
         self.board = data.get("board")

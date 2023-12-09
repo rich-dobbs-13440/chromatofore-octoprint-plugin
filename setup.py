@@ -43,7 +43,6 @@ plugin_license = "AGPLv3"
 plugin_requires = [
     "smbus2>=0.4.3", 
     "adafruit-pca9685"
-    #"adafruit-circuitpython-pca9685"
 ]
 
 

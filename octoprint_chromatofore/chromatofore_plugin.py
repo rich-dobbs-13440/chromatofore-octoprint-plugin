@@ -46,8 +46,9 @@ class ChromatoforePlugin(
         self._logger.info(f"self.get_update_information(): {self.get_update_information()}") 
         Pcf8574GpioExtenderBoard.logger = self._logger
         Pca9685ServoDriverBoard.logger = self._logger
-        self.actuators = Actuators(self._logger, self._settings.get(["actuators"]));
+        self.actuators = Actuators(self._logger, self._settings.get(["actuators"]))
         self._logger.info(f"self.actuators:\n {self.actuators}")
+        self.release_lever = ReleaseLever(self._logger, self._settings.get(["release_lever"]))
         self.actuators.dump()
         self._logger.info(f"self.get_plugin_data_folder(): {self.get_plugin_data_folder()}")
   
@@ -90,17 +91,19 @@ class ChromatoforePlugin(
             "read_limit_switch": ["board", "channel"], 
             "shutdown_chromatofore_plugin": [],
             "set_servo_angle": ["board", "channel", "angle"],
+            "rest_servo": ["board", "channel"],
             "load_filament":["actuator"],
             "unload_filament":["actuator"],
             "advance_filament":["actuator"], 
             "retract_filament":["actuator"], 
             "cancel_filament_move":["actuator"],
             "check_if_task_is_running": [], 
-            "fetch_filaments": []
-           
+            "fetch_filaments": [],
+            "release_extruder_lever": [],
+            "engage_extruder_lever": [],
         }
     
-    # Well also define the optional parameters for each command
+    # We'll also define the optional parameters for each command
     def get_api_optional_parameters(self): 
         return {
             "check_if_on_bus": [],
@@ -108,11 +111,14 @@ class ChromatoforePlugin(
             "read_limit_switch": [],
             "shutdown_chromatofore_plugin": [],
             "set_servo_angle": [],
+            "rest_servo": [],
             "load_filament": ["speed"],
             "unload_filament": ["speed"],
             "advance_filament": ["stop_at", "speed"],
             "retract_filament": ["stop_at", "speed"],
             "cancel_filament_move":[],
+            "release_extruder_lever": [],
+            "engage_extruder_lever": [],
         } 
 
     def get_parameter_types(self):
@@ -126,6 +132,8 @@ class ChromatoforePlugin(
             ("set_servo_angle", "board"): int,
             ("set_servo_angle", "channel"): int,
             ("set_servo_angle", "angle"): int,
+            ("rest_servo", "board"): int,
+            ("rest_servo", "channel"): int,
             ("unload_filament", "actuator"): str,
             ("unload_filament", "speed"): dict,
             ("advance_filament", "speed"): dict,
@@ -167,7 +175,14 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"), angle=extracted_data.get("angle"))
             else:
                 return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"), angle=extracted_data.get("angle"))
-
+            
+        elif command == "rest_servo":
+            error_message = Servo.rest_servo(board=extracted_data.get("board"), channel=extracted_data.get("channel"))
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, board=extracted_data.get("board"), channel=extracted_data.get("channel"))
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, reason=error_message, board=extracted_data.get("board"), channel=extracted_data.get("channel"))
+            
         elif command == "read_limit_switch":
             try: 
                 pin_state = Pcf8574GpioExtenderBoard.read_channel(extracted_data.get("board"), extracted_data.get("channel"))
@@ -183,7 +198,20 @@ class ChromatoforePlugin(
         
         elif command == "check_if_task_is_running":
             return jsonify_no_cache(HTTPStatus.OK, success=True, task_is_running = self.actuators.task_is_running())
-
+        
+        elif command == "release_extruder_lever":
+            error_message = self.release_lever.release()
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, command="release_extruder_lever")
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, command="release_extruder_lever", reason=error_message)
+        
+        elif command == "engage_extruder_lever":
+            error_message = self.release_lever.engage()
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, command="engage_extruder_lever")
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, command="engage_extruder_lever", reason=error_message)
                
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament", "cancel_filament_move"]:
             error_message = self.actuators.handle_command(
@@ -295,7 +323,7 @@ class ChromatoforePlugin(
         # Figure out structure of data here:
         # self._logger.info(data);
         release_lever_data = data.get('release_lever')
-        self.releaseLever = ReleaseLever(release_lever_data)
+        self.release_lever = ReleaseLever(self._logger, release_lever_data)
         actuators_data = data.get('actuators') 
         if actuators_data is None:
             self._logger.error("No actuators key found.  Just creating an empty list ")

@@ -17,7 +17,8 @@
         <select class="i2c-channel" data-bind="options: availableServoChannels, value: channel "></select>
     </td>
     <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: min_angle"></td> 
-    <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td> 
+    <td><input class="angle-edit-width" type="number", min="0", max="180", data-bind="value: max_angle"></td>
+    <td><button data-bind="click: restServo">Rest</button></td> 
 </script>
 
 <script type="text/html" id="servo-template-row-2">

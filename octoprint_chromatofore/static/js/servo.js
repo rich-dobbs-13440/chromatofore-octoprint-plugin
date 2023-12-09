@@ -42,29 +42,31 @@ function Servo(data) {
         self.current_angle(newVal);
         console.log("After update,  current_angle:", self.current_angle());       
         
-    OctoPrint.simpleApiCommand("chromatofore", "set_servo_angle", {
-            board: self.boardToInt(),
-            channel: self.channelToInt(),
-            angle: parseInt(self.current_angle())
-        }).done(function(response) {
-            let currentTime = new Date().toLocaleTimeString(); 
+        OctoPrint.simpleApiCommand("chromatofore", "set_servo_angle", {
+                board: self.boardToInt(),
+                channel: self.channelToInt(),
+                angle: parseInt(self.current_angle())
+            }).done(function(response) {
+                let currentTime = new Date().toLocaleTimeString(); 
 
-            if (response.success === false) {
-                self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${response.reason || "No additional details available"}`);
+                if (response.success === false) {
+                    self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${response.reason || "No additional details available"}`);
+                    self.isApiError(true);
+                    return;
+                }                
+                self.apiResponse(`${currentTime}: ${response.message || "Successfully set servo angle."}`);
+                self.isApiError(false);
+            }).fail(function(jqXHR) {
+                let currentTime = new Date().toLocaleTimeString(); 
+                let responseText = jqXHR.responseText || "No additional details available";  
+                self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${responseText}`);
                 self.isApiError(true);
-                return;
-            }                
-            self.apiResponse(`${currentTime}: ${response.message || "Successfully set servo angle."}`);
-            self.isApiError(false);
-        }).fail(function(jqXHR) {
-            let currentTime = new Date().toLocaleTimeString(); 
-            let responseText = jqXHR.responseText || "No additional details available";  
-            self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${responseText}`);
-            self.isApiError(true);
-        });
+            }
+        );
                   
     });
-      
+
+
     self.availableServoChannels = servoChannels;
     
     self.toData = function() {
@@ -85,4 +87,28 @@ function Servo(data) {
             parseInt(self.max_angle())
         );
     };
+
+    self.restServo = function() {
+        console.log("Got into restServo");
+        OctoPrint.simpleApiCommand("chromatofore", "rest_servo", {
+            board: self.boardToInt(),
+            channel: self.channelToInt()
+        }).done(function(response) {
+            let currentTime = new Date().toLocaleTimeString(); 
+
+            if (response.success === false) {
+                self.apiResponse(`${currentTime}: Failed to rest servo. Details: ${response.reason || "No additional details available"}`);
+                self.isApiError(true);
+                return;
+            }                
+            self.apiResponse(`${currentTime}: ${response.message || "Successfully rested servo."}`);
+            self.isApiError(false);
+        }).fail(function(jqXHR) {
+            let currentTime = new Date().toLocaleTimeString(); 
+            let responseText = jqXHR.responseText || "No additional details available";  
+            self.apiResponse(`${currentTime}: Failed to set servo angle. Details: ${responseText}`);
+            self.isApiError(true);
+        });
+
+    }     
 }   

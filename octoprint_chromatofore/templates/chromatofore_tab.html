@@ -14,8 +14,18 @@
     }, 100); 
 }">Go to Chromatofore Settings</a>
 
+<h2>Extruder Release Lever</h2>
+<div>
+    <button id="extruderReleaseButton" 
+        data-bind="click: function() {releaseLeverCommand('release_extruder_lever'); }"
+            >Release</button>
+    <button id="extruderEngageButton" 
+        data-bind="click: function() {releaseLeverCommand('engage_extruder_lever'); }"
+            >Engage</button>
+</div>
 
-<h2>Earwig Filament Actuators</h2>
+
+<h2>Filament Actuators</h2>
 <div>The actuators can load and unload filament from the 3d printer.  
     This requires the extruder to be disenaged.  
     Unloading filament requires the hot end to be at temperature.
