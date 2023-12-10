@@ -101,6 +101,7 @@ class ChromatoforePlugin(
             "fetch_filaments": [],
             "release_extruder_lever": [],
             "engage_extruder_lever": [],
+            "center_extruder_lever": [],
         }
     
     # We'll also define the optional parameters for each command
@@ -118,8 +119,8 @@ class ChromatoforePlugin(
             "retract_filament": ["stop_at", "speed"],
             "cancel_filament_move":[],
             "release_extruder_lever": [],
-            "engage_extruder_lever": [],
-        } 
+            "center_extruder_lever": [],
+       } 
 
     def get_parameter_types(self):
         # Define the expected data types for each command and parameter combination
@@ -212,6 +213,13 @@ class ChromatoforePlugin(
                 return jsonify_no_cache(HTTPStatus.OK, success=True, command="engage_extruder_lever")
             else:
                 return jsonify_no_cache(HTTPStatus.OK, success=False, command="engage_extruder_lever", reason=error_message)
+            
+        elif command == "center_extruder_lever":
+            error_message = self.release_lever.center()
+            if error_message is None:
+                return jsonify_no_cache(HTTPStatus.OK, success=True, command="center_extruder_lever")
+            else:
+                return jsonify_no_cache(HTTPStatus.OK, success=False, command="center_extruder_lever", reason=error_message)            
                
         elif command in ["load_filament", "unload_filament", "advance_filament", "retract_filament", "cancel_filament_move"]:
             error_message = self.actuators.handle_command(

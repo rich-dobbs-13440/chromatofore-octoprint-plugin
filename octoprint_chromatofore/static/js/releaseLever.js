@@ -22,8 +22,13 @@ releaseLeverCommand = function(command) {
                 $('#extruderEngageButton').prop('disabled', false);
             } else if (command == 'engage_extruder_lever') {
                 $('#extruderReleaseButton').prop('disabled', false);
+            } else if (command == 'center_extruder_lever') {
+                $('#extruderReleaseButton').prop('disabled', false);    
+                $('#extruderEngageButton').prop('disabled', false);            
             } else {
                 console.error(`Internal error.  Unhandled command ${command}`);
+                $('#extruderReleaseButton').prop('disabled', false);    
+                $('#extruderEngageButton').prop('disabled', false);                  
             }
         } else {
             console.log("Got response from simpleApiCommand that did not succeed", response, context_message);

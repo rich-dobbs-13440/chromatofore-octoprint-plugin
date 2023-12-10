@@ -19,6 +19,9 @@
     <button id="extruderReleaseButton" 
         data-bind="click: function() {releaseLeverCommand('release_extruder_lever'); }"
             >Release</button>
+    <button id="assembleActuatorButton" 
+            data-bind="click: function() {releaseLeverCommand('center_extruder_lever'); }"
+                >Center</button> 
     <button id="extruderEngageButton" 
         data-bind="click: function() {releaseLeverCommand('engage_extruder_lever'); }"
             >Engage</button>

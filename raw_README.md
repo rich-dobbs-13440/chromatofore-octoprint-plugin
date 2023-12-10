@@ -53,19 +53,23 @@ On the settings page, users can specify the assembled configuration of the filam
    - Display board jumpers.  
 
 **Version 0.7**: 
-   - Current focus of efforts.
+   - Mostly completed by 9/21/2023 when further efforts went into hiatus for moving.
    - Logic and UI for loading/unloading filaments in the exchanger.
    - Logic and UI for loading/unloading filaments in the 3D printer.
 
 **Version 0.8**: 
+   - Logic and UI for engaging and disengaging the extruder for a CR-6 SE 3d printer.
+   - Revise logic and UI to handle changes with the Mantis filament actuator.
+
+**Version 0.9**: 
    - Logic for automated filament changes triggered by gcode events.
    - Guidance on modifying gcode for triggering filament change events.
 
-**Version 0.9**: 
+**Version 0.10**: 
    - Logic for detecting filament jams during loading.
    - Logic for detecting jams when removing filament from the printer.
 
-**Version 0.10**: 
+**Version 0.11**: 
    - Finalize features for the Minimum Viable Product (MVP) release.
 
 **Version 1.00**:
@@ -78,9 +82,22 @@ On the settings page, users can specify the assembled configuration of the filam
 
 The Chromatofore plugin is currently at **Version: {{CURRENT_VERSION}}**. 
 
-### Current Sprint - Start: 9/12/2023 End: 9/17/2023 
+### Current Sprint - Start: 12/1/2023 End: 12/15/2023 
 
-Intent: Work on GUI and logic for loading and unloading filament.
+Intent: GUI and logic for extruder release lever for the CR 6 SE.  
+
+
+### Past Sprints
+
+#### Hiatus for Moving
+
+From late September to end of November, there was not significant work
+on the Octoprint Plugin, because of the necessity to move into a new
+workspace.  Once moved in, the initial efforts were to create
+a new actuator geometry (Mantis instead of Earwig) and to create an actuator for the extruder
+release lever (Wrasse) for the Creality CR 6 SE 3d printer.
+
+#### GUI and Logic for loading and unload - Start: 9/12/2023 End: 9/17/2023 
 
 The GUI shows buttons for loading, unloading, and stepping foreback or backward.
 
@@ -92,9 +109,8 @@ If opening up multiple browsers, the progress dialog must be shown.
 The progress dialog should be modal within the tab. 
 
 Get rid of explicit delays for servo movements, but sweep at a specified rate
-from the current location to target location.  
+from the current location to target location. 
 
-### Past Sprints
 
 #### Intent: Complete Version 0.6 - Start: 9/4/2023 End:  9/11/2023
 

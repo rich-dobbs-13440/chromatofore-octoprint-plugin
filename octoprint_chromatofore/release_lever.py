@@ -15,6 +15,8 @@ class ReleaseLever:
         self.servo = Servo(data.get("servo"))
         self.release_position = 1
         self.engage_position = 0
+        self.center_position =  0.5
+
 
     def wait_then_rest(self):
         # Under no circumstances, should it take more than 5 seconds 
@@ -40,7 +42,11 @@ class ReleaseLever:
         thread = threading.Thread(target=self.wait_then_rest)
         thread.start()
 
-
+    def center(self):
+        self.logger.info("Got to center command in ReleaseLever")
+        self.servo.position = self.center_position
+        thread = threading.Thread(target=self.wait_then_rest)
+        thread.start()
 
 default_release_lever = {
     "model": "wrasse",
