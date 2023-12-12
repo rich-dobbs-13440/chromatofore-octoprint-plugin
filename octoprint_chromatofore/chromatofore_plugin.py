@@ -329,9 +329,13 @@ class ChromatoforePlugin(
     def on_settings_save(self, data):
         self._logger.info("In on_settings_save");
         # Figure out structure of data here:
-        # self._logger.info(data);
+        self._logger.info(f"on_settings_save data: {data}");
         release_lever_data = data.get('release_lever')
-        self.release_lever = ReleaseLever(self._logger, release_lever_data)
+        self._logger.info(f"on_settings_save: release_lever_data: {release_lever_data}")
+        # Kludge, the release lever is stored in an array, even though this is a 
+        # singleton.  This seems to be necessary to stop the Octoprint settings
+        # transfer from optimizing away not transferring data that is not changed.
+        self.release_lever = ReleaseLever(self._logger, release_lever_data[0])
         actuators_data = data.get('actuators') 
         if actuators_data is None:
             self._logger.error("No actuators key found.  Just creating an empty list ")
@@ -340,12 +344,15 @@ class ChromatoforePlugin(
             self.actuators = Actuators(self._logger, actuators_data)
         # Add or update unique ids on the actuators
         data['actuators'] = self.actuators.to_data()
+        self._logger.info(f"on_settings_save: data['actuators']: {data['actuators']}")
+        self._logger.info(f" self.release_lever:\n {self.release_lever}") 
+        self._logger.info(f" self.actuators:\n {self.actuators}")         
     
-        # Calling the parent class's implementation of on_settings_save
-        # This will save the settings.
-        super(ChromatoforePlugin, self).on_settings_save(data)
-        
-        self._logger.info(f" self.actuators:\n {self.actuators}") 
+        result = octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        self._logger.info(f" on_settings_save result:\n {result}")  
+        return result
+
+
 
         ##~~ AssetPlugin mixin
 

@@ -150,7 +150,12 @@ $(function() {
                 addressesForActuator.forEach(function(address) {
                     inUseAddresses.add(address);
                 });
-            });  
+            }); 
+            // TODO: Add in the in address used by the release lever
+            var addressesForReleaseLever = self.releaseLever().getInUseI2cAddresses();
+            addressesForReleaseLever.forEach(function(address) {
+                inUseAddresses.add(address);
+            });
             
             // Now inUseAddresses contains all unique addresses from all actuators
             console.log("Combined Addresses: ", Array.from(inUseAddresses));
@@ -180,12 +185,23 @@ $(function() {
         self.onBeforeBinding = function() {
             console.log("Inside onBeforeBinding");
             self.pluginSettings = parameters[0].settings.plugins.chromatofore;
+            console.log("onBeforeBinding self.pluginSettings:",  self.pluginSettings);
 
             console.log("self.filaments.sortedByDisplayName()", self.filaments.sortedByDisplayName());
 
 
             var releaseLeverData = ko.toJS(self.pluginSettings.release_lever);
-            self.releaseLever = new ReleaseLever(releaseLeverData);
+            console.log("releaseLeverData :", releaseLeverData);
+            
+            // Kludge check if releaseLeverData is an array
+            if (Array.isArray(releaseLeverData)) {
+                // If it's an array, use the first element
+                self.releaseLever = ko.observable(new ReleaseLever(releaseLeverData[0]));
+            } else {
+                // If it's not an array, use the entire variable
+                self.releaseLever = ko.observable(new ReleaseLever(releaseLeverData));
+            }
+            
 
 
             // For Actuators
@@ -235,6 +251,7 @@ $(function() {
         
         self.onSettingsBeforeSave = function() {
             console.log("Inside onSettingsBeforeSave");
+            console.log("before update pluginSettings:",  self.pluginSettings);
             {
                 var data = self.gpioBoards.toData();
                 console.log("GPIO board data to save:", data);   
@@ -255,6 +272,12 @@ $(function() {
                 // Update the original settings with the new values
                 self.pluginSettings.actuators(data);
             }
+            {
+                var data = self.releaseLever().toData();
+                console.log("Release lever data to save:", data);
+                // Update the original settings with the new values
+                self.pluginSettings.release_lever([data]);
+            }
 
             const reloadMillis = 2000;
             if (self.settingsWereSaved) {
@@ -263,6 +286,7 @@ $(function() {
                     location.reload();
                 }, reloadMillis);  
             }
+            console.log("after update: pluginSettings:",  self.pluginSettings);
         };
 
         self.loadFilament = function(actuatorHashCode, options) {

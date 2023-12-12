@@ -1,16 +1,19 @@
+var servoInstanceCounter = 0;
+
 function Servo(data) {
     var self = this;
+    self.instance = servoInstanceCounter++;
 
     self.role = ko.observable(data.role);
 
     self.board = ko.observable(toI2cAddress(data.board));
     self.boardToInt = function() {
-        var boardAsInt = parseInt(self.board(), 16);
+        let boardAsInt = parseInt(self.board(), 16);
         return boardAsInt;
     };
     self.channel = ko.observable(toI2cChannel(data.channel));
     self.channelToInt = function() {
-        var channelAsInt = parseInt(self.channel(), 16);
+        let channelAsInt = parseInt(self.channel(), 16);
         return channelAsInt;
     };
     self.min_angle = ko.observable(data.min_angle);
@@ -23,23 +26,23 @@ function Servo(data) {
 
     self.min_angle.subscribe(function(newMin) {
         console.log('min_angle subscription triggered. New min_angle:', newMin, 'Current angle:', self.current_angle(), "Maximum angle:", self.max_angle());
-        newMin = Math.min(newMin, self.current_angle(), self.max_angle());
-        self.min_angle(newMin);
+        let constrainedNewMin = Math.min(newMin, self.current_angle(), self.max_angle());
+        self.min_angle(constrainedNewMin);
         console.log('After update,  min_angle:', self.min_angle());   
     });
     
     self.max_angle.subscribe(function(newMax) {
         console.log('max_angle subscription triggered. New max_angle:', newMax, 'Current angle:', self.current_angle(), 'Minimum angle:', self.min_angle());
-        newMax = Math.max(newMax, self.current_angle(), self.min_angle());
-        self.max_angle(newMax);
+        let constrainedNewMax = Math.max(newMax, self.current_angle(), self.min_angle());
+        self.max_angle(constrainedNewMax);
         console.log("After update,  max_angle:", self.max_angle());           
     });
 
     self.current_angle.subscribe(function(newVal) {
         console.log('current_angle subscription triggered. New current angle:', newVal, 'Minimum angle:', self.min_angle(), "Maximum angle:", self.max_angle());
-        newVal = Math.max(newVal, self.min_angle());
-        newVal = Math.min(newVal, self.max_angle());
-        self.current_angle(newVal);
+        let constrainedNewVal = Math.max(newVal, self.min_angle());
+        constrainedNewVal = Math.min(constrainedNewVal, self.max_angle());
+        self.current_angle(constrainedNewVal);
         console.log("After update,  current_angle:", self.current_angle());       
         
         OctoPrint.simpleApiCommand("chromatofore", "set_servo_angle", {
@@ -68,16 +71,26 @@ function Servo(data) {
 
 
     self.availableServoChannels = servoChannels;
-    
+
     self.toData = function() {
-        return {
+
+        var rv = {
+            instance: self.instance,
             role: self.role(),
             board: self.boardToInt(),
             channel: self.channelToInt(),
-            min_angle: parseInt(self.min_angle()),
-            max_angle: parseInt(self.max_angle())
+            min_angle: parseInt(self.min_angle(), 10),
+            max_angle: parseInt(self.max_angle(), 10),
+            timestamp: new Date()
         };
-    }; 
+        // This is kludge that was added because of observation that the RV didn't match the 
+        // values of the individual attribute assessments, but without it,  the 
+        // values returned  were those when the servo object was created.  Go figure.
+        Object.freeze(rv);
+        console.log("Servo.toData called. JSON.stringify(rv):", JSON.stringify(rv));
+        console.log("Servo.toData called. rv:", rv);
+        return rv;
+    };
     
     self.hashCode = function() {
         return simpleHash(

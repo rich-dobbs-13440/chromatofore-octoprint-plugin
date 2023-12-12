@@ -50,14 +50,37 @@ releaseLeverCommand = function(command) {
         $('#releaseButton').prop('disabled', false);
         $('#engageButton').prop('disabled', false);              
     });
+  
 }
 
 
 
 function ReleaseLever(data) {
     var self = this;
-    console.log('In ReleaseLever');
-    console.log("data:", data);
+    console.log('In ReleaseLever', 'data:', data);
     // The release lever has a single servo:
-    self.servo = new Servo(data.servo);    
+    self.servo = new Servo(data.servo);
+    self.model = data.model;
+    
+    self.hashCode = function() {
+        return simpleHash(
+            self.servo.hashCode(),
+            self.model
+        );
+    };
+
+    self.toData = function() { 
+        return {
+            servo: self.servo.toData(),
+            model: self.model,
+            hash_code : self.hashCode()
+        };
+    };
+    
+    self.getInUseI2cAddresses = function() {
+        var addresses = new Set();
+        addresses.add(self.servo.boardToInt());
+        console.log("addresses", addresses);
+        return addresses;
+    };
 }

@@ -175,9 +175,6 @@ function Actuator(data, refreshRateInSeconds) {
             }
         };
     }
-
-
-
 };   
 
 Actuator.defaultData = {

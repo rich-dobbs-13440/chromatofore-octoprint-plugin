@@ -47,9 +47,11 @@ class ReleaseLever:
         self.servo.position = self.center_position
         thread = threading.Thread(target=self.wait_then_rest)
         thread.start()
+        
 
-default_release_lever = {
+default_release_lever =[{
+    
     "model": "wrasse",
     "servo": {"role": "Release Servo", "board": 0x40, "channel": 0xF, "min_angle":15, "max_angle":165},
-}
+}]
      
